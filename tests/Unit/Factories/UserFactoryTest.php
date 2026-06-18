@@ -1,0 +1,26 @@
+<?php
+
+use App\Enums\UserRole;
+use App\Models\User;
+
+test('student factory assigns the student tier', function () {
+    $user = User::factory()->student()->create();
+
+    expect($user->role)->toBe(UserRole::Student)
+        ->and($user->isStudent())->toBeTrue();
+});
+
+test('club supervisor factory is globally a student', function () {
+    // Club supervision is a club-scoped relationship, not a global tier.
+    $user = User::factory()->clubSupervisor()->create();
+
+    expect($user->role)->toBe(UserRole::Student)
+        ->and($user->isStudent())->toBeTrue();
+});
+
+test('university staff factory assigns the university-staff tier', function () {
+    $user = User::factory()->universityStaff()->create();
+
+    expect($user->role)->toBe(UserRole::UniversityStaff)
+        ->and($user->isUniversityStaff())->toBeTrue();
+});

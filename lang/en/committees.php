@@ -1,0 +1,103 @@
+<?php
+
+return [
+    'title' => 'Committees',
+    'hero_subtitle' => 'Club committees — specialised groups that organise activities and events inside the club',
+    'view' => 'View committee',
+    'list_title' => 'Committees',
+    'create' => 'Create committee',
+    'empty' => 'No committees match your search.',
+    'back_to_list' => 'Back to committees',
+    'manage' => 'Manage committee',
+    'search_placeholder' => 'Search for a committee...',
+    'search_aria' => 'Search committees',
+
+    'sort_options' => [
+        'members' => 'Most members',
+        'newest' => 'Newest',
+        'name' => 'Alphabetical',
+    ],
+
+    'status_labels' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'founding' => 'Founding',
+    ],
+
+    'featured_events' => 'Upcoming featured events',
+    'news' => 'Latest news & articles',
+    'calendar' => 'Committee calendar',
+
+    'join' => 'Join the committee',
+    'join_desc' => 'Join this committee to take part in its activities and events.',
+    'request_to_join' => 'Request to join',
+    'request_pending' => 'Your join request is under review.',
+    'request_rejected_state' => 'Your request to join this committee was rejected.',
+    'is_member' => 'You are a member of this committee.',
+    'join_requires_club' => 'You must be a member of the club first to join its committees.',
+
+    'created' => 'Committee created successfully.',
+    'updated' => 'Committee updated successfully.',
+    'archived' => 'Committee archived.',
+
+    'validation' => [
+        'name' => [
+            'required' => 'The committee name is required.',
+            'unique' => 'A committee with this name already exists in the club.',
+        ],
+        'image' => [
+            'image' => 'The file must be an image.',
+            'mimes' => 'Unsupported image format (jpeg, png or webp).',
+            'max' => 'The image is too large (max 10 MB).',
+        ],
+    ],
+
+    'form' => [
+        'create_title' => 'Create committee',
+        'edit_title' => 'Edit committee',
+        'name' => 'Committee name',
+        'description' => 'Committee description',
+        'status' => 'Status',
+        'image' => 'Committee image',
+        'image_hint' => 'Supported formats: JPEG, PNG, WebP, up to 10 MB.',
+        'remove_image' => 'Remove image',
+        'submit_create' => 'Create',
+        'submit_update' => 'Save changes',
+        'cancel' => 'Cancel',
+    ],
+
+    'dashboard' => [
+        'overview' => 'Overview',
+        'members' => 'Members',
+        'hours' => 'Total hours',
+        'upcoming_events' => 'Upcoming events',
+        'pending_requests' => 'New membership requests',
+        'members_management' => 'Member management',
+        'no_requests' => 'No new membership requests.',
+        'approve' => 'Approve',
+        'reject' => 'Reject',
+        'add_member' => 'Add member',
+        'search_members' => 'Search for a club member...',
+        'add' => 'Add',
+        'current_members' => 'Current members',
+        'no_members' => 'No members yet.',
+        'hours_short' => ':count h',
+        'edit_roles' => 'Edit roles',
+        'remove' => 'Remove',
+        'save' => 'Save',
+        'events_management' => 'Event management',
+        'add_event' => 'Add event',
+        'no_events' => 'No events yet.',
+        'registrations' => ':count registered',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'news_management' => 'News management',
+        'add_news' => 'Add news',
+        'no_news' => 'No news yet.',
+        'export' => 'Export data',
+        'report_members' => 'Members report',
+        'report_hours' => 'Volunteer hours report',
+        'report_attendance' => 'Attendance report',
+        'export_button' => 'Export',
+    ],
+];

@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'title' => 'Student account',
+    'stats' => [
+        'clubs' => 'Joined clubs',
+        'events' => 'Completed events',
+        'certificates' => 'Certificates earned',
+        'hours' => 'Volunteer hours',
+    ],
+    'my_clubs' => 'My clubs',
+    'certificates' => 'My certificates',
+    'upcoming_events' => 'Upcoming events',
+    'news_feed' => 'Latest news',
+    'member_since' => 'Member since :year',
+    'joined_in' => 'Joined :date',
+    'hero_hours_unit' => 'volunteer hours',
+    'likes' => 'Like',
+    'comments' => 'Comment',
+    'share' => 'Share',
+    'join_new_club' => 'Join a new club',
+    'featured_events_interest' => 'Featured events you may like',
+    'volunteer_hour_unit' => 'volunteer hr',
+    'no_certificates' => 'You have no certificates yet.',
+    'certificate_download' => 'Download certificate',
+    'issued_on' => 'Issued on :date',
+    'qr_title' => 'My attendance QR',
+    'qr_hint' => 'Show this to a club attendance scanner to log your presence at activities.',
+    'qr_enlarge' => 'Enlarge',
+];

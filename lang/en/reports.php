@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'members_title' => 'Club members report',
+    'volunteer_hours_title' => 'Volunteer hours report',
+    'attendance_title' => 'Event attendance report',
+    'generated_on' => 'Generated on',
+    'supervisor' => 'Supervisor',
+    'club' => 'Club',
+    'total_hours' => 'Total hours',
+    'total_attendees' => 'Total attendees',
+    'col_name' => 'Name',
+    'col_email' => 'Email',
+    'col_major' => 'Major',
+    'col_join_date' => 'Join date',
+    'col_hours' => 'Hours',
+    'col_status' => 'Status',
+    'col_event' => 'Event',
+    'col_event_date' => 'Event date',
+    'col_approved_at' => 'Approved on',
+    'col_attendees' => 'Attendees',
+    'empty_members' => 'No approved members.',
+    'empty_hours' => 'No volunteer hours recorded.',
+    'empty_attendance' => 'No past events or attendance records.',
+    'event_attendee_count' => ':count attendees',
+    'footer' => 'Ruwad Clubs Platform — Umm Al-Qura University',
+];

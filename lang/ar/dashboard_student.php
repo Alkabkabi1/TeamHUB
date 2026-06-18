@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'title' => 'حساب الطالب',
+    'stats' => [
+        'clubs' => 'الأندية المنضم إليها',
+        'events' => 'الفعاليات المكتملة',
+        'certificates' => 'الشهادات المُحصلة',
+        'hours' => 'ساعات التطوع',
+    ],
+    'my_clubs' => 'أنديتي',
+    'certificates' => 'شهاداتي',
+    'upcoming_events' => 'الفعاليات القادمة',
+    'news_feed' => 'آخر الأخبار',
+    'member_since' => 'عضو منذ :year',
+    'joined_in' => 'انضم في :date',
+    'hero_hours_unit' => 'ساعة تطوعيه',
+    'likes' => 'إعجاب',
+    'comments' => 'تعليق',
+    'share' => 'مشاركة',
+    'join_new_club' => 'انضم لنادي جديد',
+    'featured_events_interest' => 'فعاليات مميزه قد تهمك',
+    'volunteer_hour_unit' => 'ساعه تطوع',
+    'no_certificates' => 'ليس لديك شهادات حتى الآن.',
+    'certificate_download' => 'تنزيل الشهادة',
+    'issued_on' => 'صدرت بتاريخ :date',
+    'qr_title' => 'رمز حضوري',
+    'qr_hint' => 'اعرض هذا الرمز على ماسح الحضور في النادي لتسجيل حضورك في الأنشطة.',
+    'qr_enlarge' => 'تكبير',
+];

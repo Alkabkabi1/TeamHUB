@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('club_membership_roles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('club_membership_id')->constrained()->cascadeOnDelete();
+            $table->string('role');
+            $table->timestamps();
+
+            $table->unique(['club_membership_id', 'role']);
+            $table->index('role');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('club_membership_roles');
+    }
+};

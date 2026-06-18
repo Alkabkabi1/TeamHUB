@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('events', function (Blueprint $table) {
+            // Null = club-level event; set = scoped to a committee within the club.
+            $table->foreignId('committee_id')
+                ->nullable()
+                ->after('club_id')
+                ->constrained()
+                ->nullOnDelete();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('events', function (Blueprint $table) {
+            $table->dropForeign(['committee_id']);
+            $table->dropColumn('committee_id');
+        });
+    }
+};

@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'added' => 'Member added to the club.',
+    'removed' => 'Member removed from the club.',
+    'roles_updated' => 'Member roles updated.',
+    'last_lead' => 'The club must always keep at least one Club Lead.',
+
+    // Dashboard member management UI
+    'section_title' => 'Member management',
+    'add_member' => 'Add new member',
+    'edit_member' => 'Edit member',
+    'current_members' => 'Current members (:count)',
+    'pending_title' => 'Pending membership requests (:count)',
+    'search_placeholder' => 'Search for a member...',
+    'add_search_placeholder' => 'Search users by name or email...',
+    'col_member' => 'Member',
+    'col_major' => 'Major',
+    'col_join_date' => 'Join date',
+    'col_hours' => 'Volunteer hours',
+    'col_roles' => 'Roles',
+    'col_status' => 'Status',
+    'col_actions' => 'Actions',
+    'hours_unit' => ':count hours',
+    'view' => 'View',
+    'remove' => 'Remove',
+    'manage_roles' => 'Manage roles',
+    'save_roles' => 'Save roles',
+    'add' => 'Add',
+    'cancel' => 'Cancel',
+    'approve' => 'Approve',
+    'reject' => 'Reject',
+    'no_results' => 'No matching users found.',
+    'no_members' => 'No members yet.',
+    'empty_hint' => 'Add the club\'s first member to get started.',
+    'no_pending' => 'No pending requests.',
+    'confirm_remove' => 'Remove this member from the club?',
+];

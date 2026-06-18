@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'search_placeholder' => 'Search clubs and events…',
+    'overview' => 'Overview',
+    'view_all' => 'View all',
+    'view' => 'View',
+    'edit' => 'Edit',
+    'accept' => 'Accept',
+    'reject' => 'Reject',
+    'status_active' => 'Active',
+    'status_soon' => 'Coming soon',
+    'export_excel' => 'Export Excel',
+    'export_csv' => 'Export CSV',
+    'this_semester' => 'This semester',
+    'pending_review' => 'Pending review',
+    'in_progress_count' => '2 in progress',
+    'members_this_month' => '+12 this month',
+    'hours_unit' => 'hrs',
+    'registered_of' => ':count registered of :total',
+    'applied_week_ago' => 'Applied a week ago',
+    'applied_days_ago' => 'Applied 2 days ago',
+    'view_registrants' => 'View registrants',
+    'export_reports' => 'Export reports',
+];

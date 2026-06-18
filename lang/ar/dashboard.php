@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'search_placeholder' => 'البحث عن الأنديه والفعاليات...',
+    'overview' => 'نظره عامه',
+    'view_all' => 'عرض الكل',
+    'view' => 'عرض',
+    'edit' => 'تعديل',
+    'accept' => 'قبول',
+    'reject' => 'رفض',
+    'status_active' => 'نشط',
+    'status_soon' => 'قريباً',
+    'export_excel' => 'تصدير Excel',
+    'export_csv' => 'تصدير CSV',
+    'this_semester' => 'هذا الفصل',
+    'pending_review' => 'في انتظار المراجعة',
+    'in_progress_count' => '2 قيد التنفيذ',
+    'members_this_month' => '+12 هذا الشهر',
+    'hours_unit' => 'ساعه',
+    'registered_of' => ':count مسجل من :total',
+    'applied_week_ago' => 'تقدم منذ اسبوع',
+    'applied_days_ago' => 'تقدمت منذ يومين',
+    'view_registrants' => 'عرض المسجلين',
+    'export_reports' => 'تصدير التقارير',
+];

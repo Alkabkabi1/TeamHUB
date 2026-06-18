@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'added' => 'تمت إضافة العضو إلى النادي.',
+    'removed' => 'تمت إزالة العضو من النادي.',
+    'roles_updated' => 'تم تحديث أدوار العضو.',
+    'last_lead' => 'يجب أن يبقى للنادي قائد واحد على الأقل.',
+
+    // Dashboard member management UI
+    'section_title' => 'إدارة الأعضاء',
+    'add_member' => 'إضافة عضو جديد',
+    'edit_member' => 'تعديل العضو',
+    'current_members' => 'الأعضاء الحاليون (:count)',
+    'pending_title' => 'طلبات العضوية المعلقة (:count)',
+    'search_placeholder' => 'البحث عن عضو...',
+    'add_search_placeholder' => 'ابحث عن المستخدمين بالاسم أو البريد...',
+    'col_member' => 'العضو',
+    'col_major' => 'التخصص',
+    'col_join_date' => 'تاريخ الانضمام',
+    'col_hours' => 'ساعات التطوع',
+    'col_roles' => 'الأدوار',
+    'col_status' => 'الحالة',
+    'col_actions' => 'الإجراءات',
+    'hours_unit' => ':count ساعة',
+    'view' => 'عرض',
+    'remove' => 'إزالة',
+    'manage_roles' => 'إدارة الأدوار',
+    'save_roles' => 'حفظ الأدوار',
+    'add' => 'إضافة',
+    'cancel' => 'إلغاء',
+    'approve' => 'قبول',
+    'reject' => 'رفض',
+    'no_results' => 'لا يوجد مستخدمون مطابقون.',
+    'no_members' => 'لا يوجد أعضاء بعد.',
+    'empty_hint' => 'أضف أول عضو للنادي للبدء.',
+    'no_pending' => 'لا توجد طلبات معلقة.',
+    'confirm_remove' => 'إزالة هذا العضو من النادي؟',
+];

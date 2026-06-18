@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'members_title' => 'تقرير أعضاء النادي',
+    'volunteer_hours_title' => 'تقرير ساعات التطوع',
+    'attendance_title' => 'تقرير حضور الفعاليات',
+    'generated_on' => 'تاريخ الإنشاء',
+    'supervisor' => 'المشرف',
+    'club' => 'النادي',
+    'total_hours' => 'إجمالي الساعات',
+    'total_attendees' => 'إجمالي الحضور',
+    'col_name' => 'الاسم',
+    'col_email' => 'البريد الإلكتروني',
+    'col_major' => 'التخصص',
+    'col_join_date' => 'تاريخ الانضمام',
+    'col_hours' => 'الساعات',
+    'col_status' => 'الحالة',
+    'col_event' => 'الفعالية',
+    'col_event_date' => 'تاريخ الفعالية',
+    'col_approved_at' => 'تاريخ الاعتماد',
+    'col_attendees' => 'الحضور',
+    'empty_members' => 'لا يوجد أعضاء معتمدون.',
+    'empty_hours' => 'لا توجد ساعات تطوع مسجلة.',
+    'empty_attendance' => 'لا توجد فعاليات منتهية أو سجلات حضور.',
+    'event_attendee_count' => ':count حاضر',
+    'footer' => 'منصة رُوَّاد الأندية — جامعة أم القرى',
+];
