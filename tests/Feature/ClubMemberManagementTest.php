@@ -60,7 +60,7 @@ test('a membership manager cannot grant a manager role when adding a member', fu
     $this->actingAs($manager)
         ->post(route('clubs.members.store', $club), [
             'user_id' => $student->id,
-            'roles' => [ClubRole::EventsManager->value],
+            'roles' => [ClubRole::MembershipManager->value],
         ])
         ->assertForbidden();
 });
@@ -87,7 +87,7 @@ test('updating member roles requires the manage-club capability', function () {
 
     $this->actingAs($membershipManager)
         ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $target]), [
-            'roles' => [ClubRole::EventsManager->value],
+            'roles' => [ClubRole::MembershipManager->value],
         ])
         ->assertForbidden();
 });
@@ -99,12 +99,12 @@ test('a club lead can promote a member to a manager role', function () {
 
     $this->actingAs($lead)
         ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $target]), [
-            'roles' => [ClubRole::EventsManager->value],
+            'roles' => [ClubRole::MembershipManager->value],
         ])
         ->assertRedirect();
 
     $target->refresh();
-    expect($target->hasClubRole(ClubRole::EventsManager))->toBeTrue()
+    expect($target->hasClubRole(ClubRole::MembershipManager))->toBeTrue()
         ->and($target->hasClubRole(ClubRole::Member))->toBeTrue();
 });
 
@@ -153,7 +153,7 @@ test('roles cannot be managed on a membership belonging to another club', functi
 
     $this->actingAs($lead)
         ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $foreignMembership]), [
-            'roles' => [ClubRole::EventsManager->value],
+            'roles' => [ClubRole::MembershipManager->value],
         ])
         ->assertNotFound();
 });

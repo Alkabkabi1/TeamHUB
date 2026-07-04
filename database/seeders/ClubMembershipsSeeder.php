@@ -19,7 +19,6 @@ class ClubMembershipsSeeder extends Seeder
         $committeeLeader = User::query()->where('email', 'committee-leader@teamhub.test')->first();
         $projectLeader = User::query()->where('email', 'project-leader@teamhub.test')->first();
         $staffMember = User::query()->where('email', 'staff@teamhub.test')->first();
-        $scanner = User::query()->where('email', 'scanner@teamhub.test')->first();
         $student = User::query()->where('email', 'student@teamhub.test')->first();
         $member = User::query()->where('email', 'member@teamhub.test')->first();
         $csClub = Club::query()->where('name', 'نادي الحاسبات')->first();
@@ -35,12 +34,6 @@ class ClubMembershipsSeeder extends Seeder
         // CommitteesSeeder) — holds no club-level management role here.
         if ($committeeLeader && $csClub) {
             $this->seedMembership($committeeLeader, $csClub, [ClubRole::Member], now()->subYear());
-        }
-
-        // A dedicated Attendance Scanner of the CS club: can scan QR codes to
-        // log attendance, but holds no other management capability.
-        if ($scanner && $csClub) {
-            $this->seedMembership($scanner, $csClub, [ClubRole::AttendanceScanner], now()->subYear());
         }
 
         // A plain CS-club member (also used as a committee member).
@@ -84,7 +77,6 @@ class ClubMembershipsSeeder extends Seeder
                 'committee-leader@teamhub.test',
                 'project-leader@teamhub.test',
                 'staff@teamhub.test',
-                'scanner@teamhub.test',
             ])
             ->limit(12)
             ->get();
@@ -96,7 +88,7 @@ class ClubMembershipsSeeder extends Seeder
 
             foreach ($picked as $user) {
                 $joinedAt = now()->subMonths(fake()->numberBetween(1, 36));
-                $roles = fake()->boolean(25) ? [ClubRole::EventsManager] : [ClubRole::Member];
+                $roles = fake()->boolean(25) ? [ClubRole::MembershipManager] : [ClubRole::Member];
 
                 $this->seedMembership($user, $club, $roles, $joinedAt);
             }

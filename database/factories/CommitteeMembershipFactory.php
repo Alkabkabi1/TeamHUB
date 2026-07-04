@@ -57,7 +57,7 @@ class CommitteeMembershipFactory extends Factory
     public function eventsManager(): static
     {
         return $this->afterCreating(
-            fn (CommitteeMembership $membership) => $membership->assignCommitteeRole(CommitteeRole::EventsManager),
+            fn (CommitteeMembership $membership) => $membership->assignCommitteeRole(CommitteeRole::ContentManager),
         );
     }
 

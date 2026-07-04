@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Link, useForm } from '@inertiajs/svelte';
-    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import TaskPriorityBadge from '@/components/tasks/TaskPriorityBadge.svelte';
+    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import { t } from '@/lib/i18n.svelte';
 
     type StaffTask = {
@@ -63,7 +63,7 @@
     </div>
 
     <div class="grid gap-3 sm:grid-cols-3">
-        {#each [{ value: stats.open, label: t('hub.staff.open_tasks') }, { value: stats.due_today, label: t('hub.staff.due_today') }, { value: stats.in_review, label: t('hub.staff.in_review') }] as stat}
+        {#each [{ value: stats.open, label: t('hub.staff.open_tasks') }, { value: stats.due_today, label: t('hub.staff.due_today') }, { value: stats.in_review, label: t('hub.staff.in_review') }] as stat (stat.label)}
             <div class="th-card rounded-2xl p-4">
                 <p class="text-2xl font-bold" style="color: var(--th-text)">
                     {stat.value}

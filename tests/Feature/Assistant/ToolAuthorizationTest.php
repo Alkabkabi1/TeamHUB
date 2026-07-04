@@ -8,17 +8,11 @@ use App\Ai\Tools\GetClubMembers;
 use App\Ai\Tools\GetClubPendingApplications;
 use App\Ai\Tools\GetClubReport;
 use App\Ai\Tools\GetMyApplications;
-use App\Ai\Tools\GetMyRegistrations;
-use App\Ai\Tools\LogVolunteerHours;
 use App\Ai\Tools\RejectClubApplication;
 use App\Models\Club;
 use App\Models\ClubJoinApplication;
-use App\Models\ClubMembership;
 use App\Models\Committee;
-use App\Models\Event;
-use App\Models\EventAttendance;
 use App\Models\User;
-use App\Models\VolunteerHour;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Ai\Tools\Request;
@@ -227,48 +221,6 @@ test('resolving by applicant name is scoped to the named club', function () {
     expect($result)->toHaveKey('error');
 });
 
-test('LogVolunteerHours can award general hours without an event', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
-    $member = User::factory()->student()->create(['name' => 'ريم العتيبي']);
-
-    ClubMembership::factory()->approved()->create([
-        'user_id' => $member->id,
-        'club_id' => $club->id,
-    ]);
-
-    $this->actingAs($supervisor);
-    $tool = new LogVolunteerHours($supervisor);
-
-    // No event named — the assistant logs general (activity-less) hours.
-    $result = decodeTool($tool->handle(new Request([
-        'club' => $club->name,
-        'user' => 'ريم',
-        'hours' => 5,
-    ])));
-
-    expect($result['status'])->toBe('pending_confirmation')
-        ->and($result['summary'])->toContain('ريم العتيبي');
-
-    $cached = Cache::get("ai_pending_action:{$result['action_id']}");
-
-    expect($cached['params']['event_id'])->toBeNull()
-        ->and($cached['params']['club_id'])->toBe($club->id);
-
-    $outcome = $tool->execute($cached['params']);
-
-    expect($outcome['success'])->toBeTrue();
-
-    $record = VolunteerHour::query()
-        ->where('user_id', $member->id)
-        ->where('club_id', $club->id)
-        ->first();
-
-    expect($record)->not->toBeNull()
-        ->and($record->event_id)->toBeNull()
-        ->and((float) $record->hours)->toBe(5.0);
-});
-
 test('guests only receive public-data tools', function () {
     $tools = collect((new Assistant(null))->tools())
         ->map(fn ($tool) => class_basename($tool));
@@ -301,24 +253,4 @@ test('project managers receive task mutation tools', function () {
         ->map(fn ($tool) => class_basename($tool));
 
     expect($tools)->toContain('CreateTask', 'AssignTask', 'UpdateTaskDetails', 'UpdateTaskStatus');
-});
-
-test('my registrations are scoped to the current user only', function () {
-    $club = Club::factory()->create();
-
-    $mine = Event::factory()->create(['club_id' => $club->id, 'title' => 'My Event']);
-    $theirs = Event::factory()->create(['club_id' => $club->id, 'title' => 'Their Event']);
-
-    $me = User::factory()->student()->create();
-    $other = User::factory()->student()->create();
-
-    EventAttendance::factory()->create(['user_id' => $me->id, 'event_id' => $mine->id]);
-    EventAttendance::factory()->create(['user_id' => $other->id, 'event_id' => $theirs->id]);
-
-    $result = decodeTool((new GetMyRegistrations($me))->handle(new Request([])));
-
-    $titles = collect($result['registrations'])->pluck('event')->all();
-
-    expect($titles)->toContain('My Event')
-        ->and($titles)->not->toContain('Their Event');
 });

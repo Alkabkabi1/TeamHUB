@@ -7,16 +7,13 @@ test('club lead holds every capability', function () {
     expect(ClubRole::ClubLead->capabilities())->toBe(ClubCapability::all());
 });
 
-test('events manager owns the full event lifecycle', function () {
-    $capabilities = ClubRole::EventsManager->capabilities();
+test('membership manager owns member management and reporting', function () {
+    $capabilities = ClubRole::MembershipManager->capabilities();
 
     expect($capabilities)
-        ->toContain(ClubCapability::ManageEvents)
-        ->toContain(ClubCapability::ManageVolunteerHours)
-        ->toContain(ClubCapability::IssueCertificates)
+        ->toContain(ClubCapability::ManageMembers)
         ->toContain(ClubCapability::ViewReports)
-        ->not->toContain(ClubCapability::ManageNews)
-        ->not->toContain(ClubCapability::ManageMembers);
+        ->not->toContain(ClubCapability::ManageClub);
 });
 
 test('member carries no management capability', function () {
@@ -28,13 +25,13 @@ test('manager role values exclude the plain member role', function () {
     expect(ClubRole::managerRoleValues())
         ->not->toContain(ClubRole::Member->value)
         ->toContain(ClubRole::ClubLead->value)
-        ->toContain(ClubRole::EventsManager->value);
+        ->toContain(ClubRole::MembershipManager->value);
 });
 
 test('legacy roles map to named club roles', function () {
     expect(ClubRole::fromLegacy('supervisor'))->toBe(ClubRole::ClubLead)
         ->and(ClubRole::fromLegacy('club_supervisor'))->toBe(ClubRole::ClubLead)
-        ->and(ClubRole::fromLegacy('organizer'))->toBe(ClubRole::EventsManager)
+        ->and(ClubRole::fromLegacy('organizer'))->toBe(ClubRole::ClubLead)
         ->and(ClubRole::fromLegacy('member'))->toBe(ClubRole::Member)
         ->and(ClubRole::fromLegacy(null))->toBe(ClubRole::Member);
 });

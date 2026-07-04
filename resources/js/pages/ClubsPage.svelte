@@ -13,7 +13,7 @@
 
     let {
         clubs = [],
-        stats = { clubs: 0, members: 0, events: 0, hours: 0 },
+        stats = { clubs: 0, members: 0, projects: 0, open_tasks: 0 },
         filters = { search: '', tag: '', sort: 'members' },
         filterOptions = { tags: [], sorts: [] },
     }: {
@@ -21,8 +21,8 @@
         stats?: {
             clubs: number;
             members: number;
-            events: number;
-            hours: number;
+            projects: number;
+            open_tasks: number;
         };
         filters?: {
             search: string;
@@ -38,10 +38,13 @@
     const statCards = $derived([
         { label: t('clubs.stats.clubs'), value: formatNumber(stats.clubs) },
         { label: t('clubs.stats.members'), value: formatNumber(stats.members) },
-        { label: t('clubs.stats.events'), value: formatNumber(stats.events) },
         {
-            label: t('clubs.stats.hours'),
-            value: formatNumber(Math.round(stats.hours)),
+            label: t('dashboard_student.stats.projects'),
+            value: formatNumber(stats.projects),
+        },
+        {
+            label: t('dashboard_student.stats.open_tasks'),
+            value: formatNumber(stats.open_tasks),
         },
     ]);
 

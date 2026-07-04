@@ -5,17 +5,17 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 test('login captures the public page a guest came from and flashes a notice', function () {
-    $response = $this->withHeader('referer', url('/events/1'))->get(route('login'));
+    $response = $this->withHeader('referer', url('/clubs/3'))->get(route('login'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page->hasFlash('toast.message', __('auth.login_required')));
-    expect(session('url.intended'))->toBe('/events/1');
+    expect(session('url.intended'))->toBe('/clubs/3');
 });
 
 test('login returns the user to the page they came from after authenticating', function () {
     $user = User::factory()->student()->create();
 
-    $this->withHeader('referer', url('/events/1'))->get(route('login'));
+    $this->withHeader('referer', url('/clubs/3'))->get(route('login'));
 
     $response = $this->post(route('login.store'), [
         'email' => $user->email,
@@ -23,7 +23,7 @@ test('login returns the user to the page they came from after authenticating', f
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/events/1');
+    $response->assertRedirect('/clubs/3');
 });
 
 test('login ignores an off-site return target', function () {
@@ -36,7 +36,7 @@ test('login ignores an off-site return target', function () {
 
 test('login does not override the intended url set by the auth middleware', function () {
     $this->withSession(['url.intended' => '/clubs/3'])
-        ->withHeader('referer', url('/events/1'))
+        ->withHeader('referer', url('/clubs/5'))
         ->get(route('login'))
         ->assertOk();
 
@@ -46,9 +46,9 @@ test('login does not override the intended url set by the auth middleware', func
 test('registration returns the user to the page they came from', function () {
     $this->skipUnlessFortifyHas(Features::registration());
 
-    $this->withHeader('referer', url('/events/1'))->get(route('register'));
+    $this->withHeader('referer', url('/clubs/3'))->get(route('register'));
 
-    expect(session('url.intended'))->toBe('/events/1');
+    expect(session('url.intended'))->toBe('/clubs/3');
 
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
@@ -58,7 +58,7 @@ test('registration returns the user to the page they came from', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/events/1');
+    $response->assertRedirect('/clubs/3');
 });
 
 test('logging out clears a stale intended url', function () {

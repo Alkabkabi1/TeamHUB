@@ -4,9 +4,8 @@
     import { Search01Icon } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
     import { router } from '@inertiajs/svelte';
-    import { statusLabels } from '@/components/team-hub/mock-data';
+    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import TasksTable from '@/components/team-hub/TasksTable.svelte';
-    import TaskStatusBadge from '@/components/team-hub/TaskStatusBadge.svelte';
     import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import type { HubTask, TaskStatus } from '@/types/team-hub';
@@ -47,7 +46,7 @@
     }
 </script>
 
-<TeamHubLayout title="المهام — Team Hub" activePath="/hub/tasks">
+<TeamHubLayout title="{t('hub.nav.tasks')} — Team Hub" activePath="/hub/tasks">
     <div class="thin-scrollbar flex-1 overflow-y-auto p-4 lg:p-6">
         <header class="mb-6">
             <h1 class="text-xl font-bold" style="color: var(--th-text)">
@@ -100,9 +99,9 @@
                         }}
                     >
                         {#if statusKey === 'all'}
-                            الكل
+                            {t('app.all')}
                         {:else}
-                            {statusLabels[statusKey]}
+                            {t(`tasks.statuses.${statusKey}`)}
                         {/if}
                     </button>
                 {/each}
@@ -111,10 +110,10 @@
 
         <div class="mb-4 flex flex-wrap gap-2">
             <span class="text-xs" style="color: var(--th-text-muted)"
-                >مرجع الحالات:</span
+                >{t('tasks.status')}:</span
             >
             {#each ['todo', 'in_progress', 'review', 'done'] as const as s (s)}
-                <TaskStatusBadge status={s} />
+                <TaskStatusBadge status={s} variant="hub" />
             {/each}
         </div>
 

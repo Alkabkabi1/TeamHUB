@@ -6,7 +6,6 @@ use App\Enums\CommitteeRole;
 use App\Models\Club;
 use App\Models\Committee;
 use App\Models\CommitteeMembership;
-use App\Models\Event;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -117,16 +116,6 @@ class CommitteesSeeder extends Seeder
 
     private function seedContent(Committee $committee, int $clubId): void
     {
-        if ($committee->events()->doesntExist()) {
-            Event::factory()->count(2)->create([
-                'club_id' => $clubId,
-                'committee_id' => $committee->id,
-                'status' => 'active',
-                'starts_at' => now()->addWeeks(fake()->numberBetween(1, 6)),
-                'ends_at' => now()->addWeeks(fake()->numberBetween(1, 6))->addHours(2),
-            ]);
-        }
-
         if ($committee->posts()->doesntExist()) {
             Post::factory()->count(2)->create([
                 'club_id' => $clubId,

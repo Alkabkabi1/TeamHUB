@@ -130,40 +130,6 @@ test('a committee manager can approve a pending join request', function () {
     expect($pending->fresh()->status)->toBe('approved');
 });
 
-test('a committee-scoped event is created with the committee id and enforces capability', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
-
-    $this->actingAs($lead)
-        ->post(route('committees.events.store', [$club, $committee]), [
-            'title' => 'ورشة عمل',
-            'starts_at' => now()->addDay()->toDateTimeString(),
-            'ends_at' => now()->addDay()->addHours(2)->toDateTimeString(),
-            'status' => 'active',
-        ])
-        ->assertRedirect(route('committees.manage', [$club, $committee]));
-
-    $this->assertDatabaseHas('events', [
-        'club_id' => $club->id,
-        'committee_id' => $committee->id,
-        'title' => 'ورشة عمل',
-    ]);
-});
-
-test('a non-manager cannot create a committee event', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
-    $student = User::factory()->student()->create();
-
-    $this->actingAs($student)
-        ->post(route('committees.events.store', [$club, $committee]), [
-            'title' => 'x',
-            'starts_at' => now()->addDay()->toDateTimeString(),
-            'ends_at' => now()->addDay()->addHours(2)->toDateTimeString(),
-        ])
-        ->assertForbidden();
-});
-
 test('a committee-scoped news post is created with the committee id', function () {
     [$lead, $club] = clubLeadAndClub();
     $committee = Committee::factory()->create(['club_id' => $club->id]);

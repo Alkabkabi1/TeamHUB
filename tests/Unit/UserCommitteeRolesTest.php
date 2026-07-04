@@ -83,9 +83,9 @@ test('managedCommittees returns only committees where the user holds a manager r
 test('committee capability gates resolve through the user methods', function () {
     $committee = Committee::factory()->create();
 
-    $eventsManager = User::factory()->student()->create();
-    committeeMembership($eventsManager, $committee, [CommitteeRole::EventsManager]);
+    $membershipManager = User::factory()->student()->create();
+    committeeMembership($membershipManager, $committee, [CommitteeRole::MembershipManager]);
 
-    expect($eventsManager->can(CommitteeCapability::ManageEvents->value, $committee))->toBeTrue()
-        ->and($eventsManager->can(CommitteeCapability::ManageNews->value, $committee))->toBeFalse();
+    expect($membershipManager->can(CommitteeCapability::ManageMembers->value, $committee))->toBeTrue()
+        ->and($membershipManager->can(CommitteeCapability::ManageNews->value, $committee))->toBeFalse();
 });

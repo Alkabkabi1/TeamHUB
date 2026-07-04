@@ -8,10 +8,11 @@
         Upload04Icon,
     } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
+    import TaskPriorityBadge from '@/components/tasks/TaskPriorityBadge.svelte';
+    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import CompleteTaskModal from '@/components/team-hub/CompleteTaskModal.svelte';
-    import PriorityDot from '@/components/team-hub/PriorityDot.svelte';
-    import TaskStatusBadge from '@/components/team-hub/TaskStatusBadge.svelte';
     import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
+    import { t } from '@/lib/i18n.svelte';
 
     let modalOpen = $state(false);
     let submitted = $state<{
@@ -41,22 +42,19 @@
 </script>
 
 <TeamHubLayout
-    title="تسليم المخرجات — Team Hub"
+    title="{t('tasks.deliverable_section')} — Team Hub"
     activePath="/preview/team-hub/deliverable"
 >
     <div class="thin-scrollbar flex-1 overflow-y-auto p-4 lg:p-6">
         <header class="mb-6">
             <h1 class="text-xl font-bold" style="color: var(--th-text)">
-                تسليم المخرجات
+                {t('tasks.deliverable_section')}
             </h1>
             <p
                 class="mt-1 max-w-2xl text-sm leading-relaxed"
                 style="color: var(--th-text-muted)"
             >
-                عند إكمال المهمة، يرفع المسؤول ملفاً أو رابطاً أو ملاحظات. تنتقل
-                المهمة إلى
-                <strong style="color: var(--th-review)">مراجعة</strong> حتى يوافق
-                قائد المشروع.
+                {t('tasks.deliverable_help')}
             </p>
         </header>
 
@@ -74,23 +72,31 @@
                             {demoTask.project}
                         </p>
                     </div>
-                    <TaskStatusBadge status="in_progress" />
+                    <TaskStatusBadge status="in_progress" variant="hub" />
                 </div>
 
                 <dl class="mb-5 space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <dt style="color: var(--th-text-muted)">المسؤول</dt>
+                        <dt style="color: var(--th-text-muted)">
+                            {t('tasks.assignee')}
+                        </dt>
                         <dd style="color: var(--th-text)">
                             {demoTask.assignee}
                         </dd>
                     </div>
                     <div class="flex justify-between">
-                        <dt style="color: var(--th-text-muted)">الموعد</dt>
+                        <dt style="color: var(--th-text-muted)">
+                            {t('tasks.due_date')}
+                        </dt>
                         <dd style="color: var(--th-text)">{demoTask.due}</dd>
                     </div>
                     <div class="flex justify-between">
-                        <dt style="color: var(--th-text-muted)">الأولوية</dt>
-                        <dd><PriorityDot priority="high" /></dd>
+                        <dt style="color: var(--th-text-muted)">
+                            {t('tasks.priority')}
+                        </dt>
+                        <dd>
+                            <TaskPriorityBadge priority="high" variant="dot" />
+                        </dd>
                     </div>
                 </dl>
 
@@ -100,7 +106,7 @@
                     onclick={() => (modalOpen = true)}
                 >
                     <HugeiconsIcon icon={Upload04Icon} size={18} color="#fff" />
-                    إرسال للمراجعة
+                    {t('tasks.submit_deliverable')}
                 </button>
             </article>
 
@@ -110,10 +116,10 @@
                         class="mb-3 text-sm font-semibold"
                         style="color: var(--th-text)"
                     >
-                        سير العمل
+                        {t('tasks.status')}
                     </h3>
                     <ol class="space-y-3 text-sm">
-                        {#each [{ label: 'قيد الانتظار', active: false }, { label: 'قيد التنفيذ', active: !submitted }, { label: 'مراجعة', active: !!submitted }, { label: 'مكتمل', active: false }] as step, i (step.label)}
+                        {#each [{ key: 'todo', active: false }, { key: 'in_progress', active: !submitted }, { key: 'review', active: !!submitted }, { key: 'done', active: false }] as step, i (step.key)}
                             <li class="flex items-center gap-3">
                                 <span
                                     class="flex size-7 items-center justify-center rounded-full text-xs font-bold"
@@ -132,7 +138,7 @@
                                         ? 'var(--th-text)'
                                         : 'var(--th-text-muted)'}"
                                 >
-                                    {step.label}
+                                    {t(`tasks.statuses.${step.key}`)}
                                 </span>
                             </li>
                         {/each}
@@ -151,10 +157,10 @@
                                 class="text-sm font-semibold"
                                 style="color: var(--th-text)"
                             >
-                                تم الإرسال — في المراجعة
+                                {t('tasks.deliverable_submitted')}
                             </h3>
                         </div>
-                        <TaskStatusBadge status="review" />
+                        <TaskStatusBadge status="review" variant="hub" />
 
                         <ul class="mt-4 space-y-2 text-sm">
                             {#if submitted.file}
@@ -200,14 +206,14 @@
                                 type="button"
                                 class="th-btn-primary flex-1 rounded-xl px-3 py-2 text-xs font-medium"
                             >
-                                موافقة (قائد المشروع)
+                                {t('tasks.approve')}
                             </button>
                             <button
                                 type="button"
                                 class="flex-1 rounded-xl border px-3 py-2 text-xs font-medium"
                                 style="border-color: var(--th-border); color: var(--th-text-muted)"
                             >
-                                طلب تعديلات
+                                {t('tasks.request_changes')}
                             </button>
                         </div>
                     </div>

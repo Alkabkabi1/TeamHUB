@@ -8,10 +8,9 @@ use App\Enums\CommitteeRole;
 use App\Enums\CommitteeStatus;
 use App\Models\Club;
 use App\Models\Committee;
-use App\Models\Event;
 use App\Models\Post;
+use App\Models\Task;
 use App\Models\User;
-use App\Models\VolunteerHour;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +38,10 @@ class CommitteeController extends Controller
         ['search' => $search, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::COMMITTEE_SORTS, 'members');
 
         $committees = $club->committees()
-            ->withCount(['memberships as members_count', 'events as events_count'])
+            ->withCount([
+                'memberships as members_count',
+                'tasks as tasks_count',
+            ])
             ->with('media')
             ->where('status', CommitteeStatus::Active->value)
             ->tap(fn (Builder $query) => $this->applySearch($query, $search, ['name', 'description']))
@@ -72,27 +74,16 @@ class CommitteeController extends Controller
     {
         $committee->loadCount([
             'memberships as members_count',
-            'events as upcoming_events_count' => fn ($query) => $query
-                ->where('starts_at', '>=', now())
-                ->where('status', 'active'),
+            'tasks as tasks_count',
         ]);
 
-        $volunteerHoursSum = (float) VolunteerHour::query()
-            ->whereHas('event', fn ($query) => $query->where('committee_id', $committee->id))
-            ->sum('hours');
-
-        $upcomingEvents = Event::query()
+        $openTasksCount = Task::query()
             ->where('committee_id', $committee->id)
-            ->with('media')
-            ->upcoming()
-            ->active()
-            ->orderBy('starts_at')
-            ->limit(6)
-            ->get(['id', 'title', 'description', 'starts_at']);
+            ->whereNotIn('status', ['done'])
+            ->count();
 
-        $posts = Post::query()
+        $recentUpdates = Post::query()
             ->where('committee_id', $committee->id)
-            ->with('media')
             ->whereNotNull('published_at')
             ->orderByDesc('published_at')
             ->limit(6)
@@ -101,20 +92,8 @@ class CommitteeController extends Controller
                 'id' => $post->id,
                 'title' => $post->title,
                 'excerpt' => mb_substr(strip_tags((string) $post->body), 0, 160),
-                'published_at' => $post->published_at->locale(app()->getLocale())->diffForHumans(),
-                'image_url' => $post->coverImageUrl(),
-            ])
-            ->values();
-
-        $calendarEvents = Event::query()
-            ->where('committee_id', $committee->id)
-            ->active()
-            ->orderBy('starts_at')
-            ->get(['id', 'title', 'starts_at'])
-            ->map(fn (Event $event) => [
-                'id' => $event->id,
-                'title' => $event->title,
-                'starts_at' => $event->starts_at->toIso8601String(),
+                'published_at' => $post->published_at?->locale(app()->getLocale())->diffForHumans(),
+                'url' => route('committees.updates.index', [$club, $committee], absolute: false),
             ])
             ->values();
 
@@ -133,19 +112,10 @@ class CommitteeController extends Controller
             'canRequestToJoin' => $this->canRequestToJoin($user, $club, $committee),
             'stats' => [
                 'members_count' => $committee->members_count,
-                'upcoming_events_count' => $committee->upcoming_events_count,
-                'volunteer_hours_sum' => $volunteerHoursSum,
+                'tasks_count' => $committee->tasks_count,
+                'open_tasks_count' => $openTasksCount,
             ],
-            'upcomingEvents' => $upcomingEvents->map(fn (Event $event) => [
-                'id' => $event->id,
-                'club' => $committee->name,
-                'time' => $event->starts_at->locale(app()->getLocale())->diffForHumans(),
-                'title' => $event->title,
-                'description' => $event->description ?? '',
-                'image_url' => $event->coverImageUrl(),
-            ])->values(),
-            'posts' => $posts,
-            'calendarEvents' => $calendarEvents,
+            'recentUpdates' => $recentUpdates,
         ]);
     }
 
@@ -255,7 +225,7 @@ class CommitteeController extends Controller
     /**
      * Compact card representation used by the listing.
      *
-     * @return array{id: int, name: string, description: string, image_url: string|null, members_count: int, events_count: int}
+     * @return array{id: int, name: string, description: string, image_url: string|null, members_count: int, tasks_count: int}
      */
     private function toCardArray(Committee $committee): array
     {
@@ -265,7 +235,7 @@ class CommitteeController extends Controller
             'description' => mb_substr(strip_tags((string) $committee->description), 0, 160),
             'image_url' => $committee->logo_url ?: $committee->coverImageUrl(),
             'members_count' => $committee->members_count,
-            'events_count' => $committee->events_count,
+            'tasks_count' => $committee->tasks_count,
         ];
     }
 

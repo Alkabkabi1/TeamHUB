@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\FiltersCatalog;
-use App\Enums\EventAttendanceStatus;
 use App\Models\Club;
 use App\Models\ClubJoinApplication;
 use App\Models\ClubMembership;
 use App\Models\ClubResource;
-use App\Models\Event;
-use App\Models\EventAttendance;
-use App\Models\VolunteerHour;
+use App\Models\Committee;
+use App\Models\Task;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,30 +19,12 @@ class PublicCatalogController extends Controller
 {
     use FiltersCatalog;
 
-    /**
-     * Supported sort modes for the clubs catalog, in display order.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     private const CLUB_SORTS = ['members', 'newest', 'name'];
 
-    /**
-     * Supported sort modes for the events catalog, in display order.
-     *
-     * @var list<string>
-     */
-    private const EVENT_SORTS = ['soonest', 'newest', 'title'];
-
-    /**
-     * Supported sort modes for the resources catalog, in display order.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     private const RESOURCE_SORTS = ['newest', 'oldest', 'title'];
 
-    /**
-     * Show the public clubs catalog.
-     */
     public function clubs(Request $request): Response
     {
         ['search' => $search, 'tag' => $tagId, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::CLUB_SORTS, 'members');
@@ -89,8 +69,8 @@ class PublicCatalogController extends Controller
             'stats' => [
                 'clubs' => Club::query()->where('status', 'active')->count(),
                 'members' => ClubMembership::query()->count(),
-                'events' => Event::query()->active()->upcoming()->count(),
-                'hours' => (float) VolunteerHour::query()->sum('hours'),
+                'projects' => Committee::query()->count(),
+                'open_tasks' => Task::query()->whereNotIn('status', ['done'])->count(),
             ],
             'filters' => $this->catalogFilterProps($filters),
             'filterOptions' => [
@@ -100,50 +80,6 @@ class PublicCatalogController extends Controller
         ]);
     }
 
-    /**
-     * Show the public events catalog.
-     */
-    public function events(Request $request): Response
-    {
-        ['search' => $search, 'tag' => $tagId, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::EVENT_SORTS, 'soonest');
-
-        $events = Event::query()
-            ->with(['club:id,name,category,college,status', 'media'])
-            ->withCount(['attendances as registrations_count' => fn ($q) => $q->whereIn('status', EventAttendanceStatus::registeredValues())])
-            ->upcoming()
-            ->active()
-            ->withTag($tagId)
-            ->tap(fn (Builder $query) => $this->applySearch($query, $search, ['title', 'description', 'location']))
-            ->when($sort === 'soonest', fn ($query) => $query->orderBy('starts_at'))
-            ->when($sort === 'newest', fn ($query) => $query->orderByDesc('created_at'))
-            ->when($sort === 'title', fn ($query) => $query->orderBy('title'))
-            ->limit(50)
-            ->get(['id', 'club_id', 'title', 'description', 'starts_at', 'ends_at', 'location', 'capacity', 'status'])
-            ->each->append('image_url');
-
-        $userRsvpIds = $request->user()
-            ? EventAttendance::query()
-                ->where('user_id', $request->user()->id)
-                ->whereIn('event_id', $events->pluck('id'))
-                ->whereIn('status', EventAttendanceStatus::registeredValues())
-                ->pluck('event_id')
-                ->values()
-            : collect();
-
-        return Inertia::render('EventsPage', [
-            'events' => $events,
-            'userRsvpIds' => $userRsvpIds,
-            'filters' => $this->catalogFilterProps($filters),
-            'filterOptions' => [
-                'tags' => $this->tagOptions('events', fn (Builder $query) => $query->upcoming()->active()),
-                'sorts' => $this->sortOptions(self::EVENT_SORTS, 'events.sort_options'),
-            ],
-        ]);
-    }
-
-    /**
-     * Show the public resources and media catalog.
-     */
     public function resources(Request $request): Response
     {
         ['search' => $search, 'tag' => $tagId, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::RESOURCE_SORTS, 'newest');

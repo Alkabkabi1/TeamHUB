@@ -8,17 +8,12 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
 use Stringable;
 
-/**
- * Read-only reporting for a committee: high-level stats, member roster,
- * volunteer hours, or attendance. Restricted to managers with the
- * view-committee-reports capability.
- */
 class GetCommitteeReport extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get a report for a committee you manage: "stats", "members", "volunteer-hours", or '
-            .'"attendance". Only available to committee managers with the view-committee-reports capability.';
+        return 'Get a report for a committee you manage: "stats" or "members". '
+            .'Only available to committee managers with the view-committee-reports capability.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -40,8 +35,6 @@ class GetCommitteeReport extends AssistantTool
 
         $report = match ($type) {
             'members' => $service->membersReport($committee, $locale, $this->user->name),
-            'volunteer-hours' => $service->volunteerHoursReport($committee, $locale, $this->user->name),
-            'attendance' => $service->attendanceReport($committee, $locale, $this->user->name),
             default => $service->committeeStats(
                 $committee,
                 $service->committeeMembersForManagement($committee, $locale)->count(),
@@ -60,7 +53,7 @@ class GetCommitteeReport extends AssistantTool
             'club' => $schema->string()
                 ->description('Optional parent club name to disambiguate the committee.'),
             'type' => $schema->string()
-                ->enum(['stats', 'members', 'volunteer-hours', 'attendance'])
+                ->enum(['stats', 'members'])
                 ->description('Which report to return (default "stats").'),
         ];
     }

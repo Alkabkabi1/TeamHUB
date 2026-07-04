@@ -46,12 +46,6 @@ class TeamHubNav
             ];
         }
 
-        $items[] = [
-            'href' => route('events', absolute: false),
-            'label' => __('hub.nav.calendar'),
-            'icon' => 'calendar',
-        ];
-
         $managedCommittee = $user->managedCommittees()->first();
         if ($managedCommittee !== null) {
             $items[] = [

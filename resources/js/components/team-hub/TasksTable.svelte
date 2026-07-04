@@ -1,7 +1,8 @@
 <script lang="ts">
     import { Link } from '@inertiajs/svelte';
-    import PriorityDot from '@/components/team-hub/PriorityDot.svelte';
-    import TaskStatusBadge from '@/components/team-hub/TaskStatusBadge.svelte';
+    import TaskPriorityBadge from '@/components/tasks/TaskPriorityBadge.svelte';
+    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
+    import { t } from '@/lib/i18n.svelte';
     import type { HubTask } from '@/types/team-hub';
 
     let {
@@ -21,13 +22,17 @@
                     class="border-b text-start"
                     style="border-color: var(--th-border); color: var(--th-text-muted)"
                 >
-                    <th class="px-5 py-3 font-medium">المهمة</th>
-                    <th class="px-3 py-3 font-medium">المشروع</th>
-                    <th class="px-3 py-3 font-medium">الأولوية</th>
-                    <th class="px-3 py-3 font-medium">الموعد</th>
-                    <th class="px-3 py-3 font-medium">الحالة</th>
+                    <th class="px-5 py-3 font-medium">{t('tasks.title')}</th>
+                    <th class="px-3 py-3 font-medium"
+                        >{t('hub.nav.projects')}</th
+                    >
+                    <th class="px-3 py-3 font-medium">{t('tasks.priority')}</th>
+                    <th class="px-3 py-3 font-medium">{t('tasks.due_date')}</th>
+                    <th class="px-3 py-3 font-medium">{t('tasks.status')}</th>
                     {#if showAssignee}
-                        <th class="px-5 py-3 font-medium">المسؤول</th>
+                        <th class="px-5 py-3 font-medium"
+                            >{t('tasks.assignee')}</th
+                        >
                     {/if}
                 </tr>
             </thead>
@@ -74,7 +79,10 @@
                             >{task.project}</td
                         >
                         <td class="px-3 py-3.5"
-                            ><PriorityDot priority={task.priority} /></td
+                            ><TaskPriorityBadge
+                                priority={task.priority}
+                                variant="dot"
+                            /></td
                         >
                         <td
                             class="px-3 py-3.5"
@@ -82,7 +90,10 @@
                             >{task.dueLabel}</td
                         >
                         <td class="px-3 py-3.5"
-                            ><TaskStatusBadge status={task.status} /></td
+                            ><TaskStatusBadge
+                                status={task.status}
+                                variant="hub"
+                            /></td
                         >
                         {#if showAssignee}
                             <td class="px-5 py-3.5">

@@ -36,7 +36,7 @@
         lateTasks = [],
         activities = [],
         calendarMarkers = [],
-        creatableWorkspaces = [],
+        creatableWorkspaces: _creatableWorkspaces = [],
     }: {
         demoPersona?: string | null;
         greeting?: string;

@@ -4,42 +4,19 @@
     import { Link } from '@inertiajs/svelte';
     import AppHead from '@/components/AppHead.svelte';
     import EmptyState from '@/components/EmptyState.svelte';
-    import EventCard from '@/components/EventCard.svelte';
     import HeroBanner from '@/components/HeroBanner.svelte';
-    import NewsCard from '@/components/NewsCard.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
-    import { formatDate, formatNumber, t } from '@/lib/i18n.svelte';
+    import { formatNumber, t } from '@/lib/i18n.svelte';
     import { show as clubsShow } from '@/routes/clubs';
-    import type { ClubListItem, EventSummary } from '@/types';
-
-    type HomePost = {
-        id: number;
-        title: string;
-        excerpt: string | null;
-        published_at: string | null;
-        club: string | null;
-        image_url: string | null;
-    };
+    import type { ClubListItem } from '@/types';
 
     let {
         canRegister: _canRegister = true,
         clubs = [],
-        events = [],
-        posts = [],
     }: {
         canRegister?: boolean;
         clubs?: ClubListItem[];
-        events?: EventSummary[];
-        posts?: HomePost[];
     } = $props();
-
-    function formatEventDate(iso: string): string {
-        return formatDate(iso, {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-        });
-    }
 </script>
 
 <AppHead title={t('welcome.title')} />
@@ -54,7 +31,6 @@
             subtitle={t('welcome.uqu_subtitle')}
         />
 
-        <!-- Most active clubs -->
         <section class="flex flex-col gap-5">
             <SectionHeader title={t('welcome.featured_clubs')} href="/clubs" />
             {#if clubs.length === 0}
@@ -117,59 +93,6 @@
                                 </Link>
                             {/if}
                         </article>
-                    {/each}
-                </div>
-            {/if}
-        </section>
-
-        <!-- Featured upcoming events -->
-        <section class="flex flex-col gap-5">
-            <SectionHeader
-                title={t('welcome.upcoming_events')}
-                href="/events"
-            />
-            {#if events.length === 0}
-                <EmptyState
-                    class="shadow-[0_8px_24px_0_rgba(0,0,0,0.08)]"
-                    message={t('events.no_events')}
-                />
-            {:else}
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                    {#each events as event (event.id)}
-                        <EventCard
-                            title={event.title}
-                            metaStart={formatEventDate(event.starts_at)}
-                            metaEnd={event.club.name}
-                            description={event.description}
-                            imageUrl={event.image_url}
-                            href={`/events/${event.id}`}
-                        />
-                    {/each}
-                </div>
-            {/if}
-        </section>
-
-        <!-- Latest news & articles -->
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('welcome.latest_news')} href="/news" />
-            {#if posts.length === 0}
-                <EmptyState
-                    class="shadow-[0_8px_24px_0_rgba(0,0,0,0.08)]"
-                    message={t('club.no_news')}
-                />
-            {:else}
-                <div
-                    class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
-                >
-                    {#each posts as post (post.id)}
-                        <NewsCard
-                            title={post.title}
-                            excerpt={post.excerpt}
-                            publishedAt={post.published_at}
-                            club={post.club}
-                            imageUrl={post.image_url}
-                            href={`/news/${post.id}`}
-                        />
                     {/each}
                 </div>
             {/if}

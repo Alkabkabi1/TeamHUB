@@ -1,10 +1,8 @@
 <script lang="ts">
     import {
-        AiSchedulingIcon,
         BookDownloadIcon,
         DashboardBrowsingIcon,
         Home03Icon,
-        News01Icon,
         Notification01Icon,
         Login03Icon,
         Logout03Icon,
@@ -22,7 +20,6 @@
     import {
         home,
         clubs,
-        events,
         resources,
         login,
         logout,
@@ -52,8 +49,6 @@
     const mainNavItems: NavItem[] = $derived([
         { title: t('nav.home'), href: home(), icon: Home03Icon },
         { title: t('nav.clubs'), href: clubs(), icon: UserGroup03Icon },
-        { title: t('nav.events'), href: events(), icon: AiSchedulingIcon },
-        { title: t('nav.news'), href: '/news', icon: News01Icon },
         {
             title: t('nav.resources'),
             href: resources(),

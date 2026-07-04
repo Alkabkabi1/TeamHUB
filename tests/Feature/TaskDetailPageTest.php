@@ -11,8 +11,11 @@ use App\Models\User;
 
 function taskDetailLeadAndProject(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $club = Club::factory()->create(['status' => 'active', 'theme' => '#112233']);
+    $committee = Committee::factory()->create([
+        'club_id' => $club->id,
+        'theme' => '#445566',
+    ]);
     $lead = User::factory()->student()->create();
 
     $clubMembership = ClubMembership::factory()->approved()->create([
@@ -69,6 +72,7 @@ test('task detail page renders comments, activities, and collaboration flags', f
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Show')
+            ->where('theme.brand', '#445566')
             ->where('task.title', 'Validate the collaboration surface')
             ->where('canComment', true)
             ->where('canManageTasks', true)

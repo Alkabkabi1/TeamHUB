@@ -2,22 +2,20 @@
 
 namespace App\Http\Requests;
 
-use App\Concerns\AuthorizesClubOrCommittee;
-use App\Enums\ClubCapability;
 use App\Enums\CommitteeCapability;
+use App\Models\Committee;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePostRequest extends FormRequest
 {
-    use AuthorizesClubOrCommittee;
-
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return $this->authorizeClubOrCommittee(ClubCapability::ManageNews, CommitteeCapability::ManageNews);
+        /** @var Committee|null $committee */
+        $committee = $this->route('committee');
+
+        return $committee !== null
+            && $this->user()?->can(CommitteeCapability::ManageNews->value, $committee) === true;
     }
 
     /**

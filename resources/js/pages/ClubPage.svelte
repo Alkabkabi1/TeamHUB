@@ -1,18 +1,14 @@
 <script lang="ts">
     import {
-        Calendar03Icon,
-        Clock01Icon,
+        TaskDaily01Icon,
         UserGroup03Icon,
         UserStar01Icon,
     } from '@hugeicons/core-free-icons';
     import { Link } from '@inertiajs/svelte';
     import AppHead from '@/components/AppHead.svelte';
-    import ClubCalendar from '@/components/ClubCalendar.svelte';
     import CommitteeCard from '@/components/CommitteeCard.svelte';
     import EmptyState from '@/components/EmptyState.svelte';
-    import EventCard from '@/components/EventCard.svelte';
     import HeroBanner from '@/components/HeroBanner.svelte';
-    import NewsCard from '@/components/NewsCard.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
     import StatCard from '@/components/StatCard.svelte';
     import { formatNumber, t } from '@/lib/i18n.svelte';
@@ -20,31 +16,17 @@
 
     type Stats = {
         members_count: number;
-        upcoming_events_count: number;
-        volunteer_hours_sum: number;
+        projects_count: number;
+        open_tasks_count: number;
     };
 
-    type EventItem = {
-        id: number;
-        club: string;
-        time: string;
-        title: string;
-        description: string;
-        image_url: string | null;
-    };
-
-    type PostItem = {
+    type UpdateItem = {
         id: number;
         title: string;
         excerpt: string;
-        published_at: string;
-        image_url: string | null;
-    };
-
-    type CalendarEvent = {
-        id: number;
-        title: string;
-        starts_at: string;
+        published_at: string | null;
+        committee_name: string | null;
+        url: string | null;
     };
 
     type CommitteeItem = {
@@ -53,27 +35,24 @@
         description: string;
         image_url: string | null;
         members_count: number;
+        tasks_count: number;
     };
 
     let {
         club,
         stats = {
             members_count: 0,
-            upcoming_events_count: 0,
-            volunteer_hours_sum: 0,
+            projects_count: 0,
+            open_tasks_count: 0,
         },
-        upcomingEvents = [],
-        posts = [],
-        calendarEvents = [],
+        recentUpdates = [],
         committees = [],
         canManage = false,
         isMember = false,
     }: {
         club: Club;
         stats?: Stats;
-        upcomingEvents?: EventItem[];
-        posts?: PostItem[];
-        calendarEvents?: CalendarEvent[];
+        recentUpdates?: UpdateItem[];
         committees?: CommitteeItem[];
         canManage?: boolean;
         isMember?: boolean;
@@ -81,22 +60,22 @@
 
     const miniStats = $derived([
         {
-            icon: Clock01Icon,
-            label: t('club.stats.hours'),
-            value: formatNumber(Math.round(stats.volunteer_hours_sum)),
-            note: t('club.stats.hours_note'),
-        },
-        {
-            icon: Calendar03Icon,
-            label: t('club.stats.events'),
-            value: formatNumber(stats.upcoming_events_count),
-            note: t('club.stats.events_note'),
-        },
-        {
             icon: UserGroup03Icon,
             label: t('club.stats.members'),
             value: formatNumber(stats.members_count),
             note: t('club.stats.members_note'),
+        },
+        {
+            icon: TaskDaily01Icon,
+            label: t('dashboard_student.stats.projects'),
+            value: formatNumber(stats.projects_count),
+            note: t('app.projects'),
+        },
+        {
+            icon: UserStar01Icon,
+            label: t('dashboard_student.stats.open_tasks'),
+            value: formatNumber(stats.open_tasks_count),
+            note: t('tasks.title'),
         },
         {
             icon: UserStar01Icon,
@@ -146,47 +125,6 @@
             </div>
         </section>
 
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('club.featured_events')} href="/events" />
-            {#if upcomingEvents.length === 0}
-                <EmptyState message={t('club.no_upcoming_events')} />
-            {:else}
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                    {#each upcomingEvents as event (event.id)}
-                        <EventCard
-                            title={event.title}
-                            metaStart={event.time}
-                            metaEnd={event.club}
-                            description={event.description}
-                            href={`/events/${event.id}`}
-                            imageUrl={event.image_url}
-                        />
-                    {/each}
-                </div>
-            {/if}
-        </section>
-
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('club.news')} href="/news" />
-            {#if posts.length === 0}
-                <EmptyState message={t('club.no_news')} />
-            {:else}
-                <div
-                    class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
-                >
-                    {#each posts as post (post.id)}
-                        <NewsCard
-                            title={post.title}
-                            excerpt={post.excerpt}
-                            publishedAt={post.published_at}
-                            imageUrl={post.image_url}
-                            href={`/news/${post.id}`}
-                        />
-                    {/each}
-                </div>
-            {/if}
-        </section>
-
         {#if committees.length > 0}
             <section class="flex flex-col gap-5">
                 <SectionHeader
@@ -212,8 +150,41 @@
         {/if}
 
         <section class="flex flex-col gap-5">
-            <SectionHeader title={t('club.calendar')} />
-            <ClubCalendar events={calendarEvents} />
+            <SectionHeader title={t('app.updates')} />
+            {#if recentUpdates.length === 0}
+                <EmptyState message={t('club.no_news')} />
+            {:else}
+                <div class="grid grid-cols-1 gap-4">
+                    {#each recentUpdates as update (update.id)}
+                        {#if update.url}
+                            <Link
+                                href={update.url}
+                                class="rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {update.title}
+                                </p>
+                                {#if update.committee_name}
+                                    <p class="text-xs text-[#7e7e7e]">
+                                        {update.committee_name}
+                                    </p>
+                                {/if}
+                                <p class="mt-1 text-xs text-[#9a9a9a]">
+                                    {update.published_at}
+                                </p>
+                            </Link>
+                        {:else}
+                            <div
+                                class="rounded-[14px] border border-black/10 p-4 text-start"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {update.title}
+                                </p>
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
+            {/if}
         </section>
 
         {#if !isMember}

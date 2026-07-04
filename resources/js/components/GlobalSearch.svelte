@@ -1,6 +1,5 @@
 <script lang="ts">
     import {
-        AiSchedulingIcon,
         BookDownloadIcon,
         DashboardBrowsingIcon,
         Home03Icon,
@@ -15,14 +14,7 @@
     import { globalSearch, openGlobalSearch } from '@/lib/globalSearch.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
-    import {
-        clubs,
-        events,
-        home,
-        resources,
-        search,
-        studentDashboard,
-    } from '@/routes';
+    import { clubs, home, resources, search, studentDashboard } from '@/routes';
 
     type SearchItem = {
         id: number;
@@ -33,8 +25,7 @@
 
     type SearchGroups = {
         clubs: SearchItem[];
-        events: SearchItem[];
-        news: SearchItem[];
+        updates: SearchItem[];
         resources: SearchItem[];
     };
 
@@ -42,8 +33,7 @@
 
     const emptyGroups: SearchGroups = {
         clubs: [],
-        events: [],
-        news: [],
+        updates: [],
         resources: [],
     };
 
@@ -60,8 +50,7 @@
     const term = $derived(query.trim());
     const hasResults = $derived(
         groups.clubs.length > 0 ||
-            groups.events.length > 0 ||
-            groups.news.length > 0 ||
+            groups.updates.length > 0 ||
             groups.resources.length > 0,
     );
 
@@ -70,12 +59,6 @@
     const quickLinks = $derived<QuickLink[]>([
         { title: t('nav.home'), href: toUrl(home()), icon: Home03Icon },
         { title: t('nav.clubs'), href: toUrl(clubs()), icon: UserGroup03Icon },
-        {
-            title: t('nav.events'),
-            href: toUrl(events()),
-            icon: AiSchedulingIcon,
-        },
-        { title: t('nav.news'), href: '/news', icon: News01Icon },
         {
             title: t('nav.resources'),
             href: toUrl(resources()),
@@ -108,11 +91,10 @@
             icon: UserGroup03Icon,
         },
         {
-            key: 'events',
-            heading: t('app.search_group_events'),
-            icon: AiSchedulingIcon,
+            key: 'updates',
+            heading: t('app.updates'),
+            icon: News01Icon,
         },
-        { key: 'news', heading: t('app.search_group_news'), icon: News01Icon },
         {
             key: 'resources',
             heading: t('app.search_group_resources'),
@@ -120,8 +102,6 @@
         },
     ] as const);
 
-    // Debounced, cancellable lookup. Re-runs whenever the trimmed term changes;
-    // the cleanup aborts any in-flight request and clears the pending timer.
     $effect(() => {
         if (term.length < 2) {
             groups = emptyGroups;
@@ -161,7 +141,6 @@
         };
     });
 
-    // Reset when the palette closes so it reopens clean.
     $effect(() => {
         if (!globalSearch.open) {
             query = '';
@@ -169,7 +148,6 @@
         }
     });
 
-    // ⌘K / Ctrl+K opens the palette from anywhere.
     $effect(() => {
         function onKeydown(event: KeyboardEvent): void {
             if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {

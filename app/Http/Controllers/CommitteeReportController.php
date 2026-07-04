@@ -26,26 +26,6 @@ class CommitteeReportController extends Controller
         );
     }
 
-    public function volunteerHours(DownloadCommitteeReportRequest $request, Club $club, Committee $committee): Response
-    {
-        return $this->download(
-            $request,
-            $committee,
-            'volunteer-hours',
-            fn (string $locale) => $this->reports->volunteerHoursReport($committee, $locale, $request->user()?->name),
-        );
-    }
-
-    public function attendance(DownloadCommitteeReportRequest $request, Club $club, Committee $committee): Response
-    {
-        return $this->download(
-            $request,
-            $committee,
-            'attendance',
-            fn (string $locale) => $this->reports->attendanceReport($committee, $locale, $request->user()?->name),
-        );
-    }
-
     /**
      * @param  callable(string): array<string, mixed>  $dataResolver
      */
@@ -61,8 +41,6 @@ class CommitteeReportController extends Controller
         $data = $dataResolver($locale);
         $filename = "{$reportKey}-committee-{$committee->id}-{$locale}.pdf";
 
-        // Reuses the shared club report blade views (reports.{key}.{locale}).
-        // DomPDF cannot shape Arabic; shape the rendered HTML's text nodes first.
         $html = ArabicText::shapeHtml(view("reports.{$reportKey}.{$locale}", $data)->render());
 
         return Pdf::loadHTML($html)->download($filename);

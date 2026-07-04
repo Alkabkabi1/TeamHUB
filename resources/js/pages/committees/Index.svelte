@@ -22,7 +22,7 @@
         description: string;
         image_url: string | null;
         members_count: number;
-        events_count: number;
+        tasks_count: number;
     };
 
     let {

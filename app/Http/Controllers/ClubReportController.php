@@ -25,26 +25,6 @@ class ClubReportController extends Controller
         );
     }
 
-    public function volunteerHours(DownloadClubReportRequest $request, Club $club): Response
-    {
-        return $this->download(
-            $request,
-            $club,
-            'volunteer-hours',
-            fn (string $locale) => $this->reports->volunteerHoursReport($club, $locale, $request->user()),
-        );
-    }
-
-    public function attendance(DownloadClubReportRequest $request, Club $club): Response
-    {
-        return $this->download(
-            $request,
-            $club,
-            'attendance',
-            fn (string $locale) => $this->reports->attendanceReport($club, $locale, $request->user()),
-        );
-    }
-
     /**
      * @param  callable(string): array<string, mixed>  $dataResolver
      */
@@ -60,7 +40,6 @@ class ClubReportController extends Controller
         $data = $dataResolver($locale);
         $filename = "{$reportKey}-club-{$club->id}-{$locale}.pdf";
 
-        // DomPDF cannot shape Arabic; shape the rendered HTML's text nodes first.
         $html = ArabicText::shapeHtml(view("reports.{$reportKey}.{$locale}", $data)->render());
 
         return Pdf::loadHTML($html)->download($filename);

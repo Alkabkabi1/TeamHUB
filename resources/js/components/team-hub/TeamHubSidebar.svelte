@@ -63,11 +63,12 @@
     const navItems = $derived(hub?.nav ?? []);
     const workspaces = $derived(hub?.workspaces ?? []);
     const userName = $derived(auth?.user?.name ?? '');
-    const userInitial = $derived(userName.charAt(0) || '?');
     const displayName = $derived.by(() => {
         const email = auth?.user?.email;
+
         if (demo?.quick_login && email) {
             const account = demo.accounts.find((item) => item.email === email);
+
             if (account) {
                 return account.label ?? t(`auth.demo_roles.${account.role}`);
             }

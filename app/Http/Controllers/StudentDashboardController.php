@@ -8,16 +8,12 @@ use App\Models\CommitteeMembership;
 use App\Models\Post;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\VolunteerHour;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class StudentDashboardController extends Controller
 {
-    /**
-     * Show the TeamHUB member dashboard for student users.
-     */
     public function index(Request $request): Response
     {
         /** @var User $user */
@@ -44,17 +40,6 @@ class StudentDashboardController extends Controller
             ->groupBy(fn (CommitteeMembership $membership) => $membership->committee?->club_id)
             ->map->count();
 
-        $volunteerHoursByWorkspace = VolunteerHour::query()
-            ->where('user_id', $user->id)
-            ->selectRaw('club_id, SUM(hours) as total_hours')
-            ->groupBy('club_id')
-            ->get()
-            ->mapWithKeys(fn (VolunteerHour $hour) => [
-                $hour->club_id => $this->normalizeHours($hour->total_hours),
-            ]);
-
-        $totalVolunteerHours = $this->normalizeHours($volunteerHoursByWorkspace->sum());
-
         $workspaces = $workspaceMemberships
             ->filter(fn (ClubMembership $membership) => $membership->club !== null)
             ->map(fn (ClubMembership $membership) => [
@@ -62,9 +47,6 @@ class StudentDashboardController extends Controller
                 'name' => $membership->club->name,
                 'memberSince' => $membership->joined_at?->format('Y') ?? '',
                 'projectCount' => (int) ($projectCountsByWorkspace[$membership->club_id] ?? 0),
-                'volunteerHours' => $this->normalizeHours(
-                    $volunteerHoursByWorkspace[$membership->club_id] ?? 0,
-                ),
             ])
             ->values();
 
@@ -137,9 +119,7 @@ class StudentDashboardController extends Controller
                 'openTasksCount' => (clone $assignedTaskBaseQuery)->count(),
                 'dueTodayCount' => $dueTodayTasks->count(),
                 'overdueCount' => $overdueTasks->count(),
-                'totalHours' => $totalVolunteerHours,
             ],
-            'totalHours' => $totalVolunteerHours,
             'clubs' => $workspaces,
             'workspaces' => $workspaces,
             'projects' => $projects,
@@ -186,19 +166,5 @@ class StudentDashboardController extends Controller
             'committeeName' => $task->committee?->name ?? '',
             'detailUrl' => route('committees.tasks.show', [$task->committee?->club_id, $task->committee_id, $task], absolute: false),
         ];
-    }
-
-    /**
-     * @param  mixed  $hours
-     */
-    private function normalizeHours($hours): int|float
-    {
-        $value = round((float) $hours, 2);
-
-        if ((float) (int) $value === $value) {
-            return (int) $value;
-        }
-
-        return $value;
     }
 }

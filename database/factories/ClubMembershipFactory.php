@@ -59,7 +59,7 @@ class ClubMembershipFactory extends Factory
     public function organizer(): static
     {
         return $this->afterCreating(
-            fn (ClubMembership $membership) => $membership->assignClubRole(ClubRole::EventsManager),
+            fn (ClubMembership $membership) => $membership->assignClubRole(ClubRole::MembershipManager),
         );
     }
 

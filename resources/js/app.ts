@@ -42,22 +42,13 @@ createInertiaApp({
             case name === 'Welcome':
             case name === 'StudentDashboard':
             case name === 'clubs/Manage':
-            case name === 'clubs/certificate-templates/Index':
-            case name === 'clubs/certificate-templates/Editor':
-            case name === 'AdminDashboard':
             case name === 'ClubPage':
             case name === 'ClubsPage':
             case name === 'committees/Index':
             case name === 'committees/Manage':
             case name === 'committees/Form':
             case name === 'CommitteePage':
-            case name === 'EventsPage':
-            case name === 'EventDetailPage':
-            case name === 'EventForm':
-            case name === 'events/Scan':
             case name === 'ResourcesPage':
-            case name === 'NewsPage':
-            case name === 'NewsArticle':
             case name === 'NewsForm':
             case name === 'ClubTheme':
             case name === 'Support':

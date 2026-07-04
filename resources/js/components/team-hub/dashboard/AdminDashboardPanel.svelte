@@ -49,6 +49,7 @@
         if (workspaces[0] && !projectForm.club_id) {
             projectForm.club_id = workspaces[0].id;
         }
+
         if (leaders[0] && !projectForm.leader_id) {
             projectForm.leader_id = leaders[0].id;
         }
@@ -153,7 +154,7 @@
     {/if}
 
     <div class="grid gap-3 sm:grid-cols-3">
-        {#each [{ value: stats.projects, label: t('hub.admin.stats_projects') }, { value: stats.leaders, label: t('hub.admin.stats_leaders') }, { value: stats.open_tasks, label: t('hub.admin.stats_tasks') }] as stat}
+        {#each [{ value: stats.projects, label: t('hub.admin.stats_projects') }, { value: stats.leaders, label: t('hub.admin.stats_leaders') }, { value: stats.open_tasks, label: t('hub.admin.stats_tasks') }] as stat (stat.label)}
             <div class="th-card rounded-2xl p-4">
                 <p class="text-2xl font-bold" style="color: var(--th-text)">
                     {stat.value}

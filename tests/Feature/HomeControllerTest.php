@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Club;
-use App\Models\Event;
 use App\Models\User;
 
 beforeEach(function () {
@@ -12,17 +11,14 @@ test('home page returns 200', function () {
     $this->get(route('home'))->assertOk();
 });
 
-test('home page renders the Welcome component with clubs, events and filters', function () {
+test('home page renders the Welcome component with clubs and filters', function () {
     Club::factory()->count(3)->create();
-    $club = Club::query()->firstOrFail();
-    Event::factory()->upcoming()->count(2)->for($club)->create();
 
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Welcome')
             ->has('clubs', 3)
-            ->has('events', 2)
             ->has('filters.search')
             ->where('filters.search', '')
             ->has('filters.category')
@@ -47,38 +43,6 @@ test('home page filters clubs by search query in name', function () {
         );
 });
 
-test('home page filters events by search query in title or description', function () {
-    $club = Club::factory()->create();
-    Event::factory()->upcoming()->for($club)->create([
-        'title' => 'ورشة برمجة',
-        'description' => 'تعلم البرمجة من الصفر',
-    ]);
-    Event::factory()->upcoming()->for($club)->create([
-        'title' => 'معرض الفنون',
-        'description' => 'معرض سنوي للفنون التشكيلية',
-    ]);
-
-    $this->get(route('home', ['search' => 'برمجة']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('events', 1)
-            ->where('events.0.title', 'ورشة برمجة')
-        );
-});
-
-test('home page hides past events from the upcoming list', function () {
-    $club = Club::factory()->create();
-    Event::factory()->upcoming()->for($club)->create(['title' => 'فعالية قادمة']);
-    Event::factory()->past()->for($club)->create(['title' => 'فعالية ماضية']);
-
-    $this->get(route('home'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('events', 1)
-            ->where('events.0.title', 'فعالية قادمة')
-        );
-});
-
 test('home page orders clubs by members_count descending', function () {
     $popular = Club::factory()->create(['name' => 'نادي مشهور']);
     $small = Club::factory()->create(['name' => 'نادي صغير']);
@@ -99,25 +63,21 @@ test('home page orders clubs by members_count descending', function () {
         );
 });
 
-test('home page returns empty arrays when database is empty', function () {
+test('home page returns empty clubs when database is empty', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('clubs', 0)
-            ->has('events', 0)
         );
 });
 
-test('home page caps results to 8 clubs and 4 events when no search', function () {
+test('home page caps results to 8 clubs when no search', function () {
     Club::factory()->count(12)->create();
-    $club = Club::factory()->create();
-    Event::factory()->upcoming()->count(10)->for($club)->create();
 
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('clubs', 8)
-            ->has('events', 4)
         );
 });
 
@@ -131,15 +91,13 @@ test('home page widens caps when a search term is supplied', function () {
         ->assertInertia(fn ($page) => $page->has('clubs', 12));
 });
 
-test('home page exposes members_count and club relation on each row', function () {
-    $club = Club::factory()->create(['name' => 'نادي تجريبي']);
-    Event::factory()->upcoming()->for($club)->create(['title' => 'فعالية تجريبية']);
+test('home page exposes members_count on each row', function () {
+    Club::factory()->create(['name' => 'نادي تجريبي']);
 
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('clubs.0.members_count')
-            ->where('events.0.club.name', 'نادي تجريبي')
         );
 });
 
@@ -197,29 +155,6 @@ test('home page filters clubs by college', function () {
         ->assertInertia(fn ($page) => $page
             ->has('clubs', 1)
             ->where('clubs.0.name', 'نادي الطب')
-        );
-});
-
-test('home page filters upcoming events by club filters', function () {
-    $cs = Club::factory()->create([
-        'name' => 'نادي تقني',
-        'category' => 'تقني',
-        'status' => 'active',
-    ]);
-    $arts = Club::factory()->create([
-        'name' => 'نادي فني',
-        'category' => 'ثقافي',
-        'status' => 'active',
-    ]);
-
-    Event::factory()->upcoming()->for($cs)->create(['title' => 'برمجة']);
-    Event::factory()->upcoming()->for($arts)->create(['title' => 'فن']);
-
-    $this->get(route('home', ['category' => 'تقني']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('events', 1)
-            ->where('events.0.title', 'برمجة')
         );
 });
 

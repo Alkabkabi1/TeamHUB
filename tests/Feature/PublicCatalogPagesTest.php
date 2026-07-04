@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Club;
-use App\Models\Event;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -19,8 +18,6 @@ test('clubs page renders active clubs with stats and tag/sort filters', function
         'joined_at' => now(),
     ]));
 
-    Event::factory()->upcoming()->for($popular)->create();
-
     $this->get(route('clubs'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
@@ -30,11 +27,12 @@ test('clubs page renders active clubs with stats and tag/sort filters', function
             ->where('clubs.0.members_count', 2)
             ->where('stats.clubs', 1)
             ->where('stats.members', 2)
-            ->where('stats.events', 1)
             ->where('filters.sort', 'members')
             ->has('filters.tag')
             ->has('filterOptions.tags')
             ->has('filterOptions.sorts')
+            ->has('stats.projects')
+            ->has('stats.open_tasks')
         );
 });
 
@@ -92,100 +90,6 @@ test('clubs page ignores an unknown sort and falls back to members', function ()
         ->assertInertia(fn ($page) => $page
             ->component('ClubsPage')
             ->where('filters.sort', 'members')
-        );
-});
-
-test('events page renders upcoming active events with registrations count', function () {
-    $club = Club::factory()->create(['name' => 'نادي الحاسبات', 'category' => 'تقني']);
-
-    Event::factory()->upcoming()->for($club)->create(['title' => 'ورشة برمجة']);
-    Event::factory()->past()->for($club)->create(['title' => 'فعالية قديمة']);
-
-    $this->get(route('events'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('EventsPage')
-            ->has('events', 1)
-            ->where('events.0.title', 'ورشة برمجة')
-            ->where('events.0.club.name', 'نادي الحاسبات')
-            ->has('events.0.registrations_count')
-            ->has('filters.search')
-            ->where('filters.sort', 'soonest')
-            ->has('filters.tag')
-            ->has('filterOptions.tags')
-            ->has('filterOptions.sorts')
-        );
-});
-
-test('events page filters by search across title description and location', function () {
-    $club = Club::factory()->create(['name' => 'نادي الحاسبات']);
-
-    Event::factory()->upcoming()->for($club)->create([
-        'title' => 'ورشة برمجة',
-        'description' => 'تعلم أساسيات سvelte',
-        'location' => 'قاعة الابتكار',
-    ]);
-    Event::factory()->upcoming()->for($club)->create([
-        'title' => 'معرض تقني',
-        'description' => 'عرض مشاريع الطلاب',
-        'location' => 'المسرح',
-    ]);
-
-    $this->get(route('events', ['search' => 'الابتكار']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('EventsPage')
-            ->has('events', 1)
-            ->where('events.0.title', 'ورشة برمجة')
-            ->where('filters.search', 'الابتكار')
-        );
-});
-
-test('events page filters by tag', function () {
-    $tag = Tag::factory()->create(['name' => 'برمجة']);
-    $club = Club::factory()->create();
-
-    $tagged = Event::factory()->upcoming()->for($club)->create(['title' => 'ورشة برمجة']);
-    $tagged->tags()->attach($tag);
-
-    Event::factory()->upcoming()->for($club)->create(['title' => 'معرض فني']);
-
-    $this->get(route('events', ['tag' => $tag->id]))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('EventsPage')
-            ->has('events', 1)
-            ->where('events.0.title', 'ورشة برمجة')
-            ->where('filters.tag', (string) $tag->id)
-        );
-});
-
-test('events page sorts by title and preserves the selected sort', function () {
-    $club = Club::factory()->create();
-
-    Event::factory()->upcoming()->for($club)->create(['title' => 'باء فعالية']);
-    Event::factory()->upcoming()->for($club)->create(['title' => 'ألف فعالية']);
-
-    $this->get(route('events', ['sort' => 'title']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('EventsPage')
-            ->has('events', 2)
-            ->where('events.0.title', 'ألف فعالية')
-            ->where('filters.sort', 'title')
-        );
-});
-
-test('events page ignores an unknown sort and falls back to soonest', function () {
-    $club = Club::factory()->create();
-
-    Event::factory()->upcoming()->for($club)->create();
-
-    $this->get(route('events', ['sort' => 'bogus']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('EventsPage')
-            ->where('filters.sort', 'soonest')
         );
 });
 

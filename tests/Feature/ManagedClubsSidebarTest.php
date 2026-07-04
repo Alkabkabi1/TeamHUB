@@ -38,7 +38,7 @@ test('a user managing one club gets a single managed_clubs entry in shared props
 test('a user managing two clubs gets two managed_clubs entries in shared props', function () {
     $user = User::factory()->student()->create();
     $club = attachRoles($user, [ClubRole::ClubLead]);
-    attachRoles($user, [ClubRole::EventsManager]);
+    attachRoles($user, [ClubRole::MembershipManager]);
 
     $this->actingAs($user)
         ->get(route('clubs.manage', $club))

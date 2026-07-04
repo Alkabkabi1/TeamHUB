@@ -5,10 +5,9 @@ use App\Enums\ClubRole;
 use App\Models\Club;
 use App\Models\ClubJoinApplication;
 use App\Models\ClubMembership;
-use App\Models\Event;
+use App\Models\Committee;
 use App\Models\Post;
 use App\Models\User;
-use App\Models\VolunteerHour;
 
 /**
  * Create a club managed by a fresh club-lead supervisor and return both.
@@ -93,37 +92,26 @@ test('the management dashboard returns a valid inertia page for a club lead', fu
             ->has('capabilities')
             ->where('canManageRoles', true)
             ->has('roleOptions')
-            ->has('pastEvents')
-            ->has('eligibleAttendees')
+            ->has('workspaceProjects')
+            ->has('recentActivity')
             ->has('stats')
             ->has('members')
-            ->has('posts')
         );
 });
 
-test('management dashboard lists members (including managers) with club volunteer hour totals', function () {
+test('management dashboard lists members including managers', function () {
     [$supervisor, $club] = managedClub();
-    $memberWithHours = User::factory()->student()->create(['name' => 'Member With Hours']);
-    $memberWithoutHours = User::factory()->student()->create(['name' => 'Member Zero Hours']);
+    $member = User::factory()->student()->create(['name' => 'Member One']);
+    $secondMember = User::factory()->student()->create(['name' => 'Member Two']);
 
     ClubMembership::factory()->approved()->create([
-        'user_id' => $memberWithHours->id,
+        'user_id' => $member->id,
         'club_id' => $club->id,
     ]);
 
     ClubMembership::factory()->approved()->create([
-        'user_id' => $memberWithoutHours->id,
+        'user_id' => $secondMember->id,
         'club_id' => $club->id,
-    ]);
-
-    $pastEvent = Event::factory()->past()->for($club)->create(['status' => 'active']);
-
-    VolunteerHour::factory()->create([
-        'user_id' => $memberWithHours->id,
-        'event_id' => $pastEvent->id,
-        'hours' => 7.5,
-        'approved_by' => $supervisor->id,
-        'approved_at' => now(),
     ]);
 
     $this->actingAs($supervisor)
@@ -131,15 +119,13 @@ test('management dashboard lists members (including managers) with club voluntee
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
-            ->where('stats.totalHours', 7.5)
-            // The lead and both members are all approved memberships.
             ->where('stats.membersCount', 3)
             ->has('members', 3)
             ->where('members', fn ($members) => collect($members)->contains(
-                fn ($member) => $member['email'] === $memberWithHours->email && $member['volunteerHours'] === 7.5
+                fn ($row) => $row['email'] === $member->email
             ))
             ->where('members', fn ($members) => collect($members)->contains(
-                fn ($member) => $member['email'] === $supervisor->email && in_array('club_lead', $member['roles'], true)
+                fn ($row) => $row['email'] === $supervisor->email && in_array('club_lead', $row['roles'], true)
             ))
         );
 });
@@ -169,18 +155,33 @@ test('pendingApplicationsCount counts ClubJoinApplication rows not ClubMembershi
         );
 });
 
-test('dashboard passes posts prop with club recent posts ordered latest first', function () {
+test('dashboard includes workspace projects for the club', function () {
     [$supervisor, $club] = managedClub();
 
-    $olderPost = Post::factory()->create([
+    $project = Committee::factory()->create([
         'club_id' => $club->id,
-        'title' => 'Older Post',
-        'published_at' => now()->subDays(5),
+        'name' => 'Demo Project',
     ]);
 
-    $newerPost = Post::factory()->create([
+    $this->actingAs($supervisor)
+        ->get(route('clubs.manage', $club))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('clubs/Manage')
+            ->has('workspaceProjects', 1)
+            ->where('workspaceProjects.0.id', $project->id)
+            ->where('stats.projectsCount', 1)
+        );
+});
+
+test('recent activity includes committee posts', function () {
+    [$supervisor, $club] = managedClub();
+    $project = Committee::factory()->create(['club_id' => $club->id]);
+
+    $post = Post::factory()->create([
         'club_id' => $club->id,
-        'title' => 'Newer Post',
+        'committee_id' => $project->id,
+        'title' => 'Project Update',
         'published_at' => now()->subDay(),
     ]);
 
@@ -191,27 +192,27 @@ test('dashboard passes posts prop with club recent posts ordered latest first', 
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
-            ->has('posts', 2)
-            ->where('posts.0.id', $newerPost->id)
-            ->where('posts.1.id', $olderPost->id)
+            ->where('recentActivity', fn ($items) => collect($items)->contains(
+                fn ($item) => $item['type'] === 'update' && $item['title'] === $post->title
+            ))
         );
 });
 
-test('a content manager only sees the news capability on the dashboard', function () {
+test('a membership manager only sees member-management capabilities on the dashboard', function () {
     $club = Club::factory()->create(['status' => 'active']);
-    $contentManager = User::factory()->student()->create();
+    $membershipManager = User::factory()->student()->create();
     $membership = ClubMembership::factory()->approved()->create([
-        'user_id' => $contentManager->id,
+        'user_id' => $membershipManager->id,
         'club_id' => $club->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ContentManager]);
+    $membership->syncClubRoles([ClubRole::MembershipManager]);
 
-    $this->actingAs($contentManager)
+    $this->actingAs($membershipManager)
         ->get(route('clubs.manage', $club))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
-            ->where('capabilities', ['manage-news'])
+            ->where('capabilities', ['manage-members', 'view-reports'])
             ->where('canManageRoles', false)
         );
 });

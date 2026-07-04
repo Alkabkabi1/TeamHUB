@@ -8,16 +8,12 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
 use Stringable;
 
-/**
- * Read-only reporting for a club: high-level stats, member roster, volunteer
- * hours, or attendance. Restricted to managers with the view-reports capability.
- */
 class GetClubReport extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get a report for a club you manage: "stats" (totals), "members", "volunteer-hours", or '
-            .'"attendance". Only available to club managers with the view-reports capability.';
+        return 'Get a report for a club you manage: "stats" (totals) or "members". '
+            .'Only available to club managers with the view-reports capability.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -38,8 +34,6 @@ class GetClubReport extends AssistantTool
 
         $report = match ($type) {
             'members' => $service->membersReport($club, $locale, $this->user),
-            'volunteer-hours' => $service->volunteerHoursReport($club, $locale, $this->user),
-            'attendance' => $service->attendanceReport($club, $locale, $this->user),
             default => $service->clubStats(
                 $club,
                 $service->clubMembersForManagement($club, $locale)->count(),
@@ -56,7 +50,7 @@ class GetClubReport extends AssistantTool
                 ->description('The club name (or numeric id) to report on.')
                 ->required(),
             'type' => $schema->string()
-                ->enum(['stats', 'members', 'volunteer-hours', 'attendance'])
+                ->enum(['stats', 'members'])
                 ->description('Which report to return (default "stats").'),
         ];
     }

@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\ClubCapability;
 use App\Enums\ClubRole;
-use App\Models\CertificateTemplate;
 use App\Models\Club;
 use App\Models\ClubJoinApplication;
 use App\Models\Committee;
-use App\Models\Event;
 use App\Models\Post;
 use App\Models\Task;
 use App\Models\User;
@@ -22,11 +20,6 @@ class ClubManagementController extends Controller
         private readonly ClubSupervisorReportService $reports,
     ) {}
 
-    /**
-     * Show the club management dashboard. Club-scoped: any user holding at
-     * least one club capability (or university staff, who bypass) may open it,
-     * and the page renders each section according to the capabilities passed.
-     */
     public function index(Club $club): Response
     {
         /** @var User $user */
@@ -64,15 +57,10 @@ class ClubManagementController extends Controller
     {
         $club->loadMissing('university:id,name');
 
-        // University staff bypass every club gate; surface the full capability
-        // set so their UI mirrors a club lead's. Everyone else gets the union
-        // of their roles' capabilities within this club.
         $capabilities = $user->isUniversityStaff()
             ? ClubCapability::values()
             : $user->clubCapabilitiesFor($club)->map(fn (ClubCapability $capability): string => $capability->value)->values()->all();
 
-        $pastEvents = $this->reports->pastEventsForClub($club);
-        $eligibleAttendees = $this->reports->eligibleAttendeesForClub($club, $pastEvents);
         $members = $this->reports->clubMembersForManagement($club);
         $projectIds = $club->committees()->pluck('id');
 
@@ -103,7 +91,7 @@ class ClubManagementController extends Controller
         $recentActivity = collect([
             ...Task::query()
                 ->whereIn('committee_id', $projectIds)
-                ->with('committee:id,name')
+                ->with('committee:id,name,club_id')
                 ->latest('updated_at')
                 ->limit(6)
                 ->get()
@@ -117,7 +105,8 @@ class ClubManagementController extends Controller
                     'url' => route('committees.tasks.show', [$club, $task->committee_id, $task]),
                 ]),
             ...Post::query()
-                ->where('club_id', $club->id)
+                ->whereIn('committee_id', $projectIds)
+                ->with('committee:id,name,club_id')
                 ->latest('published_at')
                 ->limit(4)
                 ->get()
@@ -125,10 +114,12 @@ class ClubManagementController extends Controller
                     'id' => "post-{$post->id}",
                     'type' => 'update',
                     'title' => $post->title,
-                    'context' => $club->name,
+                    'context' => $post->committee?->name ?? $club->name,
                     'time' => $post->published_at?->diffForHumans(),
                     'sort_at' => $post->published_at?->timestamp ?? 0,
-                    'url' => route('news.show', $post),
+                    'url' => $post->committee_id
+                        ? route('committees.updates.index', [$club, $post->committee_id])
+                        : route('clubs.manage', $club),
                 ]),
         ])->sortByDesc('sort_at')->take(8)->map(function (array $item): array {
             unset($item['sort_at']);
@@ -137,7 +128,6 @@ class ClubManagementController extends Controller
         })->values();
 
         return [
-            // Override the shared university brand with this club's color when set.
             'theme' => ['brand' => $club->theme ?: config('theme.brand')],
             'club' => [
                 'id' => $club->id,
@@ -155,36 +145,15 @@ class ClubManagementController extends Controller
                     'isManager' => $role->isManager(),
                 ])
                 ->values(),
-            'pastEvents' => $pastEvents,
-            'eligibleAttendees' => $eligibleAttendees,
-            'hasDefaultTemplate' => $club->defaultCertificateTemplate() !== null,
-            'certificateTemplates' => $club->certificateTemplates()
-                ->with(['media', 'placeholders'])
-                ->latest()
-                ->get()
-                ->map(fn (CertificateTemplate $template): array => [
-                    'id' => $template->id,
-                    'name' => $template->name,
-                    'status' => $template->status,
-                    'is_default' => $template->is_default,
-                    'image_url' => $template->imageUrl(),
-                    'width' => $template->width,
-                    'height' => $template->height,
-                    'fields_count' => $template->placeholders->count(),
-                    'fields' => $template->placeholders->map(fn ($placeholder): array => [
-                        'text' => $placeholder->static_text ?: __($placeholder->binding->label()),
-                        'is_image' => $placeholder->binding->isImage(),
-                        'x' => (float) $placeholder->x,
-                        'y' => (float) $placeholder->y,
-                        'width' => (float) $placeholder->width,
-                        'font_size' => (float) $placeholder->font_size,
-                        'align' => $placeholder->align,
-                        'color' => $placeholder->color,
-                        'font_weight' => $placeholder->font_weight,
-                    ])->all(),
-                ])
-                ->values(),
-            'stats' => $this->reports->clubStats($club, $members->count()),
+            'stats' => [
+                'membersCount' => $members->count(),
+                'pendingApplicationsCount' => ClubJoinApplication::query()
+                    ->where('club_id', $club->id)
+                    ->where('status', 'pending')
+                    ->count(),
+                'projectsCount' => $workspaceProjects->count(),
+                'openTasksCount' => (clone $workspaceTaskQuery)->whereNotIn('status', ['done'])->count(),
+            ],
             'workspaceStats' => [
                 'projects_count' => $workspaceProjects->count(),
                 'tasks_count' => (clone $workspaceTaskQuery)->count(),
@@ -207,34 +176,6 @@ class ClubManagementController extends Controller
                     'name' => $application->full_name,
                     'details' => "{$application->major} - {$application->level}",
                     'time' => $application->created_at?->diffForHumans(),
-                ])
-                ->values(),
-            'managedEvents' => Event::query()
-                ->where('club_id', $club->id)
-                ->withCount('attendances')
-                ->orderByDesc('starts_at')
-                ->get()
-                ->map(fn (Event $event) => [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'starts_at' => $event->starts_at?->toIso8601String(),
-                    'ends_at' => $event->ends_at?->toIso8601String(),
-                    'location' => $event->location,
-                    'capacity' => $event->capacity,
-                    'status' => $event->status->value,
-                    'attendances_count' => $event->attendances_count,
-                    'scannable' => $event->isScannable(),
-                ])
-                ->values(),
-            'posts' => Post::query()
-                ->where('club_id', $club->id)
-                ->orderByDesc('published_at')
-                ->limit(10)
-                ->get()
-                ->map(fn (Post $post) => [
-                    'id' => $post->id,
-                    'title' => $post->title,
-                    'published_at' => $post->published_at?->toIso8601String(),
                 ])
                 ->values(),
         ];

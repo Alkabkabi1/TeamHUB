@@ -4,10 +4,8 @@ use App\Models\Club;
 use App\Models\ClubJoinApplication;
 use App\Models\ClubMembership;
 use App\Models\ClubResource;
-use App\Models\Event;
-use App\Models\EventAttendance;
+use App\Models\Post;
 use App\Models\User;
-use App\Models\VolunteerHour;
 use Database\Seeders\DatabaseSeeder;
 
 test('database seeder populates demo users and clubs', function () {
@@ -18,16 +16,15 @@ test('database seeder populates demo users and clubs', function () {
         ->and(User::query()->where('email', 'committee-leader@teamhub.test')->exists())->toBeTrue()
         ->and(User::query()->where('email', 'admin@teamhub.test')->exists())->toBeTrue()
         ->and(Club::query()->where('name', 'نادي الحاسبات')->exists())->toBeTrue()
-        ->and(Club::count())->toBeGreaterThanOrEqual(6)
-        ->and(Event::count())->toBeGreaterThanOrEqual(12);
+        ->and(Club::count())->toBeGreaterThanOrEqual(6);
 });
 
-test('database seeder populates memberships resources and volunteer data', function () {
+test('database seeder populates memberships and resources', function () {
     $this->seed(DatabaseSeeder::class);
 
     expect(ClubMembership::count())->toBeGreaterThan(0)
         ->and(ClubResource::count())->toBeGreaterThan(0)
-        ->and(VolunteerHour::count())->toBeGreaterThan(0)
+        ->and(Post::count())->toBeGreaterThan(0)
         ->and(ClubJoinApplication::query()->where('status', 'pending')->exists())->toBeTrue();
 });
 
@@ -71,39 +68,11 @@ test('seeded data includes approved join applications', function () {
     expect(ClubJoinApplication::query()->where('status', 'approved')->exists())->toBeTrue();
 });
 
-test('student demo user has volunteer hours after seeding', function () {
-    $this->seed(DatabaseSeeder::class);
-
-    $student = User::query()->where('email', 'student@teamhub.test')->first();
-
-    expect($student)->not->toBeNull()
-        ->and((float) $student->volunteerHours()->sum('hours'))->toBeGreaterThan(0);
-});
-
-test('student demo user has certificates after seeding', function () {
-    $this->seed(DatabaseSeeder::class);
-
-    $student = User::query()->where('email', 'student@teamhub.test')->first();
-
-    expect($student)->not->toBeNull()
-        ->and($student->certificates()->count())->toBeGreaterThanOrEqual(1);
-});
-
-test('seeded data includes past and upcoming event attendances', function () {
-    $this->seed(DatabaseSeeder::class);
-
-    expect(EventAttendance::count())->toBeGreaterThan(0)
-        ->and(EventAttendance::query()
-            ->whereHas('event', fn ($query) => $query->where('starts_at', '<', now()))
-            ->exists())->toBeTrue()
-        ->and(EventAttendance::query()->where('status', 'pending')->exists())->toBeTrue();
-});
-
 test('database seeder can run twice without errors', function () {
     $this->seed(DatabaseSeeder::class);
 
-    $hoursAfterFirst = VolunteerHour::count();
+    $clubsAfterFirst = Club::count();
 
     expect(fn () => $this->seed(DatabaseSeeder::class))->not->toThrow(Throwable::class)
-        ->and(VolunteerHour::count())->toBe($hoursAfterFirst);
+        ->and(Club::count())->toBe($clubsAfterFirst);
 });

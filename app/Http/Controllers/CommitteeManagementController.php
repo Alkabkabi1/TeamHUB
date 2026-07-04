@@ -8,7 +8,6 @@ use App\Models\Club;
 use App\Models\ClubResource;
 use App\Models\Committee;
 use App\Models\CommitteeMembership;
-use App\Models\Event;
 use App\Models\Post;
 use App\Models\Task;
 use App\Models\TaskActivity;
@@ -24,11 +23,6 @@ class CommitteeManagementController extends Controller
         private readonly CommitteeReportService $reports,
     ) {}
 
-    /**
-     * Show the committee management dashboard (Figma 505-1402). Mirrors the club
-     * dashboard: any holder of a committee capability (and staff / parent-club
-     * leads, who inherit them all) may open it; sections render per capability.
-     */
     public function index(Club $club, Committee $committee): Response
     {
         /** @var User $user */
@@ -113,8 +107,6 @@ class CommitteeManagementController extends Controller
             ->values()
             ->all();
 
-        $pastEvents = $this->reports->pastEventsForCommittee($committee);
-        $eligibleAttendees = $this->reports->eligibleAttendeesForCommittee($committee, $pastEvents);
         $members = $this->reports->committeeMembersForManagement($committee);
 
         $taskStats = [
@@ -146,8 +138,6 @@ class CommitteeManagementController extends Controller
                     'isManager' => $role->isManager(),
                 ])
                 ->values(),
-            'pastEvents' => $pastEvents,
-            'eligibleAttendees' => $eligibleAttendees,
             'stats' => $this->reports->committeeStats($committee, $members->count()),
             'taskStats' => $taskStats,
             'overviewMembers' => $members->take(8)->values(),
@@ -188,22 +178,6 @@ class CommitteeManagementController extends Controller
                     'name' => $membership->user?->name ?? '',
                     'details' => $membership->user?->email ?? '',
                     'time' => $membership->requested_at?->diffForHumans(),
-                ])
-                ->values(),
-            'managedEvents' => Event::query()
-                ->where('committee_id', $committee->id)
-                ->withCount('attendances')
-                ->orderByDesc('starts_at')
-                ->get()
-                ->map(fn (Event $event) => [
-                    'id' => $event->id,
-                    'title' => $event->title,
-                    'starts_at' => $event->starts_at?->toIso8601String(),
-                    'ends_at' => $event->ends_at?->toIso8601String(),
-                    'location' => $event->location,
-                    'capacity' => $event->capacity,
-                    'status' => $event->status->value,
-                    'attendances_count' => $event->attendances_count,
                 ])
                 ->values(),
             'posts' => Post::query()

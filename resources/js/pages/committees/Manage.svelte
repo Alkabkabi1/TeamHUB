@@ -1,78 +1,71 @@
 <script lang="ts">
     import {
-        Calendar03Icon,
-        Clock01Icon,
+        CheckmarkCircle01Icon,
+        Clock05Icon,
         PlusSignIcon,
-        UserGroup03Icon,
-        UserAdd01Icon,
+        TaskDaily01Icon,
+        UserGroupIcon,
     } from '@hugeicons/core-free-icons';
+    import type { IconSvgElement } from '@hugeicons/svelte';
     import { HugeiconsIcon } from '@hugeicons/svelte';
-    import { Link, router } from '@inertiajs/svelte';
-    import AppHead from '@/components/AppHead.svelte';
-    import DashboardCard from '@/components/DashboardCard.svelte';
-    import EmptyState from '@/components/EmptyState.svelte';
-    import EventManageCard from '@/components/EventManageCard.svelte';
-    import HeroBanner from '@/components/HeroBanner.svelte';
-    import ProjectManageShell from '@/components/ProjectManageShell.svelte';
-    import ReportCard from '@/components/ReportCard.svelte';
-    import SectionHeader from '@/components/SectionHeader.svelte';
-    import StatCard from '@/components/StatCard.svelte';
-    import { formatNumber, t } from '@/lib/i18n.svelte';
-    import {
-        create as eventCreate,
-        edit as eventEdit,
-        destroy as eventDestroy,
-    } from '@/routes/committees/events';
+    import { Link, page, router } from '@inertiajs/svelte';
     import {
         search as memberSearch,
         store as memberStore,
-        roles as memberRoles,
+        updateRoles as memberUpdateRoles,
         destroy as memberDestroy,
-    } from '@/routes/committees/members';
+    } from '@/actions/App/Http/Controllers/CommitteeMemberController';
     import {
         approve as requestApprove,
         reject as requestReject,
-    } from '@/routes/committees/memberships';
+    } from '@/actions/App/Http/Controllers/CommitteeMembershipController';
+    import { members as reportMembers } from '@/actions/App/Http/Controllers/CommitteeReportController';
     import {
         create as newsCreate,
         edit as newsEdit,
-    } from '@/routes/committees/news';
-    import {
-        members as membersReport,
-        volunteerHours as hoursReport,
-        attendance as attendanceReport,
-    } from '@/routes/committees/reports';
-    import { destroy as postDestroy } from '@/routes/news';
+        destroy as postDestroy,
+    } from '@/actions/App/Http/Controllers/NewsController';
+    import AppHead from '@/components/AppHead.svelte';
+    import DashboardCard from '@/components/DashboardCard.svelte';
+    import EmptyState from '@/components/EmptyState.svelte';
+    import FilterSelect from '@/components/FilterSelect.svelte';
+    import HeroBanner from '@/components/HeroBanner.svelte';
+    import ProjectManageShell from '@/components/ProjectManageShell.svelte';
+    import ReportCard from '@/components/ReportCard.svelte';
+    import SectionHeading from '@/components/SectionHeading.svelte';
+    import StatCard from '@/components/StatCard.svelte';
+    import { formatNumber, t } from '@/lib/i18n.svelte';
     import type { ClubRef } from '@/types';
 
+    type Stat = {
+        label: string;
+        value: string;
+        sub: string;
+        icon: IconSvgElement;
+    };
+
     type RoleOption = { value: string; label: string; isManager: boolean };
+
     type Member = {
         membershipId: number;
         userId: number;
         name: string;
         email: string;
         joinDate: string;
-        volunteerHours: number;
         roles: string[];
         isManager: boolean;
         status: string;
     };
+
     type PendingRequest = {
         id: number;
         name: string;
         details: string;
         time: string | null;
     };
-    type ManagedEvent = {
-        id: number;
-        title: string;
-        starts_at: string | null;
-        location: string | null;
-        capacity: number | null;
-        status: string;
-        attendances_count: number;
-    };
+
     type PostItem = { id: number; title: string; published_at: string | null };
+
     type ActivityItem = {
         id: number;
         message: string;
@@ -80,12 +73,41 @@
         task_title: string;
         task_url: string;
     };
+
     type TaskStats = {
         todo: number;
         in_progress: number;
         review: number;
         done: number;
         overdue: number;
+    };
+
+    type DashboardStats = {
+        membersCount: number;
+        pendingApplicationsCount: number;
+    };
+
+    type ReportLocale = 'ar' | 'en';
+
+    type Props = {
+        club: ClubRef & { logo_url?: string | null };
+        committee: {
+            id: number;
+            name: string;
+            logo_url: string | null;
+            status: string;
+        };
+        capabilities?: string[];
+        canManageRoles?: boolean;
+        roleOptions?: RoleOption[];
+        stats?: DashboardStats;
+        taskStats?: TaskStats;
+        overviewMembers?: Member[];
+        recentUpdates?: PostItem[];
+        recentActivities?: ActivityItem[];
+        members?: Member[];
+        pendingApplications?: PendingRequest[];
+        posts?: PostItem[];
     };
 
     let {
@@ -95,10 +117,8 @@
         canManageRoles = false,
         roleOptions = [],
         stats = {
-            totalHours: 0,
-            pendingApplicationsCount: 0,
-            upcomingEventsCount: 0,
             membersCount: 0,
+            pendingApplicationsCount: 0,
         },
         taskStats = {
             todo: 0,
@@ -112,60 +132,63 @@
         recentActivities = [],
         members = [],
         pendingApplications = [],
-        managedEvents = [],
         posts = [],
-    }: {
-        club: ClubRef & { logo_url?: string | null };
-        committee: {
-            id: number;
-            name: string;
-            logo_url: string | null;
-            status: string;
-        };
-        capabilities?: string[];
-        canManageRoles?: boolean;
-        roleOptions?: RoleOption[];
-        stats?: {
-            totalHours: number;
-            pendingApplicationsCount: number;
-            upcomingEventsCount: number;
-            membersCount: number;
-        };
-        taskStats?: TaskStats;
-        overviewMembers?: Member[];
-        recentUpdates?: PostItem[];
-        recentActivities?: ActivityItem[];
-        members?: Member[];
-        pendingApplications?: PendingRequest[];
-        managedEvents?: ManagedEvent[];
-        posts?: PostItem[];
-    } = $props();
+    }: Props = $props();
+
+    const CAP = {
+        committee: 'manage-committee',
+        news: 'manage-committee-news',
+        members: 'manage-committee-members',
+        reports: 'view-committee-reports',
+    } as const;
 
     const ids = $derived<[number, number]>([club.id, committee.id]);
+
+    const openTasksCount = $derived(
+        taskStats.todo + taskStats.in_progress + taskStats.review,
+    );
+
     function can(capability: string): boolean {
         return capabilities.includes(capability);
     }
 
-    const statCards = $derived([
+    let reportLocale = $state<ReportLocale>(
+        page.props.locale === 'en' ? 'en' : 'ar',
+    );
+
+    const reportLocaleOptions = $derived([
+        { value: 'ar', label: t('app.locale_ar') },
+        { value: 'en', label: t('app.locale_en') },
+    ]);
+
+    const membersReportUrl = $derived(
+        reportMembers.url(ids, { query: { locale: reportLocale } }),
+    );
+
+    const statCards: Stat[] = $derived([
         {
-            icon: UserGroup03Icon,
             label: t('committees.dashboard.members'),
             value: formatNumber(stats.membersCount),
+            sub: t('app.members'),
+            icon: UserGroupIcon,
         },
         {
-            icon: Clock01Icon,
-            label: t('committees.dashboard.hours'),
-            value: formatNumber(Math.round(stats.totalHours)),
-        },
-        {
-            icon: Calendar03Icon,
-            label: t('committees.dashboard.upcoming_events'),
-            value: formatNumber(stats.upcomingEventsCount),
-        },
-        {
-            icon: UserAdd01Icon,
             label: t('committees.dashboard.pending_requests'),
             value: formatNumber(stats.pendingApplicationsCount),
+            sub: t('dashboard.pending_review'),
+            icon: Clock05Icon,
+        },
+        {
+            label: t('dashboard_student.stats.open_tasks'),
+            value: formatNumber(openTasksCount),
+            sub: t('dashboard.in_progress_count'),
+            icon: TaskDaily01Icon,
+        },
+        {
+            label: t('tasks.sections.done'),
+            value: formatNumber(taskStats.done),
+            sub: `${formatNumber(taskStats.overdue)} ${t('tasks.sections.overdue')}`,
+            icon: CheckmarkCircle01Icon,
         },
     ]);
 
@@ -181,7 +204,6 @@
         });
     }
 
-    // --- Join request review ---
     function approveRequest(id: number): void {
         router.post(
             requestApprove([club.id, committee.id, id]).url,
@@ -189,6 +211,7 @@
             { preserveScroll: true },
         );
     }
+
     function rejectRequest(id: number): void {
         router.post(
             requestReject([club.id, committee.id, id]).url,
@@ -197,7 +220,6 @@
         );
     }
 
-    // --- Member search + add ---
     let term = $state('');
     let results = $state<{ id: number; name: string; email: string }[]>([]);
     let searching = $state(false);
@@ -237,7 +259,6 @@
         );
     }
 
-    // --- Role editing ---
     let editingId = $state<number | null>(null);
     let draftRoles = $state<string[]>([]);
 
@@ -245,18 +266,21 @@
         editingId = member.membershipId;
         draftRoles = [...member.roles];
     }
+
     function toggleRole(value: string): void {
         draftRoles = draftRoles.includes(value)
             ? draftRoles.filter((r) => r !== value)
             : [...draftRoles, value];
     }
+
     function saveRoles(membershipId: number): void {
         router.put(
-            memberRoles([club.id, committee.id, membershipId]).url,
+            memberUpdateRoles([club.id, committee.id, membershipId]).url,
             { roles: draftRoles },
             { preserveScroll: true, onSuccess: () => (editingId = null) },
         );
     }
+
     function removeMember(membershipId: number): void {
         router.delete(
             memberDestroy([club.id, committee.id, membershipId]).url,
@@ -264,12 +288,6 @@
         );
     }
 
-    // --- Events / news delete ---
-    function deleteEvent(id: number): void {
-        router.delete(eventDestroy([club.id, committee.id, id]).url, {
-            preserveScroll: true,
-        });
-    }
     function deletePost(id: number): void {
         router.delete(postDestroy(id).url, { preserveScroll: true });
     }
@@ -279,7 +297,7 @@
 
 <div class="flex flex-1 flex-col bg-[#fdfdfd]">
     <div
-        class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-12"
+        class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-12 lg:py-10"
     >
         <ProjectManageShell active="overview" {club} {committee} />
 
@@ -291,15 +309,22 @@
             backgroundLogo={committee.logo_url ?? club.logo_url ?? undefined}
         />
 
-        <!-- Stats -->
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('committees.dashboard.overview')} />
-            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <section
+            aria-label={t('dashboard.overview')}
+            class="flex flex-col gap-5"
+        >
+            <div class="flex items-end justify-start">
+                <h2 class="text-lg text-[#5f5f5f] sm:text-xl">
+                    {t('dashboard.overview')}
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {#each statCards as stat (stat.label)}
                     <StatCard
                         icon={stat.icon}
                         label={stat.label}
                         value={stat.value}
+                        sub={stat.sub}
                     />
                 {/each}
             </div>
@@ -323,11 +348,23 @@
 
         <section class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <DashboardCard class="flex flex-col gap-4">
-                <div class="text-start">
-                    <h2 class="text-lg font-medium text-black">
-                        {t('app.overview')}
-                    </h2>
-                    <p class="text-sm text-[#7e7e7e]">{t('app.project')}</p>
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-start">
+                        <h2 class="text-lg font-medium text-black">
+                            {t('app.project')}
+                        </h2>
+                        <p class="text-sm text-[#7e7e7e]">
+                            {openTasksCount}
+                            {t('tasks.title')} • {taskStats.overdue}
+                            {t('tasks.sections.overdue')}
+                        </p>
+                    </div>
+                    <Link
+                        href={`/clubs/${club.id}/committees/${committee.id}/tasks`}
+                        class="rounded-full bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/20"
+                    >
+                        {t('app.show_more')}
+                    </Link>
                 </div>
 
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -443,14 +480,15 @@
             </DashboardCard>
         </section>
 
-        {#if can('manage-committee-members')}
-            <!-- Member management -->
-            <section class="flex flex-col gap-5">
-                <SectionHeader
+        {#if can(CAP.members)}
+            <section
+                aria-label={t('committees.dashboard.members_management')}
+                class="flex flex-col gap-5"
+            >
+                <SectionHeading
                     title={t('committees.dashboard.members_management')}
                 />
 
-                <!-- Pending join requests -->
                 <DashboardCard class="flex flex-col gap-4">
                     <h3 class="text-start text-[14px] text-black">
                         {t('committees.dashboard.pending_requests')}
@@ -499,7 +537,6 @@
                     {/if}
                 </DashboardCard>
 
-                <!-- Add member -->
                 <DashboardCard class="flex flex-col gap-4">
                     <h3 class="text-start text-[14px] text-black">
                         {t('committees.dashboard.add_member')}
@@ -548,7 +585,6 @@
                     {/if}
                 </DashboardCard>
 
-                <!-- Members table -->
                 <DashboardCard class="flex flex-col gap-4">
                     <h3 class="text-start text-[14px] text-black">
                         {t('committees.dashboard.current_members')}
@@ -587,20 +623,6 @@
                                                     )}
                                                 </span>
                                             {/each}
-                                            <span
-                                                class="text-[12px] text-[#7e7e7e]"
-                                            >
-                                                {t(
-                                                    'committees.dashboard.hours_short',
-                                                    {
-                                                        count: formatNumber(
-                                                            Math.round(
-                                                                member.volunteerHours,
-                                                            ),
-                                                        ),
-                                                    },
-                                                )}
-                                            </span>
                                             {#if canManageRoles}
                                                 <button
                                                     type="button"
@@ -687,80 +709,28 @@
             </section>
         {/if}
 
-        {#if can('manage-committee-events')}
-            <!-- Event management -->
-            <section class="flex flex-col gap-5">
-                <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-lg text-[#5f5f5f] sm:text-xl">
-                        {t('committees.dashboard.events_management')}
-                    </h2>
-                    <Link
-                        href={eventCreate(ids).url}
-                        class="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-[13px] text-white transition-colors hover:bg-brand-dark"
-                    >
-                        <HugeiconsIcon
-                            strokeWidth={2}
-                            icon={PlusSignIcon}
-                            class="size-4"
-                        />
-                        {t('committees.dashboard.add_event')}
-                    </Link>
-                </div>
-                {#if managedEvents.length === 0}
-                    <EmptyState message={t('committees.dashboard.no_events')} />
-                {:else}
-                    <div
-                        class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
-                    >
-                        {#each managedEvents as event (event.id)}
-                            <EventManageCard
-                                title={event.title}
-                                statusLabel={t(
-                                    `events.status_labels.${event.status}`,
-                                )}
-                                dateLabel={dateLabel(event.starts_at)}
-                                registrationsLabel={t(
-                                    'committees.dashboard.registrations',
-                                    {
-                                        count: formatNumber(
-                                            event.attendances_count,
-                                        ),
-                                    },
-                                )}
-                                editHref={eventEdit([
-                                    club.id,
-                                    committee.id,
-                                    event.id,
-                                ]).url}
-                                editLabel={t('committees.dashboard.edit')}
-                                deleteLabel={t('committees.dashboard.delete')}
-                                onDelete={() => deleteEvent(event.id)}
+        {#if can(CAP.news)}
+            <section
+                aria-label={t('committees.dashboard.news_management')}
+                class="flex flex-col gap-5"
+            >
+                <SectionHeading
+                    title={t('committees.dashboard.news_management')}
+                >
+                    {#snippet action()}
+                        <Link
+                            href={newsCreate(ids).url}
+                            class="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-[13px] text-white transition-colors hover:bg-brand-dark"
+                        >
+                            <HugeiconsIcon
+                                strokeWidth={2}
+                                icon={PlusSignIcon}
+                                class="size-4"
                             />
-                        {/each}
-                    </div>
-                {/if}
-            </section>
-        {/if}
-
-        {#if can('manage-committee-news')}
-            <!-- News management -->
-            <section class="flex flex-col gap-5">
-                <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-lg text-[#5f5f5f] sm:text-xl">
-                        {t('committees.dashboard.news_management')}
-                    </h2>
-                    <Link
-                        href={newsCreate(ids).url}
-                        class="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-[13px] text-white transition-colors hover:bg-brand-dark"
-                    >
-                        <HugeiconsIcon
-                            strokeWidth={2}
-                            icon={PlusSignIcon}
-                            class="size-4"
-                        />
-                        {t('committees.dashboard.add_news')}
-                    </Link>
-                </div>
+                            {t('committees.dashboard.add_news')}
+                        </Link>
+                    {/snippet}
+                </SectionHeading>
                 {#if posts.length === 0}
                     <EmptyState message={t('committees.dashboard.no_news')} />
                 {:else}
@@ -800,25 +770,44 @@
             </section>
         {/if}
 
-        {#if can('view-committee-reports')}
-            <!-- Reports -->
-            <section class="flex flex-col gap-5">
-                <SectionHeader title={t('committees.dashboard.export')} />
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {#if can(CAP.reports)}
+            <section
+                aria-label={t('dashboard_supervisor.reports_section')}
+                class="flex flex-col gap-5"
+            >
+                <SectionHeading
+                    title={t('dashboard_supervisor.reports_section')}
+                >
+                    {#snippet action()}
+                        <label
+                            class="flex items-center gap-2 text-[12px] text-[#5f5f5f]"
+                        >
+                            <span
+                                >{t(
+                                    'dashboard_supervisor.report_language',
+                                )}</span
+                            >
+                            <FilterSelect
+                                class="min-h-0 w-auto gap-1.5 rounded-full border-brand/20 px-3 py-1.5 text-[12px] text-brand data-[size=default]:h-auto"
+                                ariaLabel={t(
+                                    'dashboard_supervisor.report_language',
+                                )}
+                                value={reportLocale}
+                                options={reportLocaleOptions}
+                                onValueChange={(locale) =>
+                                    (reportLocale = locale as ReportLocale)}
+                            />
+                        </label>
+                    {/snippet}
+                </SectionHeading>
+                <div class="grid grid-cols-1 gap-5 sm:max-w-sm">
                     <ReportCard
                         title={t('committees.dashboard.report_members')}
-                        href={membersReport(ids).url}
-                        buttonLabel={t('committees.dashboard.export_button')}
-                    />
-                    <ReportCard
-                        title={t('committees.dashboard.report_hours')}
-                        href={hoursReport(ids).url}
-                        buttonLabel={t('committees.dashboard.export_button')}
-                    />
-                    <ReportCard
-                        title={t('committees.dashboard.report_attendance')}
-                        href={attendanceReport(ids).url}
-                        buttonLabel={t('committees.dashboard.export_button')}
+                        description={t(
+                            'dashboard_supervisor.report_members_desc',
+                        )}
+                        href={membersReportUrl}
+                        buttonLabel={t('app.export_pdf')}
                     />
                 </div>
             </section>

@@ -3,7 +3,10 @@
     import AppHead from '@/components/AppHead.svelte';
     import InputError from '@/components/InputError.svelte';
     import ProjectManageShell from '@/components/ProjectManageShell.svelte';
+    import TaskCommentsPanel from '@/components/tasks/TaskCommentsPanel.svelte';
+    import TaskDeliverablePanel from '@/components/tasks/TaskDeliverablePanel.svelte';
     import TaskPriorityBadge from '@/components/tasks/TaskPriorityBadge.svelte';
+    import TaskReviewPanel from '@/components/tasks/TaskReviewPanel.svelte';
     import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import { formatDate, t } from '@/lib/i18n.svelte';
 
@@ -418,286 +421,33 @@
                     </div>
                 {/if}
 
-                <div
-                    class="rounded-[20px] bg-white p-6 shadow-[8px_8px_48px_rgba(0,0,0,0.06)] dark:bg-[#111827] dark:shadow-[8px_8px_48px_rgba(0,0,0,0.28)]"
-                >
-                    <h2 class="text-lg font-medium text-black dark:text-white">
-                        {t('tasks.deliverable_section')}
-                    </h2>
-                    <p class="mt-1 text-sm text-[#7e7e7e] dark:text-[#94a3b8]">
-                        {t('tasks.deliverable_help')}
-                    </p>
-
-                    {#if task.has_deliverable}
-                        <div
-                            class="mt-4 space-y-3 rounded-2xl border border-black/10 bg-slate-50 p-4 text-sm dark:border-white/10 dark:bg-white/5 dark:text-[#cbd5e1]"
-                        >
-                            {#if task.deliverable_file}
-                                <p>
-                                    <span
-                                        class="font-medium text-black dark:text-white"
-                                        >{t('tasks.deliverable_file')}:</span
-                                    >
-                                    <a
-                                        href={task.deliverable_file.url}
-                                        class="text-brand underline"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        {task.deliverable_file.name}
-                                    </a>
-                                </p>
-                            {/if}
-                            {#if task.deliverable_url}
-                                <p>
-                                    <span
-                                        class="font-medium text-black dark:text-white"
-                                        >{t('tasks.deliverable_link')}:</span
-                                    >
-                                    <a
-                                        href={task.deliverable_url}
-                                        class="text-brand underline"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        {task.deliverable_url}
-                                    </a>
-                                </p>
-                            {/if}
-                            {#if task.deliverable_notes}
-                                <p
-                                    class="whitespace-pre-wrap text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                >
-                                    {task.deliverable_notes}
-                                </p>
-                            {/if}
-                        </div>
-                    {/if}
-
-                    {#if canSubmitDeliverable && task.status !== 'done'}
-                        <form
-                            onsubmit={submitDeliverable}
-                            class="mt-4 space-y-4"
-                        >
-                            <div class="flex flex-col gap-2">
-                                <label
-                                    for="deliverable_file"
-                                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                    >{t('tasks.deliverable_file')}</label
-                                >
-                                <input
-                                    id="deliverable_file"
-                                    name="deliverable_file"
-                                    type="file"
-                                    onchange={onDeliverableFileChange}
-                                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1] file:mr-4 file:rounded-full file:border-0 file:bg-brand/15 file:px-4 file:py-2 file:text-xs file:text-brand"
-                                />
-                                {#if selectedFileName}
-                                    <p
-                                        class="text-xs text-[#7e7e7e] dark:text-[#94a3b8]"
-                                    >
-                                        {selectedFileName}
-                                    </p>
-                                {/if}
-                                <InputError
-                                    message={deliverableForm.errors
-                                        .deliverable_file}
-                                />
-                            </div>
-
-                            <div class="flex flex-col gap-2">
-                                <label
-                                    for="deliverable_url"
-                                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                    >{t('tasks.deliverable_link')}</label
-                                >
-                                <input
-                                    id="deliverable_url"
-                                    name="deliverable_url"
-                                    type="url"
-                                    bind:value={deliverableForm.deliverable_url}
-                                    dir="ltr"
-                                    class="h-11 rounded-[10px] border border-black/15 bg-white px-4 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
-                                />
-                                <InputError
-                                    message={deliverableForm.errors
-                                        .deliverable_url}
-                                />
-                            </div>
-
-                            <div class="flex flex-col gap-2">
-                                <label
-                                    for="deliverable_notes"
-                                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                    >{t('tasks.deliverable_notes')}</label
-                                >
-                                <textarea
-                                    id="deliverable_notes"
-                                    name="deliverable_notes"
-                                    bind:value={
-                                        deliverableForm.deliverable_notes
-                                    }
-                                    rows="4"
-                                    class="rounded-[10px] border border-black/15 bg-white px-4 py-3 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
-                                    onkeydown={blurOnEscape}
-                                ></textarea>
-                                <InputError
-                                    message={deliverableForm.errors
-                                        .deliverable_notes}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={deliverableForm.processing}
-                                class="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
-                            >
-                                {t('tasks.submit_deliverable')}
-                            </button>
-                        </form>
-                    {/if}
-                </div>
+                <TaskDeliverablePanel
+                    {task}
+                    {canSubmitDeliverable}
+                    {deliverableForm}
+                    {selectedFileName}
+                    {onDeliverableFileChange}
+                    onSubmit={submitDeliverable}
+                    onBlurEscape={blurOnEscape}
+                />
 
                 {#if canApproveDeliverable && task.status === 'review'}
-                    <div
-                        class="rounded-[20px] bg-white p-6 shadow-[8px_8px_48px_rgba(0,0,0,0.06)] dark:bg-[#111827] dark:shadow-[8px_8px_48px_rgba(0,0,0,0.28)]"
-                    >
-                        <h2
-                            class="text-lg font-medium text-black dark:text-white"
-                        >
-                            {t('tasks.review_panel')}
-                        </h2>
-
-                        <div class="mt-4 flex flex-col gap-2">
-                            <label
-                                for="review_notes"
-                                class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                >{t('tasks.review_notes')}</label
-                            >
-                            <textarea
-                                id="review_notes"
-                                name="review_notes"
-                                bind:value={reviewForm.review_notes}
-                                rows="4"
-                                class="rounded-[10px] border border-black/15 bg-white px-4 py-3 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
-                                onkeydown={blurOnEscape}
-                            ></textarea>
-                            <InputError
-                                message={reviewForm.errors.review_notes}
-                            />
-                        </div>
-
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onclick={approveTask}
-                                disabled={reviewForm.processing}
-                                class="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
-                            >
-                                {t('tasks.approve')}
-                            </button>
-                            <button
-                                type="button"
-                                onclick={requestChanges}
-                                disabled={reviewForm.processing}
-                                class="rounded-full bg-amber-100 px-5 py-2.5 text-sm font-medium text-amber-800 transition-colors hover:bg-amber-200 disabled:opacity-60"
-                            >
-                                {t('tasks.request_changes')}
-                            </button>
-                        </div>
-                    </div>
+                    <TaskReviewPanel
+                        {reviewForm}
+                        onApprove={approveTask}
+                        onRequestChanges={requestChanges}
+                        onBlurEscape={blurOnEscape}
+                    />
                 {/if}
 
-                <div
-                    class="rounded-[20px] bg-white p-6 shadow-[8px_8px_48px_rgba(0,0,0,0.06)] dark:bg-[#111827] dark:shadow-[8px_8px_48px_rgba(0,0,0,0.28)]"
-                >
-                    <h2 class="text-lg font-medium text-black dark:text-white">
-                        {t('tasks.comments_title')}
-                    </h2>
-
-                    {#if canComment}
-                        <form onsubmit={submitComment} class="mt-4 space-y-3">
-                            <textarea
-                                name="body"
-                                bind:value={commentForm.body}
-                                rows="4"
-                                placeholder={t('tasks.comment_placeholder')}
-                                class="w-full rounded-[10px] border border-black/15 bg-white px-4 py-3 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
-                                aria-keyshortcuts="Enter"
-                                onkeydown={handleCommentKeydown}
-                            ></textarea>
-                            <InputError message={commentForm.errors.body} />
-                            <button
-                                type="submit"
-                                disabled={commentForm.processing}
-                                class="rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
-                            >
-                                {t('tasks.comment_submit')}
-                            </button>
-                        </form>
-                    {/if}
-
-                    <div class="mt-5 space-y-3">
-                        {#if comments.length === 0}
-                            <p
-                                class="text-sm text-[#7e7e7e] dark:text-[#94a3b8]"
-                            >
-                                {t('tasks.comments_empty')}
-                            </p>
-                        {:else}
-                            {#each comments as comment (comment.id)}
-                                <div
-                                    class="rounded-[14px] border border-black/10 p-4 dark:border-white/10"
-                                >
-                                    <div
-                                        class="flex flex-wrap items-start justify-between gap-3"
-                                    >
-                                        <div class="space-y-1 text-start">
-                                            <p
-                                                class="text-sm font-medium text-black dark:text-white"
-                                            >
-                                                {comment.author_name}
-                                            </p>
-                                            <p
-                                                class="text-xs text-[#9a9a9a] dark:text-[#94a3b8]"
-                                            >
-                                                {comment.created_at
-                                                    ? formatDate(
-                                                          comment.created_at,
-                                                          {
-                                                              year: 'numeric',
-                                                              month: 'short',
-                                                              day: 'numeric',
-                                                              hour: '2-digit',
-                                                              minute: '2-digit',
-                                                          },
-                                                      )
-                                                    : ''}
-                                            </p>
-                                        </div>
-                                        {#if comment.can_delete}
-                                            <button
-                                                type="button"
-                                                onclick={() =>
-                                                    deleteComment(
-                                                        comment.delete_url,
-                                                    )}
-                                                class="rounded-full bg-black/5 px-3 py-1.5 text-xs font-medium text-[#5f5f5f] transition-colors hover:bg-black/10 dark:bg-white/10 dark:text-[#cbd5e1] dark:hover:bg-white/15"
-                                            >
-                                                {t('tasks.comment_delete')}
-                                            </button>
-                                        {/if}
-                                    </div>
-                                    <p
-                                        class="mt-3 whitespace-pre-wrap text-sm text-[#5f5f5f] dark:text-[#cbd5e1]"
-                                    >
-                                        {comment.body}
-                                    </p>
-                                </div>
-                            {/each}
-                        {/if}
-                    </div>
-                </div>
+                <TaskCommentsPanel
+                    {comments}
+                    {canComment}
+                    {commentForm}
+                    onSubmit={submitComment}
+                    onCommentKeydown={handleCommentKeydown}
+                    onDeleteComment={deleteComment}
+                />
             </div>
 
             <aside class="space-y-4">
