@@ -1,40 +1,119 @@
 <script lang="ts">
     export const layout = () => null;
 
-    import ProjectCard from '@/components/team-hub/ProjectCard.svelte';
-    import { projects } from '@/components/team-hub/mock-data';
-    import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
     import { Add01Icon, Search01Icon } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
+    import { Link, router } from '@inertiajs/svelte';
+    import ProjectCard from '@/components/team-hub/ProjectCard.svelte';
+    import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
+    import { t } from '@/lib/i18n.svelte';
+    import type { CreatableWorkspace, HubProject } from '@/types/team-hub';
+
+    let {
+        projects = [],
+        search = '',
+        workspaceId = null,
+        creatableWorkspaces = [],
+    }: {
+        projects?: HubProject[];
+        search?: string;
+        workspaceId?: number | null;
+        creatableWorkspaces?: CreatableWorkspace[];
+    } = $props();
+
+    let query = $state(search);
+    let showNewProject = $state(false);
+
+    const newProjectUrl = $derived(creatableWorkspaces[0]?.create_url ?? null);
+
+    function applySearch() {
+        router.get(
+            '/hub/projects',
+            {
+                q: query.trim() || undefined,
+                workspace: workspaceId ?? undefined,
+            },
+            { preserveState: true, replace: true },
+        );
+    }
 </script>
 
-<TeamHubLayout title="المشاريع — Team Hub" activePath="/preview/team-hub/projects">
+<TeamHubLayout title="المشاريع — Team Hub" activePath="/hub/projects">
     <div class="thin-scrollbar flex-1 overflow-y-auto p-4 lg:p-6">
-        <header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <header
+            class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
             <div>
-                <h1 class="text-xl font-bold" style="color: var(--th-text)">المشاريع</h1>
+                <h1 class="text-xl font-bold" style="color: var(--th-text)">
+                    {t('hub.nav.projects')}
+                </h1>
                 <p class="mt-1 text-sm" style="color: var(--th-text-muted)">
-                    {projects.length} مشاريع نشطة في مساحة العمل
+                    {t('hub.active_projects', { count: projects.length })}
                 </p>
             </div>
-            <button type="button" class="th-btn-primary flex items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-medium">
-                <HugeiconsIcon icon={Add01Icon} size={18} color="#fff" />
-                مشروع جديد
-            </button>
+            {#if creatableWorkspaces.length > 1}
+                <div class="relative">
+                    <button
+                        type="button"
+                        class="th-btn-primary flex items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-medium"
+                        onclick={() => (showNewProject = !showNewProject)}
+                    >
+                        <HugeiconsIcon
+                            icon={Add01Icon}
+                            size={18}
+                            color="#fff"
+                        />
+                        {t('hub.new_project')}
+                    </button>
+                    {#if showNewProject}
+                        <div
+                            class="absolute end-0 top-full z-20 mt-2 min-w-48 rounded-xl border p-2 shadow-lg"
+                            style="background: var(--th-surface); border-color: var(--th-border)"
+                        >
+                            {#each creatableWorkspaces as ws (ws.id)}
+                                <Link
+                                    href={ws.create_url}
+                                    class="block rounded-lg px-3 py-2 text-sm th-hover"
+                                    style="color: var(--th-text)"
+                                >
+                                    {ws.name}
+                                </Link>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+            {:else if newProjectUrl}
+                <Link
+                    href={newProjectUrl}
+                    class="th-btn-primary flex items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-medium"
+                >
+                    <HugeiconsIcon icon={Add01Icon} size={18} color="#fff" />
+                    {t('hub.new_project')}
+                </Link>
+            {/if}
         </header>
 
-        <div
+        <form
             class="mb-6 flex max-w-md items-center gap-2 rounded-xl border px-4 py-2.5"
             style="background: var(--th-surface); border-color: var(--th-border)"
+            onsubmit={(e) => {
+                e.preventDefault();
+                applySearch();
+            }}
         >
-            <HugeiconsIcon icon={Search01Icon} size={18} style="color: var(--th-text-muted)" />
+            <HugeiconsIcon
+                icon={Search01Icon}
+                size={18}
+                style="color: var(--th-text-muted)"
+            />
             <input
                 type="search"
-                placeholder="بحث في المشاريع..."
+                bind:value={query}
+                placeholder={t('hub.search_projects')}
                 class="min-w-0 flex-1 bg-transparent text-sm outline-none"
                 style="color: var(--th-text)"
             />
-        </div>
+        </form>
 
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {#each projects as project (project.id)}

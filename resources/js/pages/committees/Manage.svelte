@@ -13,6 +13,7 @@
     import EmptyState from '@/components/EmptyState.svelte';
     import EventManageCard from '@/components/EventManageCard.svelte';
     import HeroBanner from '@/components/HeroBanner.svelte';
+    import ProjectManageShell from '@/components/ProjectManageShell.svelte';
     import ReportCard from '@/components/ReportCard.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
     import StatCard from '@/components/StatCard.svelte';
@@ -72,6 +73,20 @@
         attendances_count: number;
     };
     type PostItem = { id: number; title: string; published_at: string | null };
+    type ActivityItem = {
+        id: number;
+        message: string;
+        created_at: string | null;
+        task_title: string;
+        task_url: string;
+    };
+    type TaskStats = {
+        todo: number;
+        in_progress: number;
+        review: number;
+        done: number;
+        overdue: number;
+    };
 
     let {
         club,
@@ -85,6 +100,16 @@
             upcomingEventsCount: 0,
             membersCount: 0,
         },
+        taskStats = {
+            todo: 0,
+            in_progress: 0,
+            review: 0,
+            done: 0,
+            overdue: 0,
+        },
+        overviewMembers = [],
+        recentUpdates = [],
+        recentActivities = [],
         members = [],
         pendingApplications = [],
         managedEvents = [],
@@ -106,6 +131,10 @@
             upcomingEventsCount: number;
             membersCount: number;
         };
+        taskStats?: TaskStats;
+        overviewMembers?: Member[];
+        recentUpdates?: PostItem[];
+        recentActivities?: ActivityItem[];
         members?: Member[];
         pendingApplications?: PendingRequest[];
         managedEvents?: ManagedEvent[];
@@ -252,6 +281,8 @@
     <div
         class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-12"
     >
+        <ProjectManageShell active="overview" {club} {committee} />
+
         <HeroBanner
             ariaLabel={committee.name}
             title={club.name}
@@ -272,6 +303,144 @@
                     />
                 {/each}
             </div>
+            <DashboardCard
+                class="flex flex-wrap items-center justify-between gap-4"
+            >
+                <div class="flex flex-col gap-1 text-start">
+                    <h3 class="text-[14px] text-black">{t('tasks.title')}</h3>
+                    <p class="text-[12px] text-[#7e7e7e]">
+                        {t('tasks.subtitle')}
+                    </p>
+                </div>
+                <Link
+                    href={`/clubs/${club.id}/committees/${committee.id}/tasks`}
+                    class="rounded-full bg-brand px-5 py-2 text-[13px] text-white transition-colors hover:bg-brand-dark"
+                >
+                    {t('tasks.title')}
+                </Link>
+            </DashboardCard>
+        </section>
+
+        <section class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <DashboardCard class="flex flex-col gap-4">
+                <div class="text-start">
+                    <h2 class="text-lg font-medium text-black">
+                        {t('app.overview')}
+                    </h2>
+                    <p class="text-sm text-[#7e7e7e]">{t('app.project')}</p>
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                    <div class="rounded-[14px] bg-black/5 p-4 text-start">
+                        <p class="text-xs text-[#7e7e7e]">Todo</p>
+                        <p class="mt-1 text-xl font-semibold text-black">
+                            {taskStats.todo}
+                        </p>
+                    </div>
+                    <div class="rounded-[14px] bg-black/5 p-4 text-start">
+                        <p class="text-xs text-[#7e7e7e]">In progress</p>
+                        <p class="mt-1 text-xl font-semibold text-black">
+                            {taskStats.in_progress}
+                        </p>
+                    </div>
+                    <div class="rounded-[14px] bg-black/5 p-4 text-start">
+                        <p class="text-xs text-[#7e7e7e]">Review</p>
+                        <p class="mt-1 text-xl font-semibold text-black">
+                            {taskStats.review}
+                        </p>
+                    </div>
+                    <div class="rounded-[14px] bg-black/5 p-4 text-start">
+                        <p class="text-xs text-[#7e7e7e]">Done</p>
+                        <p class="mt-1 text-xl font-semibold text-black">
+                            {taskStats.done}
+                        </p>
+                    </div>
+                    <div class="rounded-[14px] bg-rose-50 p-4 text-start">
+                        <p class="text-xs text-rose-700">Overdue</p>
+                        <p class="mt-1 text-xl font-semibold text-rose-700">
+                            {taskStats.overdue}
+                        </p>
+                    </div>
+                </div>
+            </DashboardCard>
+
+            <DashboardCard class="flex flex-col gap-4">
+                <div class="text-start">
+                    <h2 class="text-lg font-medium text-black">
+                        {t('app.updates')}
+                    </h2>
+                    <p class="text-sm text-[#7e7e7e]">{committee.name}</p>
+                </div>
+
+                {#if recentUpdates.length === 0}
+                    <p class="text-sm text-[#7e7e7e]">{t('news.empty')}</p>
+                {:else}
+                    <div class="space-y-3">
+                        {#each recentUpdates as update (update.id)}
+                            <Link
+                                href={`/clubs/${club.id}/committees/${committee.id}/updates`}
+                                class="block rounded-[14px] border border-black/10 p-3 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {update.title}
+                                </p>
+                                <p class="mt-1 text-xs text-[#9a9a9a]">
+                                    {dateLabel(update.published_at)}
+                                </p>
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+
+                <div class="border-t border-black/10 pt-4">
+                    <p class="mb-3 text-start text-sm font-medium text-black">
+                        {t('committees.dashboard.recent_activity')}
+                    </p>
+                    {#if recentActivities.length === 0}
+                        <p class="text-sm text-[#7e7e7e]">
+                            {t('committees.dashboard.no_recent_activity')}
+                        </p>
+                    {:else}
+                        <div class="space-y-3">
+                            {#each recentActivities as activity (activity.id)}
+                                <Link
+                                    href={activity.task_url}
+                                    class="block rounded-[14px] border border-black/10 p-3 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                                >
+                                    <p class="text-sm font-medium text-black">
+                                        {activity.task_title}
+                                    </p>
+                                    <p class="mt-1 text-sm text-[#5f5f5f]">
+                                        {activity.message}
+                                    </p>
+                                    <p class="mt-1 text-xs text-[#9a9a9a]">
+                                        {dateLabel(activity.created_at)}
+                                    </p>
+                                </Link>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+
+                {#if overviewMembers.length > 0}
+                    <div class="border-t border-black/10 pt-4">
+                        <p
+                            class="mb-3 text-start text-sm font-medium text-black"
+                        >
+                            {t('committees.dashboard.members')}
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            {#each overviewMembers as member (member.membershipId)}
+                                <span
+                                    class="rounded-full bg-black/5 px-3 py-1 text-xs text-[#5f5f5f]"
+                                >
+                                    {member.name}
+                                </span>
+                            {/each}
+                        </div>
+                    </div>
+                {/if}
+            </DashboardCard>
         </section>
 
         {#if can('manage-committee-members')}

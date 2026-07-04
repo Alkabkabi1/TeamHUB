@@ -6,7 +6,10 @@ use App\Models\Club;
 use App\Models\ClubJoinApplication;
 use App\Models\Committee;
 use App\Models\Event;
+use App\Models\Task;
+use App\Models\TaskActivity;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Laravel\Ai\Contracts\Tool;
 
 /**
@@ -171,5 +174,206 @@ abstract class AssistantTool implements Tool
         }
 
         return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
+    }
+
+    /**
+     * Resolve a task from a free-text identifier (numeric id or title),
+     * optionally constrained to a single project/committee and always scoped to
+     * the current user's visible projects.
+     */
+    protected function resolveTask(int|string|null $identifier, ?Committee $committee = null): ?Task
+    {
+        $identifier = trim((string) $identifier);
+
+        if ($identifier === '' || $this->user === null) {
+            return null;
+        }
+
+        $query = $this->visibleTaskQuery()
+            ->when($committee !== null, fn (Builder $q) => $q->where('committee_id', $committee->id));
+
+        if (ctype_digit($identifier)) {
+            return $query->clone()->whereKey((int) $identifier)->first()
+                ?? $query->where('title', 'like', "%{$identifier}%")->orderByDesc('updated_at')->first();
+        }
+
+        return $query->where('title', 'like', "%{$identifier}%")->orderByDesc('updated_at')->first();
+    }
+
+    /**
+     * Resolve an approved project member from a free-text identifier (numeric id
+     * or full/partial name) inside one committee only.
+     */
+    protected function resolveCommitteeMember(int|string|null $identifier, Committee $committee): ?User
+    {
+        $identifier = trim((string) $identifier);
+
+        if ($identifier === '') {
+            return null;
+        }
+
+        $query = User::query()->whereIn(
+            'id',
+            $committee->memberships()->where('status', 'approved')->select('user_id'),
+        );
+
+        if (ctype_digit($identifier)) {
+            return $query->clone()->whereKey((int) $identifier)->first()
+                ?? $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
+        }
+
+        return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
+    }
+
+    /**
+     * Whether the acting user may view a project's tasks.
+     */
+    protected function canAccessCommittee(Committee $committee): bool
+    {
+        if ($this->user === null) {
+            return false;
+        }
+
+        if ($this->user->isUniversityStaff() || $this->user->canManageCommittee($committee)) {
+            return true;
+        }
+
+        return $this->user->committeeMemberships()
+            ->where('committee_id', $committee->id)
+            ->where('status', 'approved')
+            ->exists();
+    }
+
+    /**
+     * Resolve a project visible to the acting user.
+     */
+    protected function resolveAccessibleCommittee(
+        int|string|null $identifier,
+        ?Club $club = null,
+    ): ?Committee {
+        $committee = $this->resolveCommittee($identifier, $club);
+
+        if ($committee === null || ! $this->canAccessCommittee($committee)) {
+            return null;
+        }
+
+        return $committee;
+    }
+
+    /**
+     * A base query for tasks the acting user may view.
+     *
+     * @return Builder<Task>
+     */
+    protected function visibleTaskQuery(): Builder
+    {
+        /** @var User $user */
+        $user = $this->user;
+
+        $query = Task::query()
+            ->with([
+                'committee:id,club_id,name',
+                'committee.club:id,name',
+                'assignee:id,name',
+                'creator:id,name',
+            ]);
+
+        if ($user->isUniversityStaff()) {
+            return $query;
+        }
+
+        return $query->whereIn('committee_id', $this->accessibleCommitteeIds());
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    protected function accessibleCommitteeIds(): array
+    {
+        if ($this->user === null) {
+            return [];
+        }
+
+        if ($this->user->isUniversityStaff()) {
+            return Committee::query()->pluck('id')->map(fn (mixed $id): int => (int) $id)->all();
+        }
+
+        $membershipIds = $this->user->committeeMemberships()
+            ->where('status', 'approved')
+            ->pluck('committee_id');
+
+        $managedCommitteeIds = $this->user->managedCommittees()->pluck('id');
+        $managedClubIds = $this->user->managedClubs()->pluck('id');
+
+        $managedClubCommitteeIds = $managedClubIds->isEmpty()
+            ? collect()
+            : Committee::query()
+                ->whereIn('club_id', $managedClubIds)
+                ->pluck('id');
+
+        return $membershipIds
+            ->merge($managedCommitteeIds)
+            ->merge($managedClubCommitteeIds)
+            ->map(fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function presentTask(Task $task): array
+    {
+        return [
+            'id' => $task->id,
+            'title' => $task->title,
+            'description' => $task->description,
+            'status' => $task->status->value,
+            'status_label' => __($task->status->label()),
+            'priority' => $task->priority->value,
+            'priority_label' => __($task->priority->label()),
+            'due_at' => $task->due_at?->toIso8601String(),
+            'assignee_name' => $task->assignee?->name,
+            'creator_name' => $task->creator?->name,
+            'workspace' => [
+                'id' => $task->committee?->club_id,
+                'name' => $task->committee?->club?->name ?? '',
+                'manage_url' => $task->committee?->club_id
+                    ? route('clubs.manage', [$task->committee->club_id], absolute: false)
+                    : null,
+            ],
+            'project' => [
+                'id' => $task->committee_id,
+                'name' => $task->committee?->name ?? '',
+                'tasks_url' => $task->committee?->club_id
+                    ? route('committees.tasks.index', [$task->committee->club_id, $task->committee_id], absolute: false)
+                    : null,
+                'manage_url' => $task->committee?->club_id
+                    ? route('committees.manage', [$task->committee->club_id, $task->committee_id], absolute: false)
+                    : null,
+            ],
+            'detail_url' => $task->committee?->club_id
+                ? route('committees.tasks.show', [$task->committee->club_id, $task->committee_id, $task], absolute: false)
+                : null,
+            'has_deliverable' => $task->getFirstMedia(Task::DELIVERABLE_COLLECTION) !== null
+                || filled($task->deliverable_url)
+                || filled($task->deliverable_notes),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function presentActivity(TaskActivity $activity): array
+    {
+        return [
+            'id' => $activity->id,
+            'type' => $activity->type->value,
+            'message' => $activity->message(),
+            'created_at' => $activity->created_at?->toIso8601String(),
+            'actor_name' => $activity->user?->name ?? __('tasks.activity.system'),
+            'task_title' => $activity->task?->title ?? '',
+        ];
     }
 }

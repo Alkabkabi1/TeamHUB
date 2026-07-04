@@ -18,15 +18,28 @@ use App\Http\Controllers\CommitteeManagementController;
 use App\Http\Controllers\CommitteeMemberController;
 use App\Http\Controllers\CommitteeMembershipController;
 use App\Http\Controllers\CommitteeReportController;
+use App\Http\Controllers\CommitteeResourceController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DemoLoginController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PublicCatalogController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\TaskCommentController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskDeliverableController;
+use App\Http\Controllers\TaskReviewController;
+use App\Http\Controllers\TeamHub\TeamHubDashboardController;
+use App\Http\Controllers\TeamHub\TeamHubDemoController;
+use App\Http\Controllers\TeamHub\TeamHubProjectsController;
+use App\Http\Controllers\TeamHub\TeamHubTasksController;
+use App\Http\Controllers\TeamHubEntryController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,7 +50,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', function (Request $request) {
+    if (config('demo.quick_login')) {
+        return app(TeamHubEntryController::class)($request);
+    }
+
+    return app(HomeController::class)->index($request);
+})->name('home');
 
 Route::get('clubs', [PublicCatalogController::class, 'clubs'])
     ->name('clubs');
@@ -90,22 +109,21 @@ Route::inertia('support', 'Support')
 
 /*
 |--------------------------------------------------------------------------
-| Team Hub design preview (public, no auth — for UI testing)
+| Team Hub design preview (redirects to authenticated hub)
 |--------------------------------------------------------------------------
 */
 Route::prefix('preview/team-hub')->group(function () {
-    Route::inertia('/', 'team-hub/Index')->name('preview.team-hub.index');
-    Route::inertia('/dashboard', 'team-hub/Dashboard')->name('preview.team-hub.dashboard');
-    Route::inertia('/tasks', 'team-hub/Tasks')->name('preview.team-hub.tasks');
-    Route::inertia('/projects', 'team-hub/Projects')->name('preview.team-hub.projects');
-    Route::inertia('/deliverable', 'team-hub/Deliverable')->name('preview.team-hub.deliverable');
+    Route::redirect('/', '/hub/dashboard');
+    Route::redirect('/dashboard', '/hub/dashboard');
+    Route::redirect('/tasks', '/hub/tasks');
+    Route::redirect('/projects', '/hub/projects');
+    Route::redirect('/deliverable', '/hub/tasks');
 });
 
 Route::post('support/contact', [ContactController::class, 'store'])->name('support.contact');
 
 // Passwordless walkthrough login for the demo deployment (see config/demo.php).
 Route::post('demo-login', DemoLoginController::class)
-    ->middleware('guest')
     ->name('demo.login');
 
 /*
@@ -188,12 +206,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('student-dashboard', [StudentDashboardController::class, 'index'])
         ->name('student-dashboard');
+    Route::get('my-tasks', [MyTasksController::class, 'index'])
+        ->name('my-tasks');
+
+    Route::prefix('hub')->name('hub.')->group(function () {
+        Route::redirect('/', '/hub/dashboard');
+        Route::get('dashboard', [TeamHubDashboardController::class, 'index'])->name('dashboard');
+        Route::get('projects', [TeamHubProjectsController::class, 'index'])->name('projects');
+        Route::get('tasks', [TeamHubTasksController::class, 'index'])->name('tasks');
+        Route::post('admin/projects', [TeamHubDemoController::class, 'storeProject'])->name('admin.projects.store');
+        Route::post('admin/assign-leader', [TeamHubDemoController::class, 'assignLeader'])->name('admin.assign-leader');
+        Route::post('admin/message-leader', [TeamHubDemoController::class, 'messageLeader'])->name('admin.message-leader');
+        Route::post('leader/tasks', [TeamHubDemoController::class, 'storeTask'])->name('leader.tasks.store');
+        Route::post('staff/deliverables/{task}', [TeamHubDemoController::class, 'submitDeliverable'])->name('staff.deliverable');
+    });
+
+    Route::get('notifications', [NotificationController::class, 'index'])
+        ->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.read-all');
+    Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
 
     /*
     | Club management dashboard (club managers + university staff), club-scoped.
     */
     Route::get('clubs/{club}/manage', [ClubManagementController::class, 'index'])
         ->name('clubs.manage');
+    Route::get('clubs/{club}/manage/members', [ClubManagementController::class, 'members'])
+        ->name('clubs.manage.members');
 
     /*
     | Member management (membership managers / club leads)
@@ -243,6 +284,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Committee management dashboard.
         Route::get('clubs/{club}/committees/{committee}/manage', [CommitteeManagementController::class, 'index'])
             ->name('committees.manage');
+        Route::get('clubs/{club}/committees/{committee}/files', [CommitteeManagementController::class, 'files'])
+            ->name('committees.files.index');
+        Route::post('clubs/{club}/committees/{committee}/files', [CommitteeResourceController::class, 'store'])
+            ->name('committees.files.store');
+        Route::delete('clubs/{club}/committees/{committee}/files/{resource}', [CommitteeResourceController::class, 'destroy'])
+            ->name('committees.files.destroy');
+        Route::get('clubs/{club}/committees/{committee}/updates', [CommitteeManagementController::class, 'updates'])
+            ->name('committees.updates.index');
+
+        // Committee task management (TeamHUB project tasks).
+        Route::get('clubs/{club}/committees/{committee}/tasks', [TaskController::class, 'index'])
+            ->name('committees.tasks.index');
+        Route::post('clubs/{club}/committees/{committee}/tasks', [TaskController::class, 'store'])
+            ->name('committees.tasks.store');
+        Route::get('clubs/{club}/committees/{committee}/tasks/{task}', [TaskController::class, 'show'])
+            ->name('committees.tasks.show');
+        Route::patch('clubs/{club}/committees/{committee}/tasks/{task}', [TaskController::class, 'update'])
+            ->name('committees.tasks.update');
+        Route::delete('clubs/{club}/committees/{committee}/tasks/{task}', [TaskController::class, 'destroy'])
+            ->name('committees.tasks.destroy');
+        Route::post('clubs/{club}/committees/{committee}/tasks/{task}/deliverable', [TaskDeliverableController::class, 'store'])
+            ->name('committees.tasks.deliverable');
+        Route::post('clubs/{club}/committees/{committee}/tasks/{task}/approve', [TaskReviewController::class, 'approve'])
+            ->name('committees.tasks.approve');
+        Route::post('clubs/{club}/committees/{committee}/tasks/{task}/request-changes', [TaskReviewController::class, 'requestChanges'])
+            ->name('committees.tasks.request-changes');
+        Route::post('clubs/{club}/committees/{committee}/tasks/{task}/comments', [TaskCommentController::class, 'store'])
+            ->name('committees.tasks.comments.store');
+        Route::delete('clubs/{club}/committees/{committee}/tasks/{task}/comments/{comment}', [TaskCommentController::class, 'destroy'])
+            ->name('committees.tasks.comments.destroy');
 
         // Committee member management.
         Route::get('clubs/{club}/committees/{committee}/members/search', [CommitteeMemberController::class, 'search'])

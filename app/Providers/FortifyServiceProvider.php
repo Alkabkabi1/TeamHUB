@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
 use App\Models\User;
+use App\Support\DemoAccounts;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -52,6 +53,10 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureViews(): void
     {
         Fortify::loginView(function (Request $request) {
+            if (config('demo.quick_login')) {
+                return redirect()->route('home');
+            }
+
             $this->rememberReturnUrl($request);
 
             // Tell the user why they landed on the login screen whenever there
@@ -85,6 +90,10 @@ class FortifyServiceProvider extends ServiceProvider
         ]));
 
         Fortify::registerView(function (Request $request) {
+            if (config('demo.quick_login')) {
+                return redirect()->route('home');
+            }
+
             // Preserve the return target when a guest switches from login to
             // register so Fortify's redirect()->intended() still works.
             $this->rememberReturnUrl($request);
@@ -106,24 +115,7 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function demoAccounts(): Collection
     {
-        if (! config('demo.quick_login')) {
-            return collect();
-        }
-
-        $accounts = collect(config('demo.accounts'));
-
-        $names = User::query()
-            ->whereIn('email', $accounts->pluck('email'))
-            ->pluck('name', 'email');
-
-        return $accounts
-            ->filter(fn (array $account): bool => $names->has($account['email']))
-            ->map(fn (array $account): array => [
-                'email' => $account['email'],
-                'name' => $names->get($account['email']),
-                'role' => $account['role'],
-            ])
-            ->values();
+        return DemoAccounts::forSwitcher();
     }
 
     /**

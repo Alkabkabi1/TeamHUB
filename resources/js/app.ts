@@ -3,6 +3,7 @@ import { router } from '@inertiajs/svelte';
 import AppLayout from '@/layouts/AppLayout.svelte';
 import MainLayout from '@/layouts/MainLayout.svelte';
 import SettingsLayout from '@/layouts/settings/Layout.svelte';
+import TeamHubAppLayout from '@/layouts/TeamHubAppLayout.svelte';
 import { initializeBrandTheme } from '@/lib/brand-theme';
 import { initializeFlashToast } from '@/lib/flash-toast';
 import { syncDocumentLocale } from '@/lib/i18n.svelte';
@@ -61,17 +62,25 @@ createInertiaApp({
             case name === 'ClubTheme':
             case name === 'Support':
                 return MainLayout;
+            case name === 'MyTasks':
+            case name === 'Notifications':
+            case name === 'clubs/Members':
+            case name === 'committees/Files':
+            case name === 'committees/Updates':
+            case name.startsWith('committees/tasks/'):
+                return TeamHubAppLayout;
             // ClubJoinForm and auth pages are intentionally full-bleed: they
             // wrap themselves (auth needs a per-page title) so they get no
             // central layout here.
             case name === 'ClubJoinForm':
+            case name.startsWith('team-hub/'):
             case name === 'ErrorPage':
             case name.startsWith('auth/'):
                 return null;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
             default:
-                return AppLayout;
+                return TeamHubAppLayout;
         }
     },
     progress: {

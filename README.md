@@ -3,7 +3,7 @@
 > Arabic-first teamwork platform for small organizations — workspaces, projects, tasks, deliverables, and files in one place.
 
 **Repository:** [github.com/Alkabkabi1/TeamHUB](https://github.com/Alkabkabi1/TeamHUB)  
-**Status:** Fork in progress (from [Ruwad](https://github.com/Weaam-02/ruwad))  
+**Status:** TeamHUB MVP implemented locally; next roadmap handoff is Phase 8 deploy/pilot  
 **License:** MIT — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE)  
 **Planning doc:** [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 
@@ -11,9 +11,9 @@
 
 ## What this is
 
-TeamHUB reuses the Ruwad university-clubs codebase as a foundation for a **team project hub** aimed at NGOs, Arabic-speaking startups, and small program teams. The stack is already production-grade; the new work is the **task domain** and teamwork workflows.
+TeamHUB started from the Ruwad university-clubs codebase and now operates as a **team project hub** aimed at NGOs, Arabic-speaking startups, and small program teams. The current product centers on workspaces, projects, tasks, deliverables, comments, notifications, and a safe task-first AI assistant.
 
-### Planned v1 features
+### Current TeamHUB capabilities
 
 | Area | Description |
 |------|-------------|
@@ -28,7 +28,7 @@ TeamHUB reuses the Ruwad university-clubs codebase as a foundation for a **team 
 
 ### Why deliverables matter
 
-Most task apps stop at a checkbox. TeamHUB answers the question teams actually ask: **"What was produced?"** When an assignee completes a task, a modal captures the deliverable; the task moves to **Review** until a project lead approves.
+Most task apps stop at a checkbox. TeamHUB answers the question teams actually ask: **"What was produced?"** When an assignee completes a task, they attach a deliverable, the task moves to **Review**, and a project lead approves or requests changes.
 
 See [§8.1 Task deliverables & review workflow](./PLATFORM_REUSE_AND_PIVOT_PLAN.md#81-task-deliverables--review-workflow) in the plan for full UX, schema, and implementation notes.
 
@@ -62,6 +62,55 @@ composer ci:check # full CI gate
 ```
 
 Copy `.env.example` to `.env` and configure `APP_NAME=TeamHUB`, database, and mail before running migrations.
+
+### Local-first dev profile
+
+The default local setup is tuned for **no real DB server**:
+
+- SQLite file database at `database/database.sqlite`
+- `FILESYSTEM_DISK=local`
+- `SESSION_DRIVER=file`
+- `CACHE_STORE=file`
+- `QUEUE_CONNECTION=sync`
+- `MAIL_MAILER=log`
+
+Create the SQLite file once if it does not exist:
+
+```bash
+touch database/database.sqlite
+```
+
+On Windows PowerShell:
+
+```powershell
+ni database/database.sqlite -ItemType File
+```
+
+Run the app in separate terminals if you prefer:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+### TeamHUB docs
+
+- [TeamHUB user guide](./TEAMHUB_USER_GUIDE.md)
+- [TeamHUB deploy runbook](./TEAMHUB_DEPLOY_RUNBOOK.md)
+- [Validation checklist](./VALIDATION_READINESS_CHECKLIST.md)
+
+### Internal glossary
+
+For the current MVP, TeamHUB reuses the existing domain models internally:
+
+| Existing model | TeamHUB meaning |
+|----------------|-----------------|
+| `Club` | Workspace |
+| `Committee` | Project |
+| `ClubMembership` | Workspace membership |
+| `CommitteeMembership` | Project membership |
+| `Post` | Project update |
+| `ClubResource` | Project file |
 
 ### Design preview (TeamHUB UI)
 
@@ -97,12 +146,12 @@ tests/               Pest feature & unit tests
 
 ## Roadmap
 
-Implementation is phased over ~10–14 weeks. Current focus:
+Implementation has been delivered in phases. Current state:
 
-1. **Phase 0** — Branding strip, LICENSE, glossary
-2. **Phase 1** — Task model, migrations, policies (including deliverable fields + Spatie media)
-3. **Phase 2** — Task CRUD UI + complete-task modal + review approve/reject
-4. **Phases 3–8** — Project shell, my work, comments, AI tools, polish, pilot
+1. **Phases 0–2** — Branding pivot, task model, deliverables, and review workflow are complete
+2. **Phases 3–6** — Workspace/project shells, member dashboard, comments, notifications, and task-first AI assistant are complete
+3. **Phase 7** — Polish, i18n, docs, and validation are the current release-hardening pass
+4. **Phase 8** — Next handoff: deployment, pilot rollout, and operational follow-up
 
 Full checklists: [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 

@@ -2,8 +2,8 @@
 
 return [
     'title' => 'Events',
-    'hero_title' => 'Umm Al-Qura University',
-    'hero_subtitle' => 'Explore upcoming events and register with one click',
+    'hero_title' => 'TeamHUB',
+    'hero_subtitle' => 'Explore upcoming events, workshops, and team activities in one place',
     'section_aria' => 'Events',
     'search_placeholder' => 'Search by event name or location…',
     'search_aria' => 'Search events',

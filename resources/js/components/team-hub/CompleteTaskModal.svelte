@@ -1,5 +1,10 @@
 <script lang="ts">
-    import { Cancel01Icon, FileUploadIcon, Link01Icon, Note01Icon } from '@hugeicons/core-free-icons';
+    import {
+        Cancel01Icon,
+        FileUploadIcon,
+        Link01Icon,
+        Note01Icon,
+    } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
 
     let {
@@ -9,7 +14,11 @@
     }: {
         open?: boolean;
         taskTitle?: string;
-        onsubmit?: (payload: { file: File | null; url: string; notes: string }) => void;
+        onsubmit?: (payload: {
+            file: File | null;
+            url: string;
+            notes: string;
+        }) => void;
     } = $props();
 
     let url = $state('');
@@ -55,10 +64,16 @@
         >
             <div class="mb-5 flex items-start justify-between gap-3">
                 <div>
-                    <h2 id="complete-task-title" class="text-lg font-semibold" style="color: var(--th-text)">
+                    <h2
+                        id="complete-task-title"
+                        class="text-lg font-semibold"
+                        style="color: var(--th-text)"
+                    >
                         تسليم المخرجات
                     </h2>
-                    <p class="mt-1 text-sm" style="color: var(--th-text-muted)">{taskTitle}</p>
+                    <p class="mt-1 text-sm" style="color: var(--th-text-muted)">
+                        {taskTitle}
+                    </p>
                 </div>
                 <button
                     type="button"
@@ -66,12 +81,19 @@
                     onclick={handleClose}
                     aria-label="إغلاق"
                 >
-                    <HugeiconsIcon icon={Cancel01Icon} size={18} style="color: var(--th-text-muted)" />
+                    <HugeiconsIcon
+                        icon={Cancel01Icon}
+                        size={18}
+                        style="color: var(--th-text-muted)"
+                    />
                 </button>
             </div>
 
             <p class="mb-4 text-sm" style="color: var(--th-text-muted)">
-                أرفق ملفاً أو رابطاً أو ملاحظات توضّح ما تم إنجازه. ستنتقل المهمة إلى <strong style="color: var(--th-review)">مراجعة</strong>.
+                أرفق ملفاً أو رابطاً أو ملاحظات توضّح ما تم إنجازه. ستنتقل
+                المهمة إلى <strong style="color: var(--th-review)"
+                    >مراجعة</strong
+                >.
             </p>
 
             <div class="space-y-3">
@@ -79,21 +101,36 @@
                     class="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed p-4 transition-colors hover:border-[var(--th-primary)]"
                     style="border-color: var(--th-border)"
                 >
-                    <HugeiconsIcon icon={FileUploadIcon} size={20} style="color: var(--th-primary)" />
+                    <HugeiconsIcon
+                        icon={FileUploadIcon}
+                        size={20}
+                        style="color: var(--th-primary)"
+                    />
                     <div class="min-w-0 flex-1">
-                        <span class="text-sm font-medium" style="color: var(--th-text)">رفع ملف</span>
+                        <span
+                            class="text-sm font-medium"
+                            style="color: var(--th-text)">رفع ملف</span
+                        >
                         <p class="text-xs" style="color: var(--th-text-muted)">
                             {fileName || 'PDF، ZIP، صورة...'}
                         </p>
                     </div>
-                    <input type="file" class="sr-only" onchange={handleFileChange} />
+                    <input
+                        type="file"
+                        class="sr-only"
+                        onchange={handleFileChange}
+                    />
                 </label>
 
                 <div
                     class="flex items-center gap-3 rounded-xl border px-4 py-3"
                     style="border-color: var(--th-border)"
                 >
-                    <HugeiconsIcon icon={Link01Icon} size={20} style="color: var(--th-primary)" />
+                    <HugeiconsIcon
+                        icon={Link01Icon}
+                        size={20}
+                        style="color: var(--th-primary)"
+                    />
                     <input
                         type="url"
                         bind:value={url}
@@ -109,8 +146,15 @@
                     style="border-color: var(--th-border)"
                 >
                     <div class="mb-2 flex items-center gap-2">
-                        <HugeiconsIcon icon={Note01Icon} size={18} style="color: var(--th-primary)" />
-                        <span class="text-sm font-medium" style="color: var(--th-text)">ملاحظات</span>
+                        <HugeiconsIcon
+                            icon={Note01Icon}
+                            size={18}
+                            style="color: var(--th-primary)"
+                        />
+                        <span
+                            class="text-sm font-medium"
+                            style="color: var(--th-text)">ملاحظات</span
+                        >
                     </div>
                     <textarea
                         bind:value={notes}
@@ -123,7 +167,11 @@
             </div>
 
             <div class="mt-6 flex gap-3">
-                <button type="button" class="th-btn-primary flex-1 rounded-xl px-4 py-2.5 text-sm font-medium" onclick={handleSubmit}>
+                <button
+                    type="button"
+                    class="th-btn-primary flex-1 rounded-xl px-4 py-2.5 text-sm font-medium"
+                    onclick={handleSubmit}
+                >
                     إرسال للمراجعة
                 </button>
                 <button

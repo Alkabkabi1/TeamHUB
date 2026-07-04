@@ -94,6 +94,8 @@ return [
         'news_management' => 'News management',
         'add_news' => 'Add news',
         'no_news' => 'No news yet.',
+        'recent_activity' => 'Recent task activity',
+        'no_recent_activity' => 'No task activity yet.',
         'export' => 'Export data',
         'report_members' => 'Members report',
         'report_hours' => 'Volunteer hours report',

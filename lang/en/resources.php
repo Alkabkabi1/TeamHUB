@@ -2,8 +2,8 @@
 
 return [
     'title' => 'Resources',
-    'hero_title' => 'Umm Al-Qura University',
-    'hero_subtitle' => 'Browse educational resources and files shared by clubs',
+    'hero_title' => 'TeamHUB',
+    'hero_subtitle' => 'Browse shared files, templates, and reference materials from your teams',
     'section_aria' => 'Resources',
     'search_placeholder' => 'Search resources…',
     'search_aria' => 'Search resources',
@@ -24,4 +24,6 @@ return [
     'download' => 'Download',
     'download_format' => 'Download :format',
     'file_unavailable' => 'File unavailable',
+    'file_uploaded' => 'Project file uploaded successfully.',
+    'file_deleted' => 'Project file deleted.',
 ];

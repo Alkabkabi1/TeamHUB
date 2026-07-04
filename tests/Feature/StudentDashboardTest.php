@@ -1,40 +1,89 @@
 <?php
 
+use App\Enums\CommitteeRole;
 use App\Models\Club;
 use App\Models\ClubMembership;
-use App\Models\Event;
+use App\Models\Committee;
+use App\Models\CommitteeMembership;
+use App\Models\Post;
+use App\Models\Task;
 use App\Models\User;
-use App\Models\VolunteerHour;
-use Database\Seeders\DatabaseSeeder;
+
+function phase4MemberContext(): array
+{
+    $user = User::factory()->student()->create([
+        'name' => 'Demo Member',
+        'email' => 'phase4-member@example.com',
+    ]);
+
+    $workspaceA = Club::factory()->create(['name' => 'Workspace Alpha', 'status' => 'active']);
+    $workspaceB = Club::factory()->create(['name' => 'Workspace Beta', 'status' => 'active']);
+
+    ClubMembership::factory()->approved()->create([
+        'user_id' => $user->id,
+        'club_id' => $workspaceA->id,
+    ]);
+    ClubMembership::factory()->approved()->create([
+        'user_id' => $user->id,
+        'club_id' => $workspaceB->id,
+    ]);
+
+    $projectA = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project One']);
+    $projectB = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project Two']);
+    $projectC = Committee::factory()->create(['club_id' => $workspaceB->id, 'name' => 'Project Three']);
+
+    foreach ([$projectA, $projectB, $projectC] as $project) {
+        $membership = CommitteeMembership::factory()->create([
+            'user_id' => $user->id,
+            'committee_id' => $project->id,
+        ]);
+        $membership->syncCommitteeRoles([CommitteeRole::Member]);
+    }
+
+    return [$user, $workspaceA, $workspaceB, $projectA, $projectB, $projectC];
+}
 
 test('guest is redirected to login when visiting student dashboard', function () {
     $this->get(route('student-dashboard'))
         ->assertRedirect(route('login'));
 });
 
-test('student dashboard shows volunteer hours and clubs from database', function () {
-    $user = User::factory()->student()->create([
-        'name' => 'Demo Student',
-        'email' => 'phase1-student@uqu.edu.sa',
-    ]);
-    $club = Club::factory()->create(['name' => 'نادي الحاسبات', 'status' => 'active']);
-    $joinedAt = now()->subYear();
+test('student dashboard shows TeamHUB work summary and recent project activity', function () {
+    [$user, $workspaceA, $workspaceB, $projectA, $projectB, $projectC] = phase4MemberContext();
 
-    ClubMembership::factory()->approved()->create([
-        'user_id' => $user->id,
-        'club_id' => $club->id,
-        'joined_at' => $joinedAt,
-        'requested_at' => $joinedAt,
-        'reviewed_at' => $joinedAt,
+    Task::factory()->create([
+        'committee_id' => $projectA->id,
+        'created_by' => $user->id,
+        'assigned_to' => $user->id,
+        'title' => 'Overdue task',
+        'due_at' => now()->subDay(),
+        'status' => 'todo',
     ]);
 
-    $pastEvent = Event::factory()->past()->for($club)->create(['status' => 'active']);
+    Task::factory()->create([
+        'committee_id' => $projectB->id,
+        'created_by' => $user->id,
+        'assigned_to' => $user->id,
+        'title' => 'Due today task',
+        'due_at' => now()->addHours(3),
+        'status' => 'in_progress',
+    ]);
 
-    VolunteerHour::factory()->create([
+    Task::factory()->create([
+        'committee_id' => $projectC->id,
+        'created_by' => $user->id,
+        'assigned_to' => $user->id,
+        'title' => 'Upcoming task',
+        'due_at' => now()->addDays(2),
+        'status' => 'review',
+    ]);
+
+    Post::factory()->create([
+        'club_id' => $workspaceA->id,
+        'committee_id' => $projectA->id,
         'user_id' => $user->id,
-        'event_id' => $pastEvent->id,
-        'hours' => 5.5,
-        'approved_at' => now(),
+        'title' => 'Project update',
+        'published_at' => now(),
     ]);
 
     $this->actingAs($user)
@@ -42,54 +91,17 @@ test('student dashboard shows volunteer hours and clubs from database', function
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('StudentDashboard')
-            ->where('totalHours', 5.5)
-            ->where('profile.name', 'Demo Student')
-            ->where('profile.email', 'phase1-student@uqu.edu.sa')
-            ->where('profile.joinedAt', fn ($value) => $value !== null)
-            ->where('stats.clubsCount', 1)
-            ->where('stats.totalHours', 5.5)
-            ->has('clubs', 1)
-            ->where('clubs.0.name', 'نادي الحاسبات')
-            ->where('clubs.0.volunteerHours', 5.5)
-            ->where('clubs.0.memberSince', $joinedAt->format('Y'))
-        );
-});
-
-test('student dashboard lists upcoming active events as featured and excludes past ones', function () {
-    $user = User::factory()->student()->create();
-    $club = Club::factory()->create(['name' => 'نادي الفنون', 'status' => 'active']);
-
-    $upcoming = Event::factory()->upcoming()->for($club)->create([
-        'title' => 'ورشة الرسم',
-        'status' => 'active',
-    ]);
-    Event::factory()->past()->for($club)->create(['status' => 'active']);
-
-    $this->actingAs($user)
-        ->get(route('student-dashboard'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('StudentDashboard')
-            ->has('featuredEvents', 1)
-            ->where('featuredEvents.0.id', $upcoming->id)
-            ->where('featuredEvents.0.title', 'ورشة الرسم')
-            ->where('featuredEvents.0.clubName', 'نادي الفنون')
-        );
-});
-
-test('seeded demo student sees volunteer hours on dashboard', function () {
-    $this->seed(DatabaseSeeder::class);
-
-    $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
-
-    expect($student)->not->toBeNull();
-
-    $this->actingAs($student)
-        ->get(route('student-dashboard'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('StudentDashboard')
-            ->where('totalHours', fn ($hours) => $hours > 0)
-            ->where('stats.clubsCount', fn ($count) => $count >= 2)
+            ->where('profile.name', 'Demo Member')
+            ->where('profile.email', 'phase4-member@example.com')
+            ->where('stats.workspacesCount', 2)
+            ->where('stats.projectsCount', 3)
+            ->where('stats.openTasksCount', 3)
+            ->where('stats.dueTodayCount', 1)
+            ->where('stats.overdueCount', 1)
+            ->has('attentionTasks', 2)
+            ->has('upcomingTasks', 1)
+            ->has('recentUpdates', 1)
+            ->where('recentUpdates.0.title', 'Project update')
+            ->where('myTasksUrl', route('my-tasks', absolute: false))
         );
 });

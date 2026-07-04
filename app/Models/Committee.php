@@ -102,6 +102,14 @@ class Committee extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<ClubResource, $this>
+     */
+    public function resources(): HasMany
+    {
+        return $this->hasMany(ClubResource::class);
+    }
+
+    /**
      * @return BelongsToMany<User, $this>
      */
     public function members(): BelongsToMany
@@ -115,5 +123,13 @@ class Committee extends Model implements HasMedia
     public function memberships(): HasMany
     {
         return $this->hasMany(CommitteeMembership::class);
+    }
+
+    /**
+     * @return HasMany<Task, $this>
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
     }
 }

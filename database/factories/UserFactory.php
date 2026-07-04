@@ -27,7 +27,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->userName().'@uqu.edu.sa',
+            'email' => fake()->unique()->userName().'@teamhub.test',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'role' => UserRole::Student,

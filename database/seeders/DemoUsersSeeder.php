@@ -23,23 +23,23 @@ class DemoUsersSeeder extends Seeder
         // Generic QA login kept for walkthroughs; reads as a real person in rosters.
         ['email' => 'test@example.com', 'name' => 'زياد الحسن', 'role' => UserRole::Student],
         // Project supervisor (group teacher) — platform-wide university staff.
-        ['email' => 'admin@uqu.edu.sa', 'name' => 'د. غفران طلبه', 'role' => UserRole::UniversityStaff],
+        ['email' => 'admin@teamhub.test', 'name' => 'د. غفران طلبه', 'role' => UserRole::UniversityStaff],
         // Group members. Their club/committee roles are granted in
         // ClubMembershipsSeeder and CommitteesSeeder; emails name each demo
         // account's purpose so a walkthrough login is unambiguous.
         //
         // Globally a student; ClubLead (club leader) of نادي الحاسبات.
-        ['email' => 'club-leader@uqu.edu.sa', 'name' => 'وئام راشد', 'role' => UserRole::Student],
+        ['email' => 'club-leader@teamhub.test', 'name' => 'وئام راشد', 'role' => UserRole::Student],
         // Globally a student and an ordinary club member; leads a committee only
         // (CommitteeLead of اللجنة العلمية) — proving committee leadership is
         // independent of club leadership.
-        ['email' => 'committee-leader@uqu.edu.sa', 'name' => 'قائد اللجنة', 'role' => UserRole::Student],
+        ['email' => 'committee-leader@teamhub.test', 'name' => 'قائد اللجنة', 'role' => UserRole::Student],
         // Globally a student; granted only the Attendance Scanner club role so
         // they can scan QR codes but manage nothing else.
-        ['email' => 'scanner@uqu.edu.sa', 'name' => 'ماسح الحضور', 'role' => UserRole::Student],
+        ['email' => 'scanner@teamhub.test', 'name' => 'ماسح الحضور', 'role' => UserRole::Student],
         // Plain student members.
-        ['email' => 'student@uqu.edu.sa', 'name' => 'طالب 1', 'role' => UserRole::Student],
-        ['email' => 'member@uqu.edu.sa', 'name' => 'طالب 2', 'role' => UserRole::Student],
+        ['email' => 'student@teamhub.test', 'name' => 'طالب 1', 'role' => UserRole::Student],
+        ['email' => 'member@teamhub.test', 'name' => 'طالب 2', 'role' => UserRole::Student],
     ];
 
     /**
@@ -50,22 +50,22 @@ class DemoUsersSeeder extends Seeder
      * @var list<array{name: string, email: string}>
      */
     private array $students = [
-        ['name' => 'محمد العتيبي', 'email' => 'm.alotaibi@uqu.edu.sa'],
-        ['name' => 'نورة القحطاني', 'email' => 'n.alqahtani@uqu.edu.sa'],
-        ['name' => 'عبدالله الغامدي', 'email' => 'a.alghamdi@uqu.edu.sa'],
-        ['name' => 'ريم الشهري', 'email' => 'r.alshehri@uqu.edu.sa'],
-        ['name' => 'فيصل الدوسري', 'email' => 'f.aldosari@uqu.edu.sa'],
-        ['name' => 'سارة الحربي', 'email' => 's.alharbi@uqu.edu.sa'],
-        ['name' => 'خالد المالكي', 'email' => 'k.almalki@uqu.edu.sa'],
-        ['name' => 'جواهر السبيعي', 'email' => 'j.alsubaie@uqu.edu.sa'],
-        ['name' => 'تركي الزهراني', 'email' => 't.alzahrani@uqu.edu.sa'],
-        ['name' => 'لمى العنزي', 'email' => 'l.alanazi@uqu.edu.sa'],
-        ['name' => 'ماجد الشمري', 'email' => 'm.alshammari@uqu.edu.sa'],
-        ['name' => 'هند البقمي', 'email' => 'h.albaqami@uqu.edu.sa'],
-        ['name' => 'سلطان الرشيدي', 'email' => 's.alrashidi@uqu.edu.sa'],
-        ['name' => 'رغد المطيري', 'email' => 'r.almutairi@uqu.edu.sa'],
-        ['name' => 'يوسف الحارثي', 'email' => 'y.alharthi@uqu.edu.sa'],
-        ['name' => 'دانة الخالدي', 'email' => 'd.alkhalidi@uqu.edu.sa'],
+        ['name' => 'محمد العتيبي', 'email' => 'm.alotaibi@teamhub.test'],
+        ['name' => 'نورة القحطاني', 'email' => 'n.alqahtani@teamhub.test'],
+        ['name' => 'عبدالله الغامدي', 'email' => 'a.alghamdi@teamhub.test'],
+        ['name' => 'ريم الشهري', 'email' => 'r.alshehri@teamhub.test'],
+        ['name' => 'فيصل الدوسري', 'email' => 'f.aldosari@teamhub.test'],
+        ['name' => 'سارة الحربي', 'email' => 's.alharbi@teamhub.test'],
+        ['name' => 'خالد المالكي', 'email' => 'k.almalki@teamhub.test'],
+        ['name' => 'جواهر السبيعي', 'email' => 'j.alsubaie@teamhub.test'],
+        ['name' => 'تركي الزهراني', 'email' => 't.alzahrani@teamhub.test'],
+        ['name' => 'لمى العنزي', 'email' => 'l.alanazi@teamhub.test'],
+        ['name' => 'ماجد الشمري', 'email' => 'm.alshammari@teamhub.test'],
+        ['name' => 'هند البقمي', 'email' => 'h.albaqami@teamhub.test'],
+        ['name' => 'سلطان الرشيدي', 'email' => 's.alrashidi@teamhub.test'],
+        ['name' => 'رغد المطيري', 'email' => 'r.almutairi@teamhub.test'],
+        ['name' => 'يوسف الحارثي', 'email' => 'y.alharthi@teamhub.test'],
+        ['name' => 'دانة الخالدي', 'email' => 'd.alkhalidi@teamhub.test'],
     ];
 
     /**

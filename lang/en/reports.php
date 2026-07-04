@@ -23,5 +23,5 @@ return [
     'empty_hours' => 'No volunteer hours recorded.',
     'empty_attendance' => 'No past events or attendance records.',
     'event_attendee_count' => ':count attendees',
-    'footer' => 'Ruwad Clubs Platform — Umm Al-Qura University',
+    'footer' => 'TeamHUB',
 ];

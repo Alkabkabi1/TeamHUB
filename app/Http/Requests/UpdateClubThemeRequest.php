@@ -24,6 +24,7 @@ class UpdateClubThemeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'theme' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'logo' => ['nullable', 'image', 'mimes:png,jpeg,jpg', 'max:5120'],
         ];
@@ -35,6 +36,7 @@ class UpdateClubThemeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'name.required' => __('validation.required', ['attribute' => __('app.name')]),
             'theme.required' => __('theme.validation.theme_required'),
             'theme.regex' => __('theme.validation.theme_hex'),
             'logo.image' => __('theme.validation.logo_image'),

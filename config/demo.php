@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\DemoRoles;
+
 return [
 
     /*
@@ -7,10 +9,9 @@ return [
     | Quick Demo Login
     |--------------------------------------------------------------------------
     |
-    | When enabled, the login screen shows a subtle "enter as a demo user"
-    | switcher that signs in as one of the seeded DemoUsersSeeder accounts
-    | without a password. This is intended only for walkthroughs of the demo
-    | deployment; set DEMO_QUICK_LOGIN=false to hide it entirely.
+    | When enabled, the app opens on a passwordless role picker instead of a
+    | login form. Visitors choose a seeded demo persona and land in Team Hub.
+    | Set DEMO_QUICK_LOGIN=false to restore the normal login/register flow.
     |
     */
 
@@ -44,12 +45,6 @@ return [
     | @var list<array{email: string, role: string}>
     */
 
-    'accounts' => [
-        ['email' => 'admin@uqu.edu.sa', 'role' => 'university_staff'],
-        ['email' => 'club-leader@uqu.edu.sa', 'role' => 'club_lead'],
-        ['email' => 'committee-leader@uqu.edu.sa', 'role' => 'committee_lead'],
-        ['email' => 'scanner@uqu.edu.sa', 'role' => 'scanner'],
-        ['email' => 'student@uqu.edu.sa', 'role' => 'student'],
-    ],
+    'accounts' => DemoRoles::accounts(),
 
 ];

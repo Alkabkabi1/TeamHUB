@@ -5,6 +5,7 @@
         DashboardBrowsingIcon,
         Home03Icon,
         News01Icon,
+        Notification01Icon,
         Login03Icon,
         Logout03Icon,
         Setting07Icon,
@@ -31,6 +32,7 @@
     import type { NavItem } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
+    type Direction = 'rtl' | 'ltr' | 'auto';
 
     const auth = $derived(page.props.auth);
     const role = $derived(auth?.user?.role as string);
@@ -38,10 +40,15 @@
     // Club supervision is a per-club relationship, not a global role.
     const isClubSupervisor = $derived(!!auth?.user?.is_club_supervisor);
     const isCommitteeLeader = $derived(!!auth?.user?.is_committee_leader);
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const unreadNotificationsCount = $derived(
+        Number(auth?.user?.unread_notifications_count ?? 0),
+    );
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
 
-    // Primary navigation. The student dashboard ("حساب الطالب") is where the
-    // student manages their account, so there is no separate profile entry.
+    // Primary navigation. TeamHUB members get a personal dashboard plus a
+    // dedicated cross-project tasks view.
     const mainNavItems: NavItem[] = $derived([
         { title: t('nav.home'), href: home(), icon: Home03Icon },
         { title: t('nav.clubs'), href: clubs(), icon: UserGroup03Icon },
@@ -53,10 +60,23 @@
             icon: BookDownloadIcon,
         },
         {
-            title: t('nav.student_account'),
+            title: t('nav.my_work'),
             href: studentDashboard(),
             icon: UserCircleIcon,
             roles: ['student'],
+        },
+        {
+            title: t('nav.my_tasks'),
+            href: '/my-tasks',
+            icon: DashboardBrowsingIcon,
+            roles: ['student'],
+        },
+        {
+            title: t('nav.notifications'),
+            href: '/notifications',
+            icon: Notification01Icon,
+            badge: unreadNotificationsCount,
+            roles: ['student', 'university_staff'],
         },
         ...(isClubSupervisor
             ? [
@@ -87,6 +107,13 @@
         },
     ]);
 
+    const demoQuickLogin = $derived(
+        Boolean(
+            (page.props.demo as { quick_login?: boolean } | undefined)
+                ?.quick_login,
+        ),
+    );
+
     // Pinned to the bottom: support, then login/logout.
     const footerNavItems: NavItem[] = $derived([
         { title: t('nav.support'), href: support(), icon: Setting07Icon },
@@ -97,7 +124,13 @@
                   icon: Logout03Icon,
                   isLogout: true,
               }
-            : { title: t('nav.login'), href: login(), icon: Login03Icon },
+            : demoQuickLogin
+              ? {
+                    title: t('hub.entry_title'),
+                    href: home(),
+                    icon: Login03Icon,
+                }
+              : { title: t('nav.login'), href: login(), icon: Login03Icon },
     ]);
 
     function filterByRole(items: NavItem[]): NavItem[] {
@@ -131,7 +164,7 @@
             <SparkleIcon class="size-[52px]" fillOpacity={0.35} />
         </div>
         {#if isAuthenticated}
-            <p class="text-center text-sm text-black">
+            <p class="text-center text-sm text-black dark:text-white">
                 {auth?.user?.name}
             </p>
         {/if}

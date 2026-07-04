@@ -2,8 +2,8 @@
 
 return [
     'title' => 'Clubs',
-    'hero_title' => 'Umm Al-Qura University',
-    'hero_subtitle' => 'Discover student clubs and join communities that match your interests',
+    'hero_title' => 'TeamHUB',
+    'hero_subtitle' => 'Discover workspaces, teams, and communities that match your goals',
     'section_aria' => 'Student clubs',
     'search_placeholder' => 'Search for a club…',
     'search_aria' => 'Search clubs',
@@ -33,5 +33,5 @@ return [
     'join' => 'Join',
     'no_clubs' => 'No clubs match your search.',
     'uncategorized' => 'Uncategorized',
-    'default_description' => 'A student club on the Ruwad platform.',
+    'default_description' => 'A shared workspace on TeamHUB.',
 ];

@@ -4,17 +4,17 @@ use App\Models\User;
 
 test('a guest can sign in instantly as an allowlisted demo account', function () {
     config()->set('demo.quick_login', true);
-    $student = User::factory()->student()->create(['email' => 'student@uqu.edu.sa']);
+    $staff = User::factory()->student()->create(['email' => 'staff@teamhub.test']);
 
-    $response = $this->post(route('demo.login'), ['email' => $student->email]);
+    $response = $this->post(route('demo.login'), ['email' => $staff->email]);
 
-    $this->assertAuthenticatedAs($student);
-    $response->assertRedirect(route('student-dashboard', absolute: false));
+    $this->assertAuthenticatedAs($staff);
+    $response->assertRedirect(route('hub.dashboard', absolute: false));
 });
 
 test('the demo login refuses emails outside the allowlist', function () {
     config()->set('demo.quick_login', true);
-    $outsider = User::factory()->create(['email' => 'someone-else@uqu.edu.sa']);
+    $outsider = User::factory()->create(['email' => 'someone-else@teamhub.test']);
 
     $response = $this->from(route('login'))->post(route('demo.login'), [
         'email' => $outsider->email,
@@ -26,26 +26,31 @@ test('the demo login refuses emails outside the allowlist', function () {
 
 test('the demo login is hidden when the feature is disabled', function () {
     config()->set('demo.quick_login', false);
-    User::factory()->student()->create(['email' => 'student@uqu.edu.sa']);
+    User::factory()->student()->create(['email' => 'staff@teamhub.test']);
 
-    $response = $this->post(route('demo.login'), ['email' => 'student@uqu.edu.sa']);
+    $response = $this->post(route('demo.login'), ['email' => 'staff@teamhub.test']);
 
     $this->assertGuest();
     $response->assertNotFound();
 });
 
-test('the login screen exposes only the seeded allowlisted accounts', function () {
+test('the role entry screen exposes the three demo roles', function () {
     config()->set('demo.quick_login', true);
     User::factory()->universityStaff()->create([
-        'email' => 'admin@uqu.edu.sa',
-        'name' => 'د. غفران',
+        'email' => 'admin@teamhub.test',
+        'name' => 'Admin User',
     ]);
 
-    $this->get(route('login'))
+    $this->get(route('home'))
         ->assertInertia(fn ($page) => $page
-            ->component('auth/Login')
-            ->where('demoAccounts.0.email', 'admin@uqu.edu.sa')
-            ->where('demoAccounts.0.role', 'university_staff')
-            ->where('demoAccounts.0.name', 'د. غفران')
+            ->component('team-hub/Entry')
+            ->has('demo.accounts', 3)
+            ->where('demo.accounts.0.email', 'admin@teamhub.test')
+            ->where('demo.accounts.0.role', 'admin')
+            ->where('demo.accounts.0.label', 'مدير')
+            ->where('demo.accounts.1.role', 'staff')
+            ->where('demo.accounts.1.label', 'موظف')
+            ->where('demo.accounts.2.role', 'project_leader')
+            ->where('demo.accounts.2.label', 'قائد المشروع')
         );
 });

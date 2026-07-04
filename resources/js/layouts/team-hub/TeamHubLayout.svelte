@@ -1,7 +1,10 @@
 <script lang="ts">
-    import TeamHubSidebar from '@/components/team-hub/TeamHubSidebar.svelte';
-    import AppHead from '@/components/AppHead.svelte';
     import type { Snippet } from 'svelte';
+    import AppHead from '@/components/AppHead.svelte';
+    import FloatingDock from '@/components/FloatingDock.svelte';
+    import TeamHubSidebar from '@/components/team-hub/TeamHubSidebar.svelte';
+    import { Toaster } from '@/components/ui/sonner';
+    import { themeState } from '@/lib/theme.svelte';
     import '../../../css/team-hub.css';
 
     let {
@@ -17,15 +20,18 @@
         showRightPanel?: boolean;
         rightPanel?: Snippet;
     } = $props();
-
-    let dark = $state(false);
+    const theme = themeState();
 </script>
 
 <AppHead {title} />
 
-<div class="team-hub min-h-screen" class:dark dir="rtl">
+<div
+    class="team-hub min-h-screen"
+    class:dark={theme.resolvedAppearance() === 'dark'}
+    dir="rtl"
+>
     <div class="flex min-h-screen">
-        <TeamHubSidebar bind:dark {activePath} />
+        <TeamHubSidebar {activePath} />
 
         <div class="flex min-w-0 flex-1 flex-col">
             {@render children?.()}
@@ -41,3 +47,6 @@
         {/if}
     </div>
 </div>
+
+<FloatingDock />
+<Toaster />

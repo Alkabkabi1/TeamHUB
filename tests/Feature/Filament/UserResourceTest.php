@@ -31,14 +31,14 @@ test('staff create a user scoped to their university, pre-verified, hashed', fun
     Livewire::test(CreateUser::class)
         ->fillForm([
             'name' => 'عضو جديد',
-            'email' => 'newcomer@uqu.edu.sa',
+            'email' => 'newcomer@teamhub.test',
             'role' => 'student',
             'password' => 'secret-pass-123',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $user = User::query()->where('email', 'newcomer@uqu.edu.sa')->first();
+    $user = User::query()->where('email', 'newcomer@teamhub.test')->first();
 
     expect($user)->not->toBeNull()
         ->and($user->university_id)->toBe($mine->id)
@@ -55,7 +55,7 @@ test('password is required when creating a user', function () {
     Livewire::test(CreateUser::class)
         ->fillForm([
             'name' => 'بلا كلمة مرور',
-            'email' => 'nopass@uqu.edu.sa',
+            'email' => 'nopass@teamhub.test',
             'role' => 'student',
             'password' => '',
         ])

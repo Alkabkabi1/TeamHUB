@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Club supervisor dashboard',
-    'hero_aria' => 'Umm Al-Qura University - Computer Club',
+    'hero_aria' => 'TeamHUB workspace',
     'club_name' => 'Computer Club',
     'stats' => [
         'hours' => 'Volunteer hours',

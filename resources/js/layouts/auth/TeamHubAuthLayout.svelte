@@ -9,7 +9,10 @@
     import { t } from '@/lib/i18n.svelte';
     import { home } from '@/routes';
 
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    type Direction = 'rtl' | 'ltr' | 'auto';
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
 
     let {
         title,
@@ -96,7 +99,7 @@
         <HugeiconsIcon strokeWidth={2} icon={ArrowLeft01Icon} class="size-6" />
     </Link>
 
-    <!-- Ruwad logo — physically top-right, matching Figma -->
+    <!-- TeamHUB logo — physically top-right, matching Figma -->
     <Link
         href={home().url}
         aria-label={t('auth.logo_aria')}

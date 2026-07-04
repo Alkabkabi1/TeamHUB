@@ -115,7 +115,7 @@
     >
         <HeroBanner
             ariaLabel={club.name}
-            title={t('club.uqu')}
+            title={t('club.organization')}
             subtitle={club.name}
             foregroundLogo={club.logo_url ?? undefined}
             backgroundLogo={club.logo_url ?? undefined}

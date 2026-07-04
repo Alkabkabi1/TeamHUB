@@ -69,7 +69,7 @@ test('english locale is reflected in inertia shared props', function () {
         ->assertInertia(fn ($page) => $page
             ->where('locale', 'en')
             ->where('direction', 'ltr')
-            ->where('translations.app.name', 'Ruwad')
+            ->where('translations.app.name', 'TeamHUB')
         );
 });
 
@@ -81,7 +81,7 @@ test('arabic locale is reflected in inertia shared props', function () {
         ->assertInertia(fn ($page) => $page
             ->where('locale', 'ar')
             ->where('direction', 'rtl')
-            ->where('translations.app.name', 'رواد')
+            ->where('translations.app.name', 'TeamHUB')
         );
 });
 
@@ -98,7 +98,7 @@ test('posting locale updates preference for subsequent requests', function () {
 });
 
 test('join success flash uses english when locale is en', function () {
-    $user = User::factory()->create(['email' => 'applicant@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'applicant@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)

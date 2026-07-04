@@ -2,7 +2,7 @@
 
 return [
     'platform' => 'Platform',
-    'tagline' => '" Clubs that shape tomorrow\'s leaders',
-    'logo_alt' => 'Ruwad',
-    'uqu_alt' => 'Umm Al-Qura University',
+    'tagline' => 'Teams that deliver great work together',
+    'logo_alt' => 'TeamHUB',
+    'uqu_alt' => 'TeamHUB',
 ];

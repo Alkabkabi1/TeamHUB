@@ -203,15 +203,15 @@
                 <div class="space-y-2 text-start text-[12px] text-[#5f5f5f]">
                     <p>
                         {t('support.email_label')}
-                        <span class="text-brand">Ruwad@gmail.com</span>
+                        <span class="text-brand">support@teamhub.test</span>
                     </p>
                     <p>
                         {t('support.linkedin')}
-                        <span class="text-brand">Ruwad-رواد</span>
+                        <span class="text-brand">TeamHUB</span>
                     </p>
                     <p>
                         {t('support.twitter')}
-                        <span class="text-brand">Ruwad-رواد</span>
+                        <span class="text-brand">@teamhubapp</span>
                     </p>
                 </div>
             </div>

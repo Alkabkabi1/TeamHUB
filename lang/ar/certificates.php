@@ -17,10 +17,10 @@ return [
     'hours_unit' => 'ساعة',
     'issue_date' => 'تاريخ الإصدار',
     'certificate_no' => 'رقم الشهادة',
-    'university_name' => 'جامعة أم القرى',
-    'clubs_platform' => 'منصة رواد الأندية',
+    'university_name' => 'تيم هب',
+    'clubs_platform' => 'تيم هب',
     'participation_role' => 'مشارك',
-    'footer' => 'منصة رواد الأندية — جامعة أم القرى',
+    'footer' => 'تيم هب',
 
     // Certificate issued notification (sent to the student)
     'notification' => [

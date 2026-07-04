@@ -15,7 +15,7 @@ test('registration screen can be rendered', function () {
 test('new users can register', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
-        'email' => 'test@uqu.edu.sa',
+        'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
@@ -24,10 +24,10 @@ test('new users can register', function () {
     $response->assertRedirect(route('dashboard', absolute: false));
 });
 
-test('registration rejects non-uqu email addresses', function () {
+test('registration rejects invalid email addresses', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
-        'email' => 'test@gmail.com',
+        'email' => 'not-an-email',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);

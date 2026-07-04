@@ -109,11 +109,11 @@
 
     #intro-splash .intro-uqu {
         user-select: none;
-        object-fit: contain;
-        width: auto;
-        height: auto;
-        max-height: clamp(82px, min(22vw, 15vh), 145px);
-        max-width: 72vw;
+        color: #fff;
+        font-size: clamp(22px, min(6vw, 4vh), 44px);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
 </style>
 
@@ -123,12 +123,12 @@
 
     <div class="intro-content">
         <p class="intro-platform">{{ __('intro.platform') }}</p>
-        <img class="intro-logo" src="/images/intro/big-logo.png" alt="{{ __('intro.logo_alt') }}" draggable="false" />
+        <img class="intro-logo" src="/teamhub-icon.svg" alt="{{ __('intro.logo_alt') }}" draggable="false" />
         <p class="intro-tagline">{{ __('intro.tagline') }}</p>
     </div>
 
     <div class="intro-bar">
-        <img class="intro-uqu" src="/images/intro/uqu.svg" alt="{{ __('intro.uqu_alt') }}" draggable="false" />
+        <span class="intro-uqu">{{ config('app.name') }}</span>
     </div>
 </div>
 

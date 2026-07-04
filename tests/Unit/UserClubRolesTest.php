@@ -68,15 +68,15 @@ test('a club lead has the full capability set, a member has none', function () {
         ->and($member->clubCapabilitiesFor($club))->toHaveCount(0);
 });
 
-test('homeUrl routes managers to their club dashboard and students to the student dashboard', function () {
+test('homeUrl routes all non-staff users to the team hub dashboard', function () {
     $club = Club::factory()->create(['status' => 'active']);
 
     $lead = User::factory()->student()->create();
     membership($lead, $club, [ClubRole::ClubLead]);
-    expect($lead->homeUrl())->toBe(route('clubs.manage', $club, absolute: false));
+    expect($lead->homeUrl())->toBe(route('hub.dashboard', absolute: false));
 
     $student = User::factory()->student()->create();
-    expect($student->homeUrl())->toBe(route('student-dashboard', absolute: false));
+    expect($student->homeUrl())->toBe(route('hub.dashboard', absolute: false));
 
     $staff = User::factory()->universityStaff()->create();
     expect($staff->homeUrl())->toBe(route('filament.admin.pages.dashboard', absolute: false));

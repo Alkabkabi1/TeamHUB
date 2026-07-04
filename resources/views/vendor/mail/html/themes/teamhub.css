@@ -1,4 +1,4 @@
-/* Ruwad branded email theme — mirrors the app design system.
+/* TeamHUB branded email theme — mirrors the app design system.
    Brand teal #006471 (config theme.brand). CSS is inlined into the email,
    so values are literal here. Keep in sync with config/theme.php. */
 
@@ -111,7 +111,7 @@ img {
     width: 100%;
 }
 
-/* Header — teal brand band with the white Ruwad mark */
+/* Header — teal brand band with the white TeamHUB mark */
 
 .header {
     background-color: #006471;

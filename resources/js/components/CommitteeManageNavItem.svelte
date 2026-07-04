@@ -15,11 +15,14 @@
     import type { ManagedCommittee } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
+    type Direction = 'rtl' | 'ltr';
 
     const managedCommittees = $derived(
         (page.props.auth?.user?.managed_committees ?? []) as ManagedCommittee[],
     );
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
     const url = currentUrlState();
 
     const isActive = $derived(

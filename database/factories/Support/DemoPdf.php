@@ -16,7 +16,7 @@ class DemoPdf
     /**
      * Generate a one-page PDF and return its raw bytes.
      */
-    public static function generate(string $label = 'Ruwad - Demo Resource'): string
+    public static function generate(string $label = 'TeamHUB - Demo Resource'): string
     {
         $label = preg_replace('/[()\\\\]/', '', $label) ?? 'Demo Resource';
 

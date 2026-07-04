@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\User;
+use App\Support\DemoRoles;
+use App\Support\DemoWalkthroughBootstrap;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class DemoLoginController extends Controller
@@ -15,8 +20,7 @@ class DemoLoginController extends Controller
      *
      * This is a walkthrough convenience for the demo deployment only. It is
      * gated behind the `demo.quick_login` flag and restricted to the curated
-     * allowlist in `config/demo.php`, so it can never authenticate an
-     * arbitrary user.
+     * allowlist in DemoRoles, so it can never authenticate an arbitrary user.
      */
     public function __invoke(Request $request): RedirectResponse
     {
@@ -26,24 +30,41 @@ class DemoLoginController extends Controller
             'email' => ['required', 'string', 'email'],
         ]);
 
-        $allowed = collect(config('demo.accounts'))
-            ->pluck('email')
-            ->contains($validated['email']);
+        $account = DemoRoles::find($validated['email']);
 
-        $user = $allowed
-            ? User::query()->where('email', $validated['email'])->first()
-            : null;
-
-        if (! $user) {
+        if (! $account) {
             throw ValidationException::withMessages([
                 'email' => __('auth.demo_unavailable'),
             ]);
         }
 
+        $user = User::query()->where('email', $validated['email'])->first()
+            ?? $this->provisionDemoUser($account);
+
         Auth::login($user, remember: true);
 
         $request->session()->regenerate();
 
+        DemoWalkthroughBootstrap::ensure($user);
+
         return redirect()->intended($user->homeUrl());
+    }
+
+    /**
+     * @param  array{email: string, role: string}  $account
+     */
+    private function provisionDemoUser(array $account): User
+    {
+        $role = $account['role'] === 'admin'
+            ? UserRole::UniversityStaff
+            : UserRole::Student;
+
+        return User::query()->create([
+            'name' => __("auth.demo_roles.{$account['role']}"),
+            'email' => $account['email'],
+            'password' => Hash::make(Str::password(32)),
+            'role' => $role,
+            'email_verified_at' => now(),
+        ]);
     }
 }

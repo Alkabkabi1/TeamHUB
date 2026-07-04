@@ -42,7 +42,6 @@ trait ProfileValidationRules
             'string',
             'email',
             'max:255',
-            'ends_with:@uqu.edu.sa',
             $userId === null
                 ? Rule::unique(User::class)
                 : Rule::unique(User::class)->ignore($userId),

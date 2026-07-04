@@ -4,7 +4,7 @@ return [
     'title' => 'Join application',
     'submitted' => 'Your application was submitted successfully. A club supervisor will review it.',
     'full_name' => 'Full name',
-    'university_email' => 'University email',
+    'university_email' => 'Email',
     'phone' => 'Phone number',
     'level' => 'Academic level',
     'major' => 'Major',
@@ -17,7 +17,7 @@ return [
     'join_club' => 'Join club',
     'placeholder' => [
         'full_name' => 'e.g. Ahmed Mohammed Ahmed',
-        'university_email' => 'Student@uqu.edu.sa',
+        'university_email' => 'name@example.com',
         'phone' => '05000000000',
         'level' => 'e.g. Level 8',
         'major' => 'e.g. Software Engineering',
@@ -32,10 +32,9 @@ return [
             'required' => 'Student name is required.',
         ],
         'university_email' => [
-            'required' => 'University email is required.',
-            'email' => 'University email is not valid.',
-            'ends_with' => 'You must use your university email (@uqu.edu.sa).',
-            'mismatch' => 'University email must match your logged-in account email.',
+            'required' => 'Email is required.',
+            'email' => 'Email is not valid.',
+            'mismatch' => 'Email must match your logged-in account email.',
         ],
         'phone' => [
             'required' => 'Phone number is required.',
@@ -75,14 +74,14 @@ return [
             'greeting' => 'Congratulations, :name!',
             'body' => 'Your request to join ":club" has been approved. You are now a member and can take part in the club\'s events and activities.',
             'action' => 'Visit the club',
-            'footer' => 'Welcome to the club community on Ruwad Al-Andiyah.',
+            'footer' => 'Welcome to the TeamHUB community.',
         ],
         'rejected' => [
             'subject' => 'Update on your membership request for :club',
             'greeting' => 'Hello :name,',
             'body' => 'We\'re sorry, but your request to join ":club" was not approved this time. You\'re welcome to explore other clubs or apply again later.',
             'action' => 'Browse clubs',
-            'footer' => 'Thank you for your interest in our university clubs.',
+            'footer' => 'Thank you for your interest in TeamHUB.',
         ],
         'received' => [
             'subject' => 'New membership application for :club',

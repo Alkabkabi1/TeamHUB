@@ -10,13 +10,13 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-  {
-    Schema::table('event_attendances', function (Blueprint $table) {
-        if (!Schema::hasColumn('event_attendances', 'reminder_sent_at')) {
-            $table->timestamp('reminder_sent_at')->nullable()->after('checked_in_at');
-        }
-    });
-  }
+    {
+        Schema::table('event_attendances', function (Blueprint $table) {
+            if (! Schema::hasColumn('event_attendances', 'reminder_sent_at')) {
+                $table->timestamp('reminder_sent_at')->nullable()->after('checked_in_at');
+            }
+        });
+    }
 
     /**
      * Reverse the migrations.
@@ -24,9 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('event_attendances', function (Blueprint $table) {
-        if (Schema::hasColumn('event_attendances', 'reminder_sent_at')) {
-            $table->dropColumn('reminder_sent_at');
-        }
+            if (Schema::hasColumn('event_attendances', 'reminder_sent_at')) {
+                $table->dropColumn('reminder_sent_at');
+            }
         });
     }
 };

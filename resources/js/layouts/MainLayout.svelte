@@ -10,7 +10,10 @@
     import { Toaster } from '@/components/ui/sonner';
     import { t } from '@/lib/i18n.svelte';
 
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    type Direction = 'rtl' | 'ltr' | 'auto';
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
 
     let {
         children,
@@ -46,7 +49,7 @@
 
 <div
     dir={direction}
-    class="flex min-h-screen flex-col bg-[#fdfdfd] text-foreground"
+    class="flex min-h-screen flex-col bg-[#fdfdfd] text-foreground dark:bg-[#0b1120] dark:text-white"
 >
     <!-- Visually-hidden polite live region for page navigation announcements -->
     <div role="status" aria-live="polite" aria-atomic="true" class="sr-only">

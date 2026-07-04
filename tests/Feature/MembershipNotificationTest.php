@@ -74,7 +74,7 @@ test('submitting a join application notifies the club reviewers', function () {
     $reviewer = supervisorForClub($club);
     $applicant = User::factory()->student()->create([
         'name' => 'وئام راشد',
-        'email' => 'applicant@uqu.edu.sa',
+        'email' => 'applicant@teamhub.test',
     ]);
 
     $this->actingAs($applicant)
@@ -95,6 +95,6 @@ test('the membership approved notification renders with the branded mail theme',
 
     expect($rendered)->toBeString();
     $this->assertStringContainsString('#006471', $rendered);
-    $this->assertStringContainsString('ruwad-mark-white.png', $rendered);
+    $this->assertStringContainsString('teamhub-icon.svg', $rendered);
     $this->assertStringContainsString('Robotics Club', $rendered);
 });

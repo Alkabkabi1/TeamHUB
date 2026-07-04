@@ -88,8 +88,8 @@ test('notification emails render in the recipient locale regardless of request l
     app()->setLocale('en'); // e.g. an English-using supervisor triggers the action
 
     $club = Club::factory()->create(['name' => 'نادي الحاسبات']);
-    $arabicUser = User::factory()->create(['locale' => null, 'email' => 'arabic@uqu.edu.sa']);
-    $englishUser = User::factory()->create(['locale' => 'en', 'email' => 'english@uqu.edu.sa']);
+    $arabicUser = User::factory()->create(['locale' => null, 'email' => 'arabic@teamhub.test']);
+    $englishUser = User::factory()->create(['locale' => 'en', 'email' => 'english@teamhub.test']);
 
     $arabicUser->notifyNow(new MembershipApprovedNotification($club));
     $englishUser->notifyNow(new MembershipApprovedNotification($club));
@@ -100,6 +100,6 @@ test('notification emails render in the recipient locale regardless of request l
         $bodies[$email->getTo()[0]->getAddress()] = $email->getHtmlBody();
     }
 
-    expect($bodies['arabic@uqu.edu.sa'])->toContain('مبارك');
-    expect($bodies['english@uqu.edu.sa'])->toContain('Congratulations');
+    expect($bodies['arabic@teamhub.test'])->toContain('مبارك');
+    expect($bodies['english@teamhub.test'])->toContain('Congratulations');
 });

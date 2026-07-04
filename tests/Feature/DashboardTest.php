@@ -12,7 +12,7 @@ test('authenticated students are redirected from the generic dashboard to their 
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('student-dashboard'));
+    $response->assertRedirect(route('hub.dashboard'));
 });
 
 test('authenticated university staff are redirected from the generic dashboard to the filament panel', function () {

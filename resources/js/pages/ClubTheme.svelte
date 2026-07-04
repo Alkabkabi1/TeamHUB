@@ -1,7 +1,7 @@
 <script lang="ts">
     import AppHead from '@/components/AppHead.svelte';
-    import BackLink from '@/components/BackLink.svelte';
     import ClubThemeForm from '@/components/ClubThemeForm.svelte';
+    import WorkspaceManageShell from '@/components/WorkspaceManageShell.svelte';
     import { t } from '@/lib/i18n.svelte';
     import type { ClubBranding } from '@/types';
 
@@ -14,15 +14,12 @@
     } = $props();
 </script>
 
-<AppHead title="{t('theme.title')} — {club.name}" />
+<AppHead title={`${t('theme.title')} — ${club.name}`} />
 
 <div
     class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-12"
 >
-    <BackLink
-        href={`/clubs/${club.id}/manage`}
-        label={t('app.back_to_manage')}
-    />
+    <WorkspaceManageShell active="settings" {club} />
 
     <!-- Header banner -->
     <section

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Certificate;
 use App\Models\ClubJoinApplication;
 use App\Models\ClubMembership;
-use App\Models\Event;
+use App\Models\CommitteeMembership;
+use App\Models\Post;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\VolunteerHour;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ use Inertia\Response;
 class StudentDashboardController extends Controller
 {
     /**
-     * Show the student dashboard with volunteer hours and club data from the database.
+     * Show the TeamHUB member dashboard for student users.
      */
     public function index(Request $request): Response
     {
@@ -26,32 +27,82 @@ class StudentDashboardController extends Controller
             abort(403);
         }
 
-        $totalHours = (float) $user->volunteerHours()->sum('hours');
-
-        $memberships = $user->clubMemberships()
+        $workspaceMemberships = $user->clubMemberships()
             ->where('status', 'approved')
             ->with('club:id,name')
             ->orderBy('joined_at')
             ->get();
 
-        $clubIds = $memberships->pluck('club_id')->filter()->all();
+        $projectMemberships = $user->committeeMemberships()
+            ->where('status', 'approved')
+            ->with('committee.club:id,name')
+            ->orderBy('joined_at')
+            ->get();
 
-        $hoursByClubId = $clubIds === []
-            ? collect()
-            : VolunteerHour::query()
-                ->selectRaw('club_id, SUM(hours) as hours_sum')
-                ->where('user_id', $user->id)
-                ->whereIn('club_id', $clubIds)
-                ->groupBy('club_id')
-                ->pluck('hours_sum', 'club_id');
+        $projectCountsByWorkspace = $projectMemberships
+            ->filter(fn (CommitteeMembership $membership) => $membership->committee !== null)
+            ->groupBy(fn (CommitteeMembership $membership) => $membership->committee?->club_id)
+            ->map->count();
 
-        $clubs = $memberships
+        $volunteerHoursByWorkspace = VolunteerHour::query()
+            ->where('user_id', $user->id)
+            ->selectRaw('club_id, SUM(hours) as total_hours')
+            ->groupBy('club_id')
+            ->get()
+            ->mapWithKeys(fn (VolunteerHour $hour) => [
+                $hour->club_id => $this->normalizeHours($hour->total_hours),
+            ]);
+
+        $totalVolunteerHours = $this->normalizeHours($volunteerHoursByWorkspace->sum());
+
+        $workspaces = $workspaceMemberships
             ->filter(fn (ClubMembership $membership) => $membership->club !== null)
             ->map(fn (ClubMembership $membership) => [
+                'id' => $membership->club_id,
                 'name' => $membership->club->name,
                 'memberSince' => $membership->joined_at?->format('Y') ?? '',
-                'volunteerHours' => (float) ($hoursByClubId[$membership->club_id] ?? 0),
+                'projectCount' => (int) ($projectCountsByWorkspace[$membership->club_id] ?? 0),
+                'volunteerHours' => $this->normalizeHours(
+                    $volunteerHoursByWorkspace[$membership->club_id] ?? 0,
+                ),
             ])
+            ->values();
+
+        $projects = $projectMemberships
+            ->filter(fn (CommitteeMembership $membership) => $membership->committee !== null && $membership->committee->club !== null)
+            ->map(fn (CommitteeMembership $membership) => [
+                'id' => $membership->committee_id,
+                'name' => $membership->committee?->name ?? '',
+                'clubId' => $membership->committee?->club_id,
+                'clubName' => $membership->committee?->club?->name ?? '',
+                'joinedAt' => $membership->joined_at?->toIso8601String(),
+            ])
+            ->values();
+
+        $assignedTaskBaseQuery = Task::query()
+            ->assignedTo($user)
+            ->incomplete()
+            ->with(['committee:id,club_id,name', 'committee.club:id,name'])
+            ->orderBy('due_at')
+            ->orderByDesc('updated_at');
+
+        $overdueTasks = (clone $assignedTaskBaseQuery)
+            ->overdue()
+            ->get();
+
+        $dueTodayTasks = (clone $assignedTaskBaseQuery)
+            ->dueToday()
+            ->get();
+
+        $upcomingTasks = (clone $assignedTaskBaseQuery)
+            ->upcoming()
+            ->limit(6)
+            ->get();
+
+        $attentionTasks = $overdueTasks
+            ->concat($dueTodayTasks)
+            ->sortBy(fn (Task $task) => $task->due_at?->timestamp ?? PHP_INT_MAX)
+            ->take(6)
             ->values();
 
         $latestApplication = $user->joinApplications()
@@ -59,57 +110,49 @@ class StudentDashboardController extends Controller
             ->latest('reviewed_at')
             ->first();
 
-        $certificates = $user->certificates()
-            ->with(['event', 'club'])
-            ->orderByDesc('issued_at')
-            ->get()
-            ->map(fn (Certificate $cert) => [
-                'id' => $cert->id,
-                'certificateNo' => $cert->certificate_no,
-                'eventTitle' => $cert->event?->title ?? $cert->title ?? '',
-                'clubName' => $cert->club?->name ?? '',
-                'issuedAt' => $cert->issued_at?->format('d/m/Y') ?? '',
-            ])
-            ->values();
+        $committeeIds = $projectMemberships->pluck('committee_id')->filter()->unique()->values();
 
-        $featuredEvents = Event::query()
-            ->with(['club:id,name', 'media'])
-            ->upcoming()
-            ->active()
-            ->orderBy('starts_at')
-            ->limit(2)
-            ->get(['id', 'club_id', 'title', 'description', 'starts_at'])
-            ->map(fn (Event $event) => [
-                'id' => $event->id,
-                'title' => $event->title,
-                'description' => $event->description,
-                'startsAt' => $event->starts_at?->toIso8601String(),
-                'clubName' => $event->club?->name ?? '',
-                'imageUrl' => $event->coverImageUrl(),
-            ])
-            ->values();
+        $recentUpdates = $committeeIds->isEmpty()
+            ? collect()
+            : Post::query()
+                ->whereIn('committee_id', $committeeIds)
+                ->with(['committee:id,name', 'club:id,name'])
+                ->latest('published_at')
+                ->limit(6)
+                ->get()
+                ->map(fn (Post $post) => [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'committeeName' => $post->committee?->name ?? '',
+                    'clubName' => $post->club?->name ?? '',
+                    'publishedAt' => $post->published_at?->toIso8601String(),
+                    'url' => route('committees.updates.index', [$post->club_id, $post->committee_id], absolute: false),
+                ])
+                ->values();
 
         return Inertia::render('StudentDashboard', [
-            'totalHours' => $totalHours,
             'stats' => [
-                'clubsCount' => $memberships->count(),
-                'eventsCount' => $user->eventAttendances()
-                    ->whereIn('status', ['approved', 'checked_in'])
-                    ->count(),
-                'certificatesCount' => $certificates->count(),
-                'totalHours' => $totalHours,
+                'workspacesCount' => $workspaceMemberships->count(),
+                'projectsCount' => $projects->count(),
+                'openTasksCount' => (clone $assignedTaskBaseQuery)->count(),
+                'dueTodayCount' => $dueTodayTasks->count(),
+                'overdueCount' => $overdueTasks->count(),
+                'totalHours' => $totalVolunteerHours,
             ],
-            'clubs' => $clubs,
+            'totalHours' => $totalVolunteerHours,
+            'clubs' => $workspaces,
+            'workspaces' => $workspaces,
+            'projects' => $projects,
             'profile' => [
                 'name' => $user->name,
                 'email' => $user->email,
                 'subtitle' => $this->profileSubtitle($latestApplication),
                 'joinedAt' => $user->created_at?->toIso8601String(),
             ],
-            'certificates' => $certificates,
-            'featuredEvents' => $featuredEvents,
-            // Personal attendance QR a club scanner reads to log the student's presence.
-            'qrSvg' => $user->attendanceQrSvg(),
+            'attentionTasks' => $attentionTasks->map(fn (Task $task): array => $this->presentTask($task))->values(),
+            'upcomingTasks' => $upcomingTasks->map(fn (Task $task): array => $this->presentTask($task))->values(),
+            'recentUpdates' => $recentUpdates,
+            'myTasksUrl' => route('my-tasks', absolute: false),
         ]);
     }
 
@@ -122,5 +165,40 @@ class StudentDashboardController extends Controller
         $parts = array_filter([$application->major, $application->level]);
 
         return implode(' - ', $parts);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function presentTask(Task $task): array
+    {
+        return [
+            'id' => $task->id,
+            'title' => $task->title,
+            'status' => $task->status->value,
+            'statusLabel' => __($task->status->label()),
+            'priority' => $task->priority->value,
+            'priorityLabel' => __($task->priority->label()),
+            'dueAt' => $task->due_at?->toIso8601String(),
+            'clubId' => $task->committee?->club_id,
+            'clubName' => $task->committee?->club?->name ?? '',
+            'committeeId' => $task->committee_id,
+            'committeeName' => $task->committee?->name ?? '',
+            'detailUrl' => route('committees.tasks.show', [$task->committee?->club_id, $task->committee_id, $task], absolute: false),
+        ];
+    }
+
+    /**
+     * @param  mixed  $hours
+     */
+    private function normalizeHours($hours): int|float
+    {
+        $value = round((float) $hours, 2);
+
+        if ((float) (int) $value === $value) {
+            return (int) $value;
+        }
+
+        return $value;
     }
 }

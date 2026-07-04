@@ -16,7 +16,9 @@
     --th-review: #8b5cf6;
     --th-shadow: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
 
-    font-family: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+    font-family:
+        'IBM Plex Sans Arabic', 'Noto Sans Arabic', ui-sans-serif, system-ui,
+        sans-serif;
     background-color: var(--th-bg);
     color: var(--th-text);
 }

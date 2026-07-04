@@ -15,11 +15,13 @@ class ClubMembershipsSeeder extends Seeder
      */
     public function run(): void
     {
-        $clubLeader = User::query()->where('email', 'club-leader@uqu.edu.sa')->first();
-        $committeeLeader = User::query()->where('email', 'committee-leader@uqu.edu.sa')->first();
-        $scanner = User::query()->where('email', 'scanner@uqu.edu.sa')->first();
-        $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
-        $member = User::query()->where('email', 'member@uqu.edu.sa')->first();
+        $clubLeader = User::query()->where('email', 'club-leader@teamhub.test')->first();
+        $committeeLeader = User::query()->where('email', 'committee-leader@teamhub.test')->first();
+        $projectLeader = User::query()->where('email', 'project-leader@teamhub.test')->first();
+        $staffMember = User::query()->where('email', 'staff@teamhub.test')->first();
+        $scanner = User::query()->where('email', 'scanner@teamhub.test')->first();
+        $student = User::query()->where('email', 'student@teamhub.test')->first();
+        $member = User::query()->where('email', 'member@teamhub.test')->first();
         $csClub = Club::query()->where('name', 'نادي الحاسبات')->first();
 
         // The demo club leader: ClubLead of the CS club...
@@ -46,6 +48,14 @@ class ClubMembershipsSeeder extends Seeder
             $this->seedMembership($member, $csClub, [ClubRole::Member], now()->subMonths(8));
         }
 
+        if ($projectLeader && $csClub) {
+            $this->seedMembership($projectLeader, $csClub, [ClubRole::Member], now()->subYear());
+        }
+
+        if ($staffMember && $csClub) {
+            $this->seedMembership($staffMember, $csClub, [ClubRole::Member], now()->subMonths(6));
+        }
+
         // ...and a plain student member of a second club, proving a user can
         // manage one club while being an ordinary member of another.
         $environmentClub = Club::query()->where('name', 'نادي البيئة')->first();
@@ -68,11 +78,13 @@ class ClubMembershipsSeeder extends Seeder
         $students = User::query()
             ->where('role', 'student')
             ->whereNotIn('email', [
-                'student@uqu.edu.sa',
-                'member@uqu.edu.sa',
-                'club-leader@uqu.edu.sa',
-                'committee-leader@uqu.edu.sa',
-                'scanner@uqu.edu.sa',
+                'student@teamhub.test',
+                'member@teamhub.test',
+                'club-leader@teamhub.test',
+                'committee-leader@teamhub.test',
+                'project-leader@teamhub.test',
+                'staff@teamhub.test',
+                'scanner@teamhub.test',
             ])
             ->limit(12)
             ->get();
@@ -93,7 +105,7 @@ class ClubMembershipsSeeder extends Seeder
         if ($csClub) {
             $pendingStudents = User::query()
                 ->where('role', 'student')
-                ->where('email', '!=', 'student@uqu.edu.sa')
+                ->where('email', '!=', 'student@teamhub.test')
                 ->whereDoesntHave('clubMemberships', fn ($query) => $query->where('club_id', $csClub->id))
                 ->limit(3)
                 ->get();

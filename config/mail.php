@@ -127,7 +127,7 @@ return [
     */
 
     'markdown' => [
-        'theme' => env('MAIL_THEME', 'ruwad'),
+        'theme' => env('MAIL_THEME', 'teamhub'),
 
         'paths' => [
             resource_path('views/vendor/mail'),

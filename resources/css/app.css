@@ -239,7 +239,7 @@
     --sidebar: hsl(240 5.9% 10%);
 }
 
-@keyframes ruwad-sheet-in-left {
+@keyframes teamhub-sheet-in-left {
     from {
         transform: translate3d(-100%, 0, 0);
     }
@@ -248,7 +248,7 @@
     }
 }
 
-@keyframes ruwad-sheet-out-left {
+@keyframes teamhub-sheet-out-left {
     from {
         transform: translate3d(0, 0, 0);
     }
@@ -257,7 +257,7 @@
     }
 }
 
-@keyframes ruwad-sheet-in-right {
+@keyframes teamhub-sheet-in-right {
     from {
         transform: translate3d(100%, 0, 0);
     }
@@ -266,7 +266,7 @@
     }
 }
 
-@keyframes ruwad-sheet-out-right {
+@keyframes teamhub-sheet-out-right {
     from {
         transform: translate3d(0, 0, 0);
     }
@@ -275,7 +275,7 @@
     }
 }
 
-@keyframes ruwad-overlay-in {
+@keyframes teamhub-overlay-in {
     from {
         opacity: 0;
     }
@@ -284,7 +284,7 @@
     }
 }
 
-@keyframes ruwad-overlay-out {
+@keyframes teamhub-overlay-out {
     from {
         opacity: 1;
     }
@@ -294,31 +294,31 @@
 }
 
 .sheet-smooth[data-side='left'][data-state='open'] {
-    animation: ruwad-sheet-in-left 720ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    animation: teamhub-sheet-in-left 720ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
     will-change: transform;
 }
 
 .sheet-smooth[data-side='left'][data-state='closed'] {
-    animation: ruwad-sheet-out-left 520ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
+    animation: teamhub-sheet-out-left 520ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
     will-change: transform;
 }
 
 .sheet-smooth[data-side='right'][data-state='open'] {
-    animation: ruwad-sheet-in-right 720ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    animation: teamhub-sheet-in-right 720ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
     will-change: transform;
 }
 
 .sheet-smooth[data-side='right'][data-state='closed'] {
-    animation: ruwad-sheet-out-right 520ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
+    animation: teamhub-sheet-out-right 520ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
     will-change: transform;
 }
 
 [data-slot='sheet-overlay'][data-state='open'] {
-    animation: ruwad-overlay-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    animation: teamhub-overlay-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
 }
 
 [data-slot='sheet-overlay'][data-state='closed'] {
-    animation: ruwad-overlay-out 480ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
+    animation: teamhub-overlay-out 480ms cubic-bezier(0.7, 0, 0.84, 0) both !important;
 }
 
 @layer base {

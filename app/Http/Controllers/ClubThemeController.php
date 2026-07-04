@@ -31,6 +31,10 @@ class ClubThemeController extends Controller
      */
     public function update(UpdateClubThemeRequest $request, Club $club): RedirectResponse
     {
+        if ($request->filled('name')) {
+            $club->name = $request->validated('name');
+        }
+
         if ($request->hasFile('logo')) {
             // The single-file collection replaces any previous logo.
             $club->addMedia($request->file('logo'))->toMediaCollection(Club::LOGO_COLLECTION);

@@ -3,6 +3,7 @@
     import AppHead from '@/components/AppHead.svelte';
     import FilterSelect from '@/components/FilterSelect.svelte';
     import InputError from '@/components/InputError.svelte';
+    import ProjectManageShell from '@/components/ProjectManageShell.svelte';
     import { t } from '@/lib/i18n.svelte';
     import {
         index as committeesIndex,
@@ -86,8 +87,16 @@
 
 <div class="flex flex-1 flex-col bg-[#fdfdfd]">
     <div
-        class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-12"
+        class="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-12"
     >
+        {#if isEdit && committee}
+            <ProjectManageShell
+                active="settings"
+                {club}
+                committee={{ id: committee.id, name: committee.name }}
+            />
+        {/if}
+
         <div class="flex items-center justify-between gap-4">
             <h1 class="text-start text-xl text-[#5f5f5f] sm:text-2xl">
                 {isEdit

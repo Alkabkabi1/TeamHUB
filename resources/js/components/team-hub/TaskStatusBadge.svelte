@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { TaskStatus } from '@/components/team-hub/mock-data';
     import { statusLabels } from '@/components/team-hub/mock-data';
+    import type { TaskStatus } from '@/types/team-hub';
 
     let {
         status,
@@ -9,10 +9,22 @@
     } = $props();
 
     const styles: Record<TaskStatus, { bg: string; color: string }> = {
-        todo: { bg: 'color-mix(in srgb, var(--th-text-muted) 14%, transparent)', color: 'var(--th-text-muted)' },
-        in_progress: { bg: 'color-mix(in srgb, var(--th-info) 14%, transparent)', color: 'var(--th-info)' },
-        review: { bg: 'color-mix(in srgb, var(--th-review) 14%, transparent)', color: 'var(--th-review)' },
-        done: { bg: 'color-mix(in srgb, var(--th-success) 14%, transparent)', color: 'var(--th-success)' },
+        todo: {
+            bg: 'color-mix(in srgb, var(--th-text-muted) 14%, transparent)',
+            color: 'var(--th-text-muted)',
+        },
+        in_progress: {
+            bg: 'color-mix(in srgb, var(--th-info) 14%, transparent)',
+            color: 'var(--th-info)',
+        },
+        review: {
+            bg: 'color-mix(in srgb, var(--th-review) 14%, transparent)',
+            color: 'var(--th-review)',
+        },
+        done: {
+            bg: 'color-mix(in srgb, var(--th-success) 14%, transparent)',
+            color: 'var(--th-success)',
+        },
     };
 </script>
 

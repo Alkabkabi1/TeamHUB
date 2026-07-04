@@ -279,7 +279,7 @@ class NewsController extends Controller
     private function manageRedirect(Club $club, ?Committee $committee): RedirectResponse
     {
         return $committee !== null
-            ? redirect()->route('committees.manage', [$club, $committee])
+            ? redirect()->route('committees.updates.index', [$club, $committee])
             : redirect()->route('clubs.manage', $club);
     }
 

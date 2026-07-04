@@ -10,6 +10,7 @@ export type NavItem = {
     title: string;
     href: NonNullable<LinkComponentBaseProps['href']>;
     icon?: IconSvgElement;
+    badge?: number;
     isActive?: boolean;
     roles?: string[];
     isLogout?: boolean;

@@ -52,7 +52,7 @@ test('registration returns the user to the page they came from', function () {
 
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
-        'email' => 'test@uqu.edu.sa',
+        'email' => 'test@teamhub.test',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
@@ -96,5 +96,5 @@ test('visiting login directly without a referer keeps the default redirect', fun
         'password' => 'password',
     ]);
 
-    $response->assertRedirect(route('student-dashboard', absolute: false));
+    $response->assertRedirect(route('hub.dashboard', absolute: false));
 });

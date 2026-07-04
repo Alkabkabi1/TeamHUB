@@ -94,6 +94,8 @@ return [
         'news_management' => 'إدارة الأخبار',
         'add_news' => 'إضافة خبر',
         'no_news' => 'لا توجد أخبار بعد.',
+        'recent_activity' => 'آخر نشاط المهام',
+        'no_recent_activity' => 'لا يوجد نشاط مهام بعد.',
         'export' => 'تصدير البيانات',
         'report_members' => 'تقرير الأعضاء',
         'report_hours' => 'تقرير ساعات التطوع',

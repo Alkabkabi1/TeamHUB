@@ -7,8 +7,10 @@ use App\Enums\ClubRole;
 use App\Models\CertificateTemplate;
 use App\Models\Club;
 use App\Models\ClubJoinApplication;
+use App\Models\Committee;
 use App\Models\Event;
 use App\Models\Post;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\ClubSupervisorReportService;
 use Inertia\Inertia;
@@ -32,6 +34,34 @@ class ClubManagementController extends Controller
 
         abort_unless($user->canManageClub($club), 403);
 
+        return Inertia::render('clubs/Manage', $this->managementPayload($club, $user));
+    }
+
+    public function members(Club $club): Response
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        abort_unless($user->canManageClub($club), 403);
+
+        $payload = $this->managementPayload($club, $user);
+
+        return Inertia::render('clubs/Members', [
+            'theme' => $payload['theme'],
+            'club' => $payload['club'],
+            'capabilities' => $payload['capabilities'],
+            'canManageRoles' => $payload['canManageRoles'],
+            'roleOptions' => $payload['roleOptions'],
+            'members' => $payload['members'],
+            'pendingApplications' => $payload['pendingApplications'],
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function managementPayload(Club $club, User $user): array
+    {
         $club->loadMissing('university:id,name');
 
         // University staff bypass every club gate; surface the full capability
@@ -44,8 +74,69 @@ class ClubManagementController extends Controller
         $pastEvents = $this->reports->pastEventsForClub($club);
         $eligibleAttendees = $this->reports->eligibleAttendeesForClub($club, $pastEvents);
         $members = $this->reports->clubMembersForManagement($club);
+        $projectIds = $club->committees()->pluck('id');
 
-        return Inertia::render('clubs/Manage', [
+        $workspaceTaskQuery = Task::query()->whereIn('committee_id', $projectIds);
+        $workspaceProjects = $club->committees()
+            ->withCount([
+                'memberships as members_count',
+                'tasks as tasks_count',
+                'tasks as overdue_tasks_count' => fn ($query) => $query
+                    ->whereNotNull('due_at')
+                    ->where('due_at', '<', now())
+                    ->whereNotIn('status', ['done']),
+            ])
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Committee $committee): array => [
+                'id' => $committee->id,
+                'name' => $committee->name,
+                'description' => $committee->description,
+                'status' => $committee->status->value,
+                'logo_url' => $committee->logo_url,
+                'members_count' => $committee->members_count,
+                'tasks_count' => $committee->tasks_count,
+                'overdue_tasks_count' => $committee->overdue_tasks_count,
+            ])
+            ->values();
+
+        $recentActivity = collect([
+            ...Task::query()
+                ->whereIn('committee_id', $projectIds)
+                ->with('committee:id,name')
+                ->latest('updated_at')
+                ->limit(6)
+                ->get()
+                ->map(fn (Task $task): array => [
+                    'id' => "task-{$task->id}",
+                    'type' => 'task',
+                    'title' => $task->title,
+                    'context' => $task->committee?->name ?? '',
+                    'time' => $task->updated_at?->diffForHumans(),
+                    'sort_at' => $task->updated_at?->timestamp ?? 0,
+                    'url' => route('committees.tasks.show', [$club, $task->committee_id, $task]),
+                ]),
+            ...Post::query()
+                ->where('club_id', $club->id)
+                ->latest('published_at')
+                ->limit(4)
+                ->get()
+                ->map(fn (Post $post): array => [
+                    'id' => "post-{$post->id}",
+                    'type' => 'update',
+                    'title' => $post->title,
+                    'context' => $club->name,
+                    'time' => $post->published_at?->diffForHumans(),
+                    'sort_at' => $post->published_at?->timestamp ?? 0,
+                    'url' => route('news.show', $post),
+                ]),
+        ])->sortByDesc('sort_at')->take(8)->map(function (array $item): array {
+            unset($item['sort_at']);
+
+            return $item;
+        })->values();
+
+        return [
             // Override the shared university brand with this club's color when set.
             'theme' => ['brand' => $club->theme ?: config('theme.brand')],
             'club' => [
@@ -80,8 +171,6 @@ class ClubManagementController extends Controller
                     'width' => $template->width,
                     'height' => $template->height,
                     'fields_count' => $template->placeholders->count(),
-                    // Fractional (0–1) coordinates so the dashboard preview can
-                    // overlay each variable field on the template image.
                     'fields' => $template->placeholders->map(fn ($placeholder): array => [
                         'text' => $placeholder->static_text ?: __($placeholder->binding->label()),
                         'is_image' => $placeholder->binding->isImage(),
@@ -96,6 +185,17 @@ class ClubManagementController extends Controller
                 ])
                 ->values(),
             'stats' => $this->reports->clubStats($club, $members->count()),
+            'workspaceStats' => [
+                'projects_count' => $workspaceProjects->count(),
+                'tasks_count' => (clone $workspaceTaskQuery)->count(),
+                'overdue_tasks_count' => (clone $workspaceTaskQuery)
+                    ->whereNotNull('due_at')
+                    ->where('due_at', '<', now())
+                    ->whereNotIn('status', ['done'])
+                    ->count(),
+            ],
+            'workspaceProjects' => $workspaceProjects,
+            'recentActivity' => $recentActivity,
             'members' => $members,
             'pendingApplications' => ClubJoinApplication::query()
                 ->where('club_id', $club->id)
@@ -123,8 +223,6 @@ class ClubManagementController extends Controller
                     'capacity' => $event->capacity,
                     'status' => $event->status->value,
                     'attendances_count' => $event->attendances_count,
-                    // Scannable while active and not yet finished — a multi-day
-                    // activity stays scannable until its end.
                     'scannable' => $event->isScannable(),
                 ])
                 ->values(),
@@ -139,6 +237,6 @@ class ClubManagementController extends Controller
                     'published_at' => $post->published_at?->toIso8601String(),
                 ])
                 ->values(),
-        ]);
+        ];
     }
 }

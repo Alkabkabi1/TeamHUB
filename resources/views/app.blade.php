@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+@php($appearance = request()->cookie('appearance', 'light'))
+<html
+    lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+    dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
+    class="{{ $appearance === 'dark' ? 'dark' : '' }}"
+    style="color-scheme: {{ $appearance === 'dark' ? 'dark' : 'light' }}"
+>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-        <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/svg+xml" href="/teamhub-favicon.svg">
+        <link rel="apple-touch-icon" href="/teamhub-icon.svg">
         <link rel="manifest" href="/site.webmanifest">
         <meta name="theme-color" content="{{ config('theme.brand', '#006471') }}">
 
@@ -50,9 +54,38 @@
             rel="stylesheet"
         />
 
+        <script>
+            (() => {
+                try {
+                    const match = document.cookie.match(
+                        /(?:^|; )appearance=([^;]+)/,
+                    );
+                    const cookieAppearance = match
+                        ? decodeURIComponent(match[1])
+                        : null;
+                    const storedAppearance =
+                        window.localStorage.getItem('appearance') ??
+                        cookieAppearance ??
+                        '{{ $appearance }}';
+                    const resolvedAppearance =
+                        storedAppearance === 'dark' ? 'dark' : 'light';
+
+                    document.documentElement.classList.toggle(
+                        'dark',
+                        resolvedAppearance === 'dark',
+                    );
+                    document.documentElement.style.colorScheme =
+                        resolvedAppearance;
+                } catch {
+                    // Ignore storage access issues and fall back to the
+                    // server-rendered appearance above.
+                }
+            })();
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
 
-        {{-- University default brand color, server-rendered so it applies before JS picks up any club override. --}}
+        {{-- Default TeamHUB brand color, server-rendered before any workspace override. --}}
         <style>:root{--brand: {{ config('theme.brand', '#006471') }};}</style>
 
         {{-- SEO defaults. This SPA is not server-rendered, so crawlers see these

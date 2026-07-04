@@ -17,8 +17,11 @@
     import { home } from '@/routes';
 
     let { status }: { status: number } = $props();
+    type Direction = 'rtl' | 'ltr' | 'auto';
 
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
 
     // Fall back to a generic message when an unmapped status reaches this page.
     const known = [403, 404, 419, 429, 500, 503];
@@ -38,7 +41,7 @@
 
 <div
     dir={direction}
-    class="relative flex min-h-svh w-full items-center justify-center overflow-hidden bg-white px-4 py-10 sm:px-6 lg:px-10"
+    class="relative flex min-h-svh w-full items-center justify-center overflow-hidden bg-white px-4 py-10 dark:bg-[#0b1120] sm:px-6 lg:px-10"
 >
     <!-- Decorative scattered circles with light blur (matches the auth screens) -->
     <div
@@ -62,11 +65,11 @@
         class="pointer-events-none absolute left-1/3 bottom-12 hidden size-[80px] rounded-full bg-brand/20 blur-sm lg:block"
     ></div>
 
-    <!-- Top-right Ruwad logo -->
+    <!-- Top-right TeamHUB logo -->
     <Link
         href={home().url}
         aria-label={t('app.home_aria')}
-        class="absolute end-6 top-6 z-20 text-black md:end-10 md:top-8"
+        class="absolute end-6 top-6 z-20 text-black dark:text-white md:end-10 md:top-8"
     >
         <AppLogoIcon class="h-9 w-auto fill-current" />
     </Link>
@@ -81,9 +84,13 @@
             {status}
         </p>
 
-        <h1 class="text-xl font-medium text-black sm:text-2xl">{title}</h1>
+        <h1 class="text-xl font-medium text-black dark:text-white sm:text-2xl">
+            {title}
+        </h1>
 
-        <p class="max-w-md text-sm leading-relaxed text-[#7e7e7e] sm:text-base">
+        <p
+            class="max-w-md text-sm leading-relaxed text-[#7e7e7e] dark:text-[#cbd5e1] sm:text-base"
+        >
             {description}
         </p>
 

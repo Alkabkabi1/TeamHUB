@@ -1,10 +1,10 @@
 <?php
 
-test('home document exposes Ruwad SEO meta tags', function () {
+test('home document exposes TeamHUB SEO meta tags', function () {
     $response = $this->get('/')->assertOk();
     $html = $response->getContent();
 
-    // Core SEO + Open Graph / Twitter cards are present and Ruwad-branded.
+    // Core SEO + Open Graph / Twitter cards are present and TeamHUB-branded.
     expect($html)
         ->toContain('<meta name="description"')
         ->toContain(__('seo.description'))
@@ -16,11 +16,11 @@ test('home document exposes Ruwad SEO meta tags', function () {
         ->toContain('<link rel="manifest" href="/site.webmanifest">');
 });
 
-test('home document uses PNG favicons, not the SVG Laravel mark', function () {
+test('home document uses TeamHUB favicon assets', function () {
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)
-        ->toContain('<link rel="icon" type="image/png" href="/favicon-32x32.png"')
-        ->toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png">')
-        ->not->toContain('favicon.svg');
+        ->toContain('<link rel="icon" type="image/svg+xml" href="/teamhub-favicon.svg">')
+        ->toContain('<link rel="apple-touch-icon" href="/teamhub-icon.svg">')
+        ->not->toContain('/favicon-32x32.png');
 });

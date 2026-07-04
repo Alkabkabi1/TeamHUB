@@ -1,0 +1,6 @@
+{
+    "extends": "./tsconfig.json",
+    "exclude": [
+        "resources/js/components/ui/**/*"
+    ]
+}

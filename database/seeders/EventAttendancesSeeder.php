@@ -45,7 +45,7 @@ class EventAttendancesSeeder extends Seeder
      */
     private function seedCheckins(): void
     {
-        $scanner = User::query()->where('email', 'scanner@uqu.edu.sa')->first();
+        $scanner = User::query()->where('email', 'scanner@teamhub.test')->first();
 
         $attendances = EventAttendance::query()
             ->where('status', 'checked_in')
@@ -192,7 +192,7 @@ class EventAttendancesSeeder extends Seeder
      */
     private function seedDemoStudentPastAttendance(Collection $pastEvents): void
     {
-        $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+        $student = User::query()->where('email', 'student@teamhub.test')->first();
         $event = $pastEvents->first();
 
         if (! $student || ! $event) {

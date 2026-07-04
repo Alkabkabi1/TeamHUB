@@ -10,7 +10,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Spinner } from '@/components/ui/spinner';
-    import RuwadAuthLayout from '@/layouts/auth/RuwadAuthLayout.svelte';
+    import TeamHubAuthLayout from '@/layouts/auth/TeamHubAuthLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { show } from '@/routes/clubs';
     import { store } from '@/routes/clubs/join';
@@ -57,7 +57,7 @@
 
 <AppHead title="{t('join.title')} — {club.name}" />
 
-<RuwadAuthLayout
+<TeamHubAuthLayout
     title="{t('join.title')} — {club.name}"
     backHref={show(club.id).url}
     wide
@@ -96,4 +96,4 @@
             </button>
         {/snippet}
     </Form>
-</RuwadAuthLayout>
+</TeamHubAuthLayout>

@@ -15,11 +15,14 @@
     import type { ManagedClub } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
+    type Direction = 'rtl' | 'ltr';
 
     const managedClubs = $derived(
         (page.props.auth?.user?.managed_clubs ?? []) as ManagedClub[],
     );
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
     const url = currentUrlState();
 
     // Highlight whenever the current page is any managed club's dashboard.

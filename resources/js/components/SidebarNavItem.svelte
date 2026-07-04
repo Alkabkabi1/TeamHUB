@@ -75,6 +75,13 @@
         >
             {item.title}
         </span>
+        {#if item.badge && item.badge > 0}
+            <span
+                class="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand"
+            >
+                {item.badge}
+            </span>
+        {/if}
         {#if item.icon}
             <HugeiconsIcon
                 strokeWidth={2}

@@ -13,10 +13,10 @@ use Database\Seeders\DatabaseSeeder;
 test('database seeder populates demo users and clubs', function () {
     $this->seed(DatabaseSeeder::class);
 
-    expect(User::query()->where('email', 'student@uqu.edu.sa')->exists())->toBeTrue()
-        ->and(User::query()->where('email', 'club-leader@uqu.edu.sa')->exists())->toBeTrue()
-        ->and(User::query()->where('email', 'committee-leader@uqu.edu.sa')->exists())->toBeTrue()
-        ->and(User::query()->where('email', 'admin@uqu.edu.sa')->exists())->toBeTrue()
+    expect(User::query()->where('email', 'student@teamhub.test')->exists())->toBeTrue()
+        ->and(User::query()->where('email', 'club-leader@teamhub.test')->exists())->toBeTrue()
+        ->and(User::query()->where('email', 'committee-leader@teamhub.test')->exists())->toBeTrue()
+        ->and(User::query()->where('email', 'admin@teamhub.test')->exists())->toBeTrue()
         ->and(Club::query()->where('name', 'نادي الحاسبات')->exists())->toBeTrue()
         ->and(Club::count())->toBeGreaterThanOrEqual(6)
         ->and(Event::count())->toBeGreaterThanOrEqual(12);
@@ -34,7 +34,7 @@ test('database seeder populates memberships resources and volunteer data', funct
 test('student demo user has club memberships after seeding', function () {
     $this->seed(DatabaseSeeder::class);
 
-    $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+    $student = User::query()->where('email', 'student@teamhub.test')->first();
 
     expect($student)->not->toBeNull()
         ->and($student->clubMemberships()->count())->toBeGreaterThanOrEqual(2);
@@ -74,7 +74,7 @@ test('seeded data includes approved join applications', function () {
 test('student demo user has volunteer hours after seeding', function () {
     $this->seed(DatabaseSeeder::class);
 
-    $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+    $student = User::query()->where('email', 'student@teamhub.test')->first();
 
     expect($student)->not->toBeNull()
         ->and((float) $student->volunteerHours()->sum('hours'))->toBeGreaterThan(0);
@@ -83,7 +83,7 @@ test('student demo user has volunteer hours after seeding', function () {
 test('student demo user has certificates after seeding', function () {
     $this->seed(DatabaseSeeder::class);
 
-    $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+    $student = User::query()->where('email', 'student@teamhub.test')->first();
 
     expect($student)->not->toBeNull()
         ->and($student->certificates()->count())->toBeGreaterThanOrEqual(1);

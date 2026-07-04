@@ -17,7 +17,7 @@
         formatNumber,
         t,
     } from '@/lib/i18n.svelte';
-    import { login } from '@/routes';
+    import { login, home } from '@/routes';
     import type { EventDetail } from '@/types';
 
     let {
@@ -52,10 +52,16 @@
 
     const isGuest = $derived(!page.props.auth?.user);
     const isStudent = $derived(page.props.auth?.user?.role === 'student');
+    const demoQuickLogin = $derived(
+        Boolean(
+            (page.props.demo as { quick_login?: boolean } | undefined)
+                ?.quick_login,
+        ),
+    );
+    const guestRsvpHref = $derived(demoQuickLogin ? home() : login());
 
-    // Guests and students both get a registration CTA; guests are routed to
-    // login first. The login view captures this page as the post-auth return
-    // target, so Laravel's redirect()->intended() brings them back here.
+    // Guests and students both get a registration CTA; guests pick a demo role
+    // or sign in first, then return here via intended redirect when applicable.
     const canAttemptRsvp = $derived(isGuest || isStudent);
 
     const registrationLabel = $derived(
@@ -223,7 +229,7 @@
                         </span>
                     {:else if isGuest}
                         <Link
-                            href={login()}
+                            href={guestRsvpHref}
                             class="rounded-full bg-brand px-4 py-2.5 text-center text-[13px] font-medium text-white transition-colors hover:bg-brand-dark"
                         >
                             {t('events.rsvp_register')}

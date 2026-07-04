@@ -13,7 +13,7 @@ test('guest is redirected to login when visiting join form', function () {
 });
 
 test('authenticated user can view join form with club props', function () {
-    $user = User::factory()->create(['email' => 'applicant@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'applicant@teamhub.test']);
     $club = Club::factory()->create(['name' => 'نادي الحاسبات', 'status' => 'active']);
 
     $this->actingAs($user)
@@ -23,7 +23,7 @@ test('authenticated user can view join form with club props', function () {
             ->component('ClubJoinForm')
             ->where('club.name', 'نادي الحاسبات')
             ->where('defaults.full_name', $user->name)
-            ->where('defaults.university_email', 'applicant@uqu.edu.sa')
+            ->where('defaults.university_email', 'applicant@teamhub.test')
         );
 });
 
@@ -39,7 +39,7 @@ test('join form returns not found for inactive club', function () {
 test('authenticated user can submit join application', function () {
     $user = User::factory()->create([
         'name' => 'وئام راشد',
-        'email' => 'applicant@uqu.edu.sa',
+        'email' => 'applicant@teamhub.test',
     ]);
     $club = Club::factory()->create(['status' => 'active']);
 
@@ -57,30 +57,30 @@ test('authenticated user can submit join application', function () {
         ->and($application->weekly_hours)->toBe(4);
 });
 
-test('join application requires matching university email', function () {
-    $user = User::factory()->create(['email' => 'student@uqu.edu.sa']);
+test('join application requires matching email address', function () {
+    $user = User::factory()->create(['email' => 'student@example.com']);
     $club = Club::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
         ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user, [
-            'university_email' => 'other@uqu.edu.sa',
+            'university_email' => 'other@example.com',
         ]))
         ->assertSessionHasErrors('university_email');
 });
 
-test('join application requires uqu email domain', function () {
-    $user = User::factory()->create(['email' => 'student@uqu.edu.sa']);
+test('join application accepts any valid email when it matches the logged-in user', function () {
+    $user = User::factory()->create(['email' => 'student@example.com']);
     $club = Club::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
         ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user, [
-            'university_email' => 'student@gmail.com',
+            'university_email' => 'student@example.com',
         ]))
-        ->assertSessionHasErrors('university_email');
+        ->assertRedirect(route('clubs.show', $club));
 });
 
 test('join application validates required fields', function () {
-    $user = User::factory()->create(['email' => 'student@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'student@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
@@ -100,7 +100,7 @@ test('join application validates required fields', function () {
 });
 
 test('duplicate pending application is rejected', function () {
-    $user = User::factory()->create(['email' => 'dup@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'dup@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     ClubJoinApplication::factory()->pending()->create([
@@ -115,7 +115,7 @@ test('duplicate pending application is rejected', function () {
 });
 
 test('existing club membership blocks new application', function () {
-    $user = User::factory()->create(['email' => 'member@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'member@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     ClubMembership::create([
@@ -131,7 +131,7 @@ test('existing club membership blocks new application', function () {
 });
 
 test('join application rejected for inactive club', function () {
-    $user = User::factory()->create(['email' => 'student@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'student@teamhub.test']);
     $club = Club::factory()->inactive()->create();
 
     $this->actingAs($user)
@@ -141,7 +141,7 @@ test('join application rejected for inactive club', function () {
 
 test('university staff gets 403 when posting a join application', function () {
     // Only students may apply to join a club; staff are not club members.
-    $user = User::factory()->universityStaff()->create(['email' => 'staff@uqu.edu.sa']);
+    $user = User::factory()->universityStaff()->create(['email' => 'staff@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)

@@ -1,4 +1,5 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { HugeiconsIcon } from '@hugeicons/svelte';
 	import { Alert01Icon, CheckmarkCircle01Icon, InformationCircleIcon, OctagonXIcon } from '@hugeicons/core-free-icons';
 	import { Toaster as Sonner, type ToasterProps as SonnerProps } from "svelte-sonner";

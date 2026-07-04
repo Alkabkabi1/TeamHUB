@@ -143,7 +143,7 @@
                     class="pointer-events-none absolute top-0 bottom-0 left-[1.18%] hidden h-full w-[21.66%] lg:block"
                 />
                 <img
-                    src="/images/hero/uqu-logo.png"
+                    src="/teamhub-icon.svg"
                     alt=""
                     aria-hidden="true"
                     class="pointer-events-none absolute top-[-1%] left-1/2 h-[90%] -translate-x-1/2 object-contain opacity-[0.04]"

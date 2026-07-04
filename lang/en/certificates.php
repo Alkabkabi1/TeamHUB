@@ -17,10 +17,10 @@ return [
     'hours_unit' => 'hr',
     'issue_date' => 'Issue date',
     'certificate_no' => 'Certificate No.',
-    'university_name' => 'Umm Al-Qura University',
-    'clubs_platform' => 'Ruwad Al-Andiyah Clubs Platform',
+    'university_name' => 'TeamHUB',
+    'clubs_platform' => 'TeamHUB',
     'participation_role' => 'Participant',
-    'footer' => 'Ruwad Clubs Platform — Umm Al-Qura University',
+    'footer' => 'TeamHUB',
 
     // Certificate issued notification (sent to the student)
     'notification' => [

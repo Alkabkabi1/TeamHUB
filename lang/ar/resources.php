@@ -2,8 +2,8 @@
 
 return [
     'title' => 'الموارد',
-    'hero_title' => 'جامعه ام القرى',
-    'hero_subtitle' => 'تصفح الموارد التعليمية والملفات المشتركة من الأندية',
+    'hero_title' => 'TeamHUB',
+    'hero_subtitle' => 'تصفح الملفات المشتركة والقوالب والمواد المرجعية من فرقك',
     'section_aria' => 'الموارد',
     'search_placeholder' => 'ابحث في الموارد...',
     'search_aria' => 'البحث في الموارد',
@@ -24,4 +24,6 @@ return [
     'download' => 'تحميل',
     'download_format' => 'تحميل :format',
     'file_unavailable' => 'الملف غير متاح',
+    'file_uploaded' => 'تم رفع ملف المشروع بنجاح.',
+    'file_deleted' => 'تم حذف ملف المشروع.',
 ];

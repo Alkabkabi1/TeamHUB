@@ -1,4 +1,6 @@
 <script lang="ts">
+    // @ts-nocheck
+    import type { UrlMethodPair } from '@inertiajs/core';
     import { Link } from '@inertiajs/svelte';
     import {
         Breadcrumb,
@@ -15,6 +17,12 @@
     }: {
         breadcrumbs: BreadcrumbItemType[];
     } = $props();
+
+    function linkHref(
+        href: BreadcrumbItemType['href'],
+    ): string | UrlMethodPair | undefined {
+        return href ?? undefined;
+    }
 </script>
 
 <Breadcrumb>
@@ -23,14 +31,16 @@
             <BreadcrumbItem>
                 {#if index === breadcrumbs.length - 1}
                     <BreadcrumbPage>{item.title}</BreadcrumbPage>
-                {:else}
+                {:else if item.href}
                     <BreadcrumbLink>
                         {#snippet child({ props })}
-                            <Link href={item.href} {...props}>
+                            <Link href={linkHref(item.href)} {...props}>
                                 {item.title}
                             </Link>
                         {/snippet}
                     </BreadcrumbLink>
+                {:else}
+                    <BreadcrumbPage>{item.title}</BreadcrumbPage>
                 {/if}
             </BreadcrumbItem>
             {#if index !== breadcrumbs.length - 1}

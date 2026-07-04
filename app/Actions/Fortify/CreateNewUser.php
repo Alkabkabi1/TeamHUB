@@ -18,8 +18,6 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
-        ], [
-            'email.ends_with' => 'يجب استخدام البريد الإلكتروني الجامعي (uqu.edu.sa).',
         ])->validate();
 
         return User::create([

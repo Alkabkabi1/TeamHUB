@@ -7,6 +7,7 @@ use App\Enums\ClubRole;
 use App\Enums\CommitteeCapability;
 use App\Enums\CommitteeRole;
 use App\Enums\UserRole;
+use App\Support\DemoRoles;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -173,17 +174,15 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
      */
     public function homeUrl(): string
     {
+        if (config('demo.quick_login') && DemoRoles::find($this->email) !== null) {
+            return route('hub.dashboard', absolute: false);
+        }
+
         if ($this->isUniversityStaff()) {
             return route(UserRole::UniversityStaff->dashboardRoute(), absolute: false);
         }
 
-        $club = $this->managedClubs()->first();
-
-        if ($club !== null) {
-            return route('clubs.manage', $club, absolute: false);
-        }
-
-        return route(UserRole::Student->dashboardRoute(), absolute: false);
+        return route('hub.dashboard', absolute: false);
     }
 
     /**
@@ -265,6 +264,46 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
     public function committeeMemberships()
     {
         return $this->hasMany(CommitteeMembership::class);
+    }
+
+    /**
+     * @return HasMany<Task, $this>
+     */
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    /**
+     * @return HasMany<Task, $this>
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * @return HasMany<Task, $this>
+     */
+    public function reviewedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'reviewed_by');
+    }
+
+    /**
+     * @return HasMany<TaskComment, $this>
+     */
+    public function taskComments(): HasMany
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
+    /**
+     * @return HasMany<TaskActivity, $this>
+     */
+    public function taskActivities(): HasMany
+    {
+        return $this->hasMany(TaskActivity::class);
     }
 
     /**

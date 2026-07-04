@@ -14,8 +14,8 @@ class UniversitySeeder extends Seeder
     public function run(): void
     {
         University::firstOrCreate(
-            ['slug' => 'uqu'],
-            ['name' => 'جامعة أم القرى'],
+            ['slug' => 'default'],
+            ['name' => 'المنظمة الافتراضية'],
         );
     }
 }

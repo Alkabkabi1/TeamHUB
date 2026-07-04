@@ -49,7 +49,7 @@ test('guests can use the assistant but get no persisted conversation', function 
 });
 
 test('an authenticated user receives a streamed reply', function () {
-    Assistant::fake(['مرحبا بك في رواد']);
+    Assistant::fake(['مرحبا بك في TeamHUB']);
 
     $user = User::factory()->student()->create();
 
@@ -65,6 +65,36 @@ test('an authenticated user receives a streamed reply', function () {
         ->and($content)->toContain('[DONE]');
 
     Assistant::assertPrompted('السلام عليكم');
+});
+
+test('an authenticated user can ask about overdue tasks in Arabic', function () {
+    Assistant::fake(['سأراجع مهامك المتأخرة الآن.']);
+
+    $user = User::factory()->student()->create();
+
+    $response = $this->actingAs($user)
+        ->post(route('assistant.chat'), ['message' => 'ما المهام المتأخرة؟']);
+
+    $response->assertOk();
+
+    expect($response->streamedContent())->toContain('مهامك');
+
+    Assistant::assertPrompted('ما المهام المتأخرة؟');
+});
+
+test('an authenticated user can ask to create a task in Arabic', function () {
+    Assistant::fake(['سأجهّز إنشاء المهمة مع بطاقة تأكيد.']);
+
+    $user = User::factory()->student()->create();
+
+    $response = $this->actingAs($user)
+        ->post(route('assistant.chat'), ['message' => 'أنشئ مهمة جديدة تستحق يوم الجمعة']);
+
+    $response->assertOk();
+
+    expect($response->streamedContent())->toContain('المهمة');
+
+    Assistant::assertPrompted('أنشئ مهمة جديدة تستحق يوم الجمعة');
 });
 
 test('a prompt persists a conversation owned by the user', function () {

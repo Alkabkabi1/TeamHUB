@@ -11,7 +11,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Spinner } from '@/components/ui/spinner';
-    import RuwadAuthLayout from '@/layouts/auth/RuwadAuthLayout.svelte';
+    import TeamHubAuthLayout from '@/layouts/auth/TeamHubAuthLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { update } from '@/routes/password';
 
@@ -26,7 +26,7 @@
 
 <AppHead title={t('auth.reset_password_title')} />
 
-<RuwadAuthLayout title={t('auth.reset_password_title')}>
+<TeamHubAuthLayout title={t('auth.reset_password_title')}>
     <Form
         {...update.form()}
         transform={(data) => ({ ...data, token, email })}
@@ -92,4 +92,4 @@
             </button>
         {/snippet}
     </Form>
-</RuwadAuthLayout>
+</TeamHubAuthLayout>

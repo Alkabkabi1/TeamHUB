@@ -29,11 +29,11 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('رواد')
-            ->brandLogo(asset('images/logo/ruwad-mark-teal.png'))
-            ->darkModeBrandLogo(asset('images/logo/ruwad-mark-white.png'))
+            ->brandName('TeamHUB')
+            ->brandLogo(asset('teamhub-icon.svg'))
+            ->darkModeBrandLogo(asset('teamhub-icon.svg'))
             ->brandLogoHeight('2.5rem')
-            ->favicon(asset('favicon-96x96.png'))
+            ->favicon(asset('teamhub-favicon.svg'))
             ->colors([
                 'primary' => Color::Teal,
             ])

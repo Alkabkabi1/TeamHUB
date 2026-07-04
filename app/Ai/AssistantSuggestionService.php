@@ -2,8 +2,7 @@
 
 namespace App\Ai;
 
-use App\Models\Club;
-use App\Models\Event;
+use App\Models\Committee;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -11,7 +10,7 @@ use Illuminate\Support\Collection;
  * Builds a small set of starter prompts for the assistant's empty state,
  * tailored to the acting user and the data actually available to them.
  *
- * Suggestions mirror the agent's own capability tiers (guest → student →
+ * Suggestions mirror the agent's own capability tiers (guest → member →
  * manager) and deliberately mix read-only lookups with write actions. Each
  * string is a natural-language prompt in the active locale: clicking a pill
  * sends it verbatim, and the assistant replies in that same language.
@@ -34,89 +33,71 @@ class AssistantSuggestionService
     }
 
     /**
-     * Public, read-only prompts anyone can ask without signing in.
+     * Public prompts for guests. Phase 6 is task-first, so guests are nudged
+     * toward login/navigation help instead of private work data.
      *
      * @return Collection<int, string>
      */
     protected function guestSuggestions(): Collection
     {
-        $suggestions = [
-            __('assistant.suggestions.upcoming_events'),
-            __('assistant.suggestions.browse_clubs'),
-            __('assistant.suggestions.latest_news'),
-            __('assistant.suggestions.find_resources'),
-            __('assistant.suggestions.find_committees'),
-            __('assistant.suggestions.how_to_join'),
-        ];
-
-        if (($event = $this->nextOpenEvent()) !== null) {
-            $suggestions[] = __('assistant.suggestions.event_details', ['event' => $event->title]);
-        }
-
-        return collect($suggestions);
+        return collect([
+            __('assistant.suggestions.login_help'),
+            __('assistant.suggestions.find_my_tasks_page'),
+            __('assistant.suggestions.teamhub_pages'),
+            __('assistant.suggestions.teamhub_capabilities'),
+        ]);
     }
 
     /**
-     * Personal read prompts plus member write actions, escalating to
-     * management prompts when the user oversees a club or committee.
+     * Personal task prompts, escalating to management prompts when the user
+     * oversees a workspace or project.
      *
      * @return Collection<int, string>
      */
     protected function memberSuggestions(User $user): Collection
     {
-        // Personal, read-only.
         $suggestions = [
-            __('assistant.suggestions.my_registrations'),
-            __('assistant.suggestions.my_certificates'),
-            __('assistant.suggestions.my_volunteer_hours'),
-            __('assistant.suggestions.my_clubs'),
-            __('assistant.suggestions.upcoming_events'),
+            __('assistant.suggestions.my_overdue_tasks'),
+            __('assistant.suggestions.my_tasks_today'),
+            __('assistant.suggestions.my_open_tasks'),
+            __('assistant.suggestions.my_upcoming_tasks'),
         ];
 
-        // Member write action — register for a concrete open event when one exists.
-        if (($event = $this->nextOpenEvent()) !== null) {
-            $suggestions[] = __('assistant.suggestions.register_event', ['event' => $event->title]);
-        } else {
-            $suggestions[] = __('assistant.suggestions.browse_clubs');
+        if (($project = $this->exampleProject($user)) !== null) {
+            $suggestions[] = __('assistant.suggestions.project_blockers', ['project' => $project->name]);
+            $suggestions[] = __('assistant.suggestions.project_summary', ['project' => $project->name]);
         }
 
         if ($this->managesAnything($user)) {
-            $club = $user->isUniversityStaff()
-                ? Club::query()->where('status', 'active')->orderBy('name')->first()
-                : $user->managedClubs()->first();
-
-            $clubName = $club?->name;
-
-            // Management read + write, anchored to a real managed club when known.
-            $suggestions[] = $clubName !== null
-                ? __('assistant.suggestions.club_report', ['club' => $clubName])
-                : __('assistant.suggestions.pending_applications');
-            $suggestions[] = __('assistant.suggestions.pending_applications');
-            $suggestions[] = $clubName !== null
-                ? __('assistant.suggestions.create_event', ['club' => $clubName])
-                : __('assistant.suggestions.create_news');
+            $suggestions[] = __('assistant.suggestions.create_task_due_friday');
+            $suggestions[] = __('assistant.suggestions.assign_task_example');
+            $suggestions[] = __('assistant.suggestions.move_task_to_review');
         }
 
         return collect($suggestions);
     }
 
     /**
-     * The soonest upcoming event still open for registration, if any. Kept
-     * cheap with a small window that is then filtered in memory.
+     * A real project name to anchor example prompts when one is available.
      */
-    protected function nextOpenEvent(): ?Event
+    protected function exampleProject(User $user): ?Committee
     {
-        return Event::query()
-            ->active()
-            ->upcoming()
-            ->orderBy('starts_at')
-            ->limit(10)
-            ->get()
-            ->first(fn (Event $event): bool => $event->isOpenForRegistration());
+        if ($user->isUniversityStaff()) {
+            return Committee::query()->orderBy('name')->first();
+        }
+
+        return $user->managedCommittees()->first()
+            ?? $user->committeeMemberships()
+                ->where('status', 'approved')
+                ->with('committee')
+                ->get()
+                ->pluck('committee')
+                ->filter()
+                ->first();
     }
 
     /**
-     * Whether the user oversees any club or committee, mirroring the agent's
+     * Whether the user oversees any workspace or project, mirroring the agent's
      * own management-tier gate.
      */
     protected function managesAnything(User $user): bool

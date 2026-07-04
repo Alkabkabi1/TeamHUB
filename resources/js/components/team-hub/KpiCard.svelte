@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { Kpi } from '@/components/team-hub/mock-data';
     import {
         CheckmarkCircle01Icon,
         Clock01Icon,
@@ -8,17 +7,18 @@
     } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
     import type { IconSvgElement } from '@hugeicons/svelte';
+    import type { HubKpi } from '@/types/team-hub';
 
-    let { kpi }: { kpi: Kpi } = $props();
+    let { kpi }: { kpi: HubKpi } = $props();
 
-    const icons: Record<Kpi['icon'], IconSvgElement> = {
+    const icons: Record<HubKpi['icon'], IconSvgElement> = {
         projects: Folder01Icon,
         overdue: Clock01Icon,
         progress: TaskDone01Icon,
         done: CheckmarkCircle01Icon,
     };
 
-    const iconColors: Record<Kpi['icon'], string> = {
+    const iconColors: Record<HubKpi['icon'], string> = {
         projects: 'color: var(--th-primary)',
         overdue: 'color: var(--th-warning)',
         progress: 'color: var(--th-info)',
@@ -32,11 +32,17 @@
             class="flex size-10 items-center justify-center rounded-xl"
             style="background: color-mix(in srgb, var(--th-primary) 12%, transparent)"
         >
-            <HugeiconsIcon icon={icons[kpi.icon]} size={20} style={iconColors[kpi.icon]} />
+            <HugeiconsIcon
+                icon={icons[kpi.icon]}
+                size={20}
+                style={iconColors[kpi.icon]}
+            />
         </div>
         <span
             class="text-xs font-medium"
-            style="color: {kpi.trendUp ? 'var(--th-success)' : 'var(--th-danger)'}"
+            style="color: {kpi.trendUp
+                ? 'var(--th-success)'
+                : 'var(--th-danger)'}"
         >
             {kpi.trend}
         </span>

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Club;
 use App\Models\ClubResource;
+use App\Models\Committee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +21,7 @@ class ClubResourceFactory extends Factory
     {
         return [
             'club_id' => Club::factory(),
+            'committee_id' => null,
             'type' => ClubResource::TYPE_DOWNLOAD,
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),
@@ -45,6 +47,14 @@ class ClubResourceFactory extends Factory
             'format' => fake()->randomElement(['PNG', 'MP4']),
             'file_path' => null,
             'published_at' => fake()->dateTimeBetween('-30 days', 'now'),
+        ]);
+    }
+
+    public function forCommittee(Committee $committee): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'club_id' => $committee->club_id,
+            'committee_id' => $committee->id,
         ]);
     }
 }

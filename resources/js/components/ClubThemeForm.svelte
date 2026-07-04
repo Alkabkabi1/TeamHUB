@@ -37,6 +37,7 @@
     const initialColor = club.theme ?? '#006471';
 
     const form = useForm({
+        name: club.name,
         theme: initialColor,
         logo: null as File | null,
     });
@@ -77,6 +78,7 @@
 
     function reset(): void {
         previewColor = initialColor;
+        form.name = club.name;
         form.theme = initialColor;
         previewLogoUrl = logoUrl ?? null;
         form.logo = null;
@@ -110,12 +112,12 @@
                     />
                 {:else}
                     <span class="text-2xl font-bold text-white">
-                        {club.name.charAt(0)}
+                        {form.name.charAt(0)}
                     </span>
                 {/if}
             </div>
             <div class="flex-1 text-start">
-                <p class="text-lg font-semibold text-white">{club.name}</p>
+                <p class="text-lg font-semibold text-white">{form.name}</p>
                 <p class="mt-1 text-sm text-white/75">
                     {t('theme.subtitle')}
                 </p>
@@ -126,6 +128,22 @@
 
 <form onsubmit={submit} class="flex flex-col gap-6">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="flex flex-col gap-2 lg:col-span-2">
+            <label
+                for="workspace-name"
+                class="text-start text-[14px] text-[#7e7e7e]"
+            >
+                {t('app.workspace')}
+            </label>
+            <input
+                id="workspace-name"
+                name="name"
+                bind:value={form.name}
+                class="h-10 rounded-[10px] border border-black/20 bg-white px-4 text-start text-[13px] text-black outline-none placeholder:text-black/30 focus:border-brand"
+            />
+            <InputError message={form.errors.name} />
+        </div>
+
         <!-- Primary color -->
         <div class="flex flex-col gap-2">
             <label

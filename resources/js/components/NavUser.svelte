@@ -22,8 +22,8 @@
 
 {#if user}
     <SidebarMenu>
-        <SidebarMenuItem>
-            <DropdownMenu class="w-full">
+        <SidebarMenuItem class="w-full">
+            <DropdownMenu>
                 <DropdownMenuTrigger>
                     {#snippet child({ props })}
                         <SidebarMenuButton

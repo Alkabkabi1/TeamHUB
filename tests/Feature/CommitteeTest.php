@@ -173,7 +173,7 @@ test('a committee-scoped news post is created with the committee id', function (
             'title' => 'خبر اللجنة',
             'body' => 'محتوى الخبر',
         ])
-        ->assertRedirect(route('committees.manage', [$club, $committee]));
+        ->assertRedirect(route('committees.updates.index', [$club, $committee]));
 
     $this->assertDatabaseHas('posts', [
         'club_id' => $club->id,
@@ -210,4 +210,42 @@ test('archiving a committee soft-deletes it', function () {
         ->assertRedirect(route('committees.index', $club));
 
     $this->assertSoftDeleted('committees', ['id' => $committee->id]);
+});
+
+test('a club lead can open committee settings with managed project switcher context', function () {
+    [$lead, $club] = clubLeadAndClub();
+    $committeeA = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Project Alpha']);
+    $committeeB = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Project Beta']);
+
+    $this->actingAs($lead)
+        ->get(route('committees.edit', [$club, $committeeA]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('committees/Form')
+            ->where('mode', 'edit')
+            ->where('committee.id', $committeeA->id)
+            ->has('auth.user.managed_committees', 2)
+        );
+});
+
+test('a club lead can update committee settings', function () {
+    [$lead, $club] = clubLeadAndClub();
+    $committee = Committee::factory()->create([
+        'club_id' => $club->id,
+        'name' => 'Legacy Project Name',
+        'description' => 'Old description',
+    ]);
+
+    $this->actingAs($lead)
+        ->put(route('committees.update', [$club, $committee]), [
+            'name' => 'Validation Project Name',
+            'description' => 'Updated project settings for readiness validation.',
+            'status' => 'active',
+        ])
+        ->assertRedirect(route('committees.manage', [$club, $committee]));
+
+    $committee->refresh();
+
+    expect($committee->name)->toBe('Validation Project Name')
+        ->and($committee->description)->toBe('Updated project settings for readiness validation.');
 });

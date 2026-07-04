@@ -50,7 +50,7 @@ test('isMember is true for approved member', function () {
 });
 
 test('isMember is true for user with pending application', function () {
-    $user = User::factory()->create(['email' => 'pending@uqu.edu.sa']);
+    $user = User::factory()->create(['email' => 'pending@teamhub.test']);
     $club = Club::factory()->create(['status' => 'active']);
 
     ClubJoinApplication::factory()->pending()->create([

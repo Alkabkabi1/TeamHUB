@@ -4,6 +4,10 @@ use App\Models\Club;
 use App\Models\Event;
 use App\Models\User;
 
+beforeEach(function () {
+    config()->set('demo.quick_login', false);
+});
+
 test('home page returns 200', function () {
     $this->get(route('home'))->assertOk();
 });

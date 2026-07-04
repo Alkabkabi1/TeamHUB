@@ -404,7 +404,7 @@
 
         if (!confirmed) {
             messages[msgIndex].confirmations[confirmIndex].state = 'cancelled';
-            void send('تم إلغاء الإجراء المقترح.');
+            void send(t('assistant.confirmation_cancelled_message'));
 
             return;
         }
@@ -437,14 +437,14 @@
 
             void send(
                 result.success
-                    ? `تم تنفيذ الإجراء بنجاح: ${result.message}`
-                    : `فشل تنفيذ الإجراء: ${result.message}`,
+                    ? `${t('assistant.confirmation_success_prefix')}: ${result.message}`
+                    : `${t('assistant.confirmation_failure_prefix')}: ${result.message}`,
             );
         } catch {
             messages[msgIndex].confirmations[confirmIndex].state = 'error';
             messages[msgIndex].confirmations[confirmIndex].resultMessage =
                 t('assistant.error');
-            void send('فشل تنفيذ الإجراء بسبب خطأ في الاتصال.');
+            void send(t('assistant.confirmation_connection_error'));
         }
 
         void scrollToBottom();
@@ -477,6 +477,7 @@
             // them with router.visit() would send an XHR that receives a
             // binary response instead of an Inertia page.
             const path = new URL(link.href).pathname;
+
             if (path.endsWith('/download')) {
                 return;
             }
@@ -754,7 +755,7 @@
                                                             strokeWidth={2}
                                                         />
                                                     {/if}
-                                                    تأكيد
+                                                    {t('assistant.confirm')}
                                                 </button>
                                                 <button
                                                     type="button"
@@ -768,7 +769,7 @@
                                                         'confirming'}
                                                     class="rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-muted disabled:opacity-50"
                                                 >
-                                                    إلغاء
+                                                    {t('assistant.cancel')}
                                                 </button>
                                             </div>
                                         {:else if confirmation.state === 'confirmed'}
@@ -786,7 +787,9 @@
                                             </div>
                                         {:else if confirmation.state === 'cancelled'}
                                             <p class="text-muted-foreground">
-                                                تم إلغاء الإجراء.
+                                                {t(
+                                                    'assistant.confirmation_cancelled',
+                                                )}
                                             </p>
                                         {:else if confirmation.state === 'error'}
                                             <div

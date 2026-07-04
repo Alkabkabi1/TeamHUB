@@ -1,28 +1,19 @@
 <script lang="ts">
     import {
-        PlusSignIcon,
-        MailAtSign02Icon,
-        Calendar02Icon,
         CheckmarkCircle01Icon,
-        CheckmarkBadge01Icon,
-        StarIcon,
+        Clock01Icon,
+        TaskDaily01Icon,
         UserGroup03Icon,
     } from '@hugeicons/core-free-icons';
-    import { HugeiconsIcon } from '@hugeicons/svelte';
     import type { IconSvgElement } from '@hugeicons/svelte';
     import { Link } from '@inertiajs/svelte';
     import AppHead from '@/components/AppHead.svelte';
-    import CertificateCard from '@/components/CertificateCard.svelte';
+    import DashboardCard from '@/components/DashboardCard.svelte';
     import EmptyState from '@/components/EmptyState.svelte';
-    import EventCard from '@/components/EventCard.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
     import StatCard from '@/components/StatCard.svelte';
-    import {
-        Dialog,
-        DialogContent,
-        DialogHeader,
-        DialogTitle,
-    } from '@/components/ui/dialog';
+    import TaskPriorityBadge from '@/components/tasks/TaskPriorityBadge.svelte';
+    import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import { formatDate, formatNumber, t } from '@/lib/i18n.svelte';
 
     type Stat = {
@@ -31,17 +22,12 @@
         icon: IconSvgElement;
     };
 
-    type ClubMembership = {
-        name: string;
-        memberSince: string;
-        volunteerHours: number;
-    };
-
     type DashboardStats = {
-        clubsCount: number;
-        eventsCount: number;
-        certificatesCount: number;
-        totalHours: number;
+        workspacesCount: number;
+        projectsCount: number;
+        openTasksCount: number;
+        dueTodayCount: number;
+        overdueCount: number;
     };
 
     type Profile = {
@@ -51,58 +37,67 @@
         joinedAt: string | null;
     };
 
-    type Certificate = {
+    type WorkspaceSummary = {
         id: number;
-        certificateNo: string;
-        eventTitle: string;
-        clubName: string;
-        issuedAt: string;
+        name: string;
+        memberSince: string;
+        projectCount: number;
     };
 
-    type FeaturedEvent = {
+    type ProjectSummary = {
+        id: number;
+        name: string;
+        clubId: number;
+        clubName: string;
+        joinedAt: string | null;
+    };
+
+    type TaskPreview = {
         id: number;
         title: string;
-        description: string | null;
-        startsAt: string | null;
+        status: 'todo' | 'in_progress' | 'review' | 'done';
+        statusLabel: string;
+        priority: 'low' | 'medium' | 'high' | 'urgent';
+        priorityLabel: string;
+        dueAt: string | null;
+        clubId: number;
         clubName: string;
-        imageUrl: string | null;
+        committeeId: number;
+        committeeName: string;
+        detailUrl: string;
+    };
+
+    type UpdateItem = {
+        id: number;
+        title: string;
+        committeeName: string;
+        clubName: string;
+        publishedAt: string | null;
+        url: string;
     };
 
     type Props = {
-        totalHours: number;
         stats: DashboardStats;
-        clubs: ClubMembership[];
+        workspaces: WorkspaceSummary[];
+        projects: ProjectSummary[];
         profile: Profile;
-        certificates: Certificate[];
-        featuredEvents: FeaturedEvent[];
-        qrSvg: string;
+        attentionTasks: TaskPreview[];
+        upcomingTasks: TaskPreview[];
+        recentUpdates: UpdateItem[];
+        myTasksUrl: string;
     };
 
     let {
-        totalHours,
         stats,
-        clubs,
+        workspaces = [],
+        projects = [],
         profile,
-        certificates,
-        featuredEvents,
-        qrSvg,
+        attentionTasks = [],
+        upcomingTasks = [],
+        recentUpdates = [],
+        myTasksUrl,
     }: Props = $props();
 
-    let qrOpen = $state(false);
-
-    function formatEventDate(iso: string | null): string {
-        if (!iso) {
-            return '';
-        }
-
-        return formatDate(iso, {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-        });
-    }
-
-    // Hero join line, e.g. "انضم في سبتمبر 2022" (Figma node 40:2633).
     const joinedLabel = $derived(
         profile.joinedAt
             ? t('dashboard_student.joined_in', {
@@ -114,168 +109,95 @@
             : '',
     );
 
+    const heroSummary = $derived(
+        stats.overdueCount > 0 || stats.dueTodayCount > 0
+            ? t('dashboard_student.hero_summary', {
+                  overdue: formatNumber(stats.overdueCount),
+                  today: formatNumber(stats.dueTodayCount),
+              })
+            : t('dashboard_student.hero_summary_empty'),
+    );
+
     const statCards: Stat[] = $derived([
         {
-            label: t('dashboard_student.stats.clubs'),
-            value: formatNumber(stats.clubsCount),
+            label: t('dashboard_student.stats.workspaces'),
+            value: formatNumber(stats.workspacesCount),
             icon: UserGroup03Icon,
         },
         {
-            label: t('dashboard_student.stats.events'),
-            value: formatNumber(stats.eventsCount),
+            label: t('dashboard_student.stats.projects'),
+            value: formatNumber(stats.projectsCount),
+            icon: TaskDaily01Icon,
+        },
+        {
+            label: t('dashboard_student.stats.open_tasks'),
+            value: formatNumber(stats.openTasksCount),
             icon: CheckmarkCircle01Icon,
         },
         {
-            label: t('dashboard_student.stats.certificates'),
-            value: formatNumber(stats.certificatesCount),
-            icon: CheckmarkBadge01Icon,
-        },
-        {
-            label: t('dashboard_student.stats.hours'),
-            value: formatNumber(stats.totalHours),
-            icon: StarIcon,
+            label: t('dashboard_student.stats.overdue'),
+            value: formatNumber(stats.overdueCount),
+            icon: Clock01Icon,
         },
     ]);
+
+    function dueLabel(iso: string | null): string {
+        if (!iso) {
+            return t('tasks.not_set');
+        }
+
+        return formatDate(iso, {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+        });
+    }
 </script>
 
 <AppHead title={t('dashboard_student.title')} />
 
-{#snippet metaItem(icon: IconSvgElement, text: string, ltr: boolean = false)}
-    <span class="flex items-center gap-1.5">
-        <HugeiconsIcon strokeWidth={2} {icon} class="size-3.5" />
-        <span dir={ltr ? 'ltr' : undefined}>{text}</span>
-    </span>
-{/snippet}
-
-<div class="flex flex-col">
+<div class="flex flex-col bg-[#fdfdfd] dark:bg-[#0f172a]">
     <div
-        class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-12 lg:py-10"
+        class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-12 lg:py-10"
     >
-        <section aria-label={t('nav.profile')} class="w-full">
-            <!-- Mobile / tablet hero -->
+        <section
+            class="rounded-[28px] bg-brand px-6 py-8 text-white shadow-[8px_8px_48px_rgba(0,0,0,0.08)] sm:px-8"
+        >
             <div
-                class="relative h-[320px] w-full overflow-hidden rounded-[20px] bg-brand shadow-[8px_8px_48px_8px_rgba(0,0,0,0.08)] sm:h-[380px] sm:rounded-[28px] lg:hidden"
+                class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
             >
-                <img
-                    src="/images/hero/stars-mobile-left.svg"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute inset-y-0 left-0 h-full w-1/2"
-                />
-                <img
-                    src="/images/hero/stars-mobile-right.svg"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute inset-y-0 right-0 h-full w-1/2"
-                />
-
-                <img
-                    src="/images/hero/uqu-logo.png"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-[-1%] left-1/2 h-[60%] -translate-x-1/2 object-contain opacity-[0.05]"
-                />
-                <img
-                    src="/images/hero/uqu-logo.png"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-[6%] left-1/2 h-[34%] -translate-x-1/2 object-contain"
-                />
-
-                <div
-                    class="absolute inset-x-0 bottom-[8%] flex flex-col items-center gap-1.5 px-6 text-center"
-                >
-                    <p
-                        class="text-[26px] leading-tight text-white sm:text-[32px]"
-                    >
-                        {profile.name}
+                <div class="space-y-2 text-start">
+                    <p class="text-sm text-white/75">
+                        {t('dashboard_student.eyebrow')}
                     </p>
+                    <h1 class="text-3xl font-semibold">{profile.name}</h1>
                     {#if profile.subtitle}
-                        <p
-                            class="text-[14px] leading-snug text-white/80 sm:text-[16px]"
-                        >
-                            {profile.subtitle}
-                        </p>
+                        <p class="text-sm text-white/80">{profile.subtitle}</p>
                     {/if}
                     <div
-                        class="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[12px] text-white/60"
+                        class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/70"
                     >
                         {#if joinedLabel}
-                            {@render metaItem(Calendar02Icon, joinedLabel)}
+                            <span>{joinedLabel}</span>
                         {/if}
-                        {@render metaItem(
-                            MailAtSign02Icon,
-                            profile.email,
-                            true,
-                        )}
+                        <span dir="ltr">{profile.email}</span>
                     </div>
-                    <p class="mt-1 text-[16px] text-white sm:text-[18px]">
-                        {formatNumber(totalHours)}
-                        {t('dashboard_student.hero_hours_unit')}
-                    </p>
+                    <p class="text-base text-white">{heroSummary}</p>
                 </div>
-            </div>
 
-            <!-- Desktop hero - 1020 x 299 aspect, faithful to Figma node 40:2585 -->
-            <div class="relative hidden aspect-[1020/299] w-full lg:block">
-                <!-- Card background: Rectangle 5427 (1020 x 252 at y=24) -->
-                <div
-                    class="absolute inset-x-0 top-[8.03%] bottom-[7.69%] overflow-hidden rounded-[40px] bg-brand shadow-[8px_8px_48px_8px_rgba(0,0,0,0.08)]"
-                ></div>
-
-                <!-- Faded watermark uqu-logo 2 (245 x 306 at x=768, y=-7) - opacity 0.04 -->
-                <img
-                    src="/images/hero/uqu-logo.png"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-[-2.34%] right-[0.69%] aspect-[447/559] w-[24.02%] object-cover opacity-[0.04]"
-                />
-                <!-- Foreground uqu-logo 1 (132 x 165 at x=799, y=67) -->
-                <img
-                    src="/images/hero/uqu-logo.png"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-[22.4%] right-[8.73%] aspect-[447/559] w-[12.94%] object-cover"
-                />
-
-                <!-- Stars cluster (221 x 299 at x=12) -->
-                <img
-                    src="/images/hero/stars.svg"
-                    alt=""
-                    aria-hidden="true"
-                    class="pointer-events-none absolute top-0 bottom-0 left-[1.18%] h-full w-[21.66%]"
-                />
-
-                <!-- Texts frame (right-aligned, ends at x=768 i.e. right-[24.7%]) -->
-                <div
-                    class="absolute top-[50%] right-[24.7%] flex w-[26.37%] -translate-y-1/2 flex-col items-start gap-1.5 text-start"
-                >
-                    <p class="w-full text-[40px] leading-[normal] text-white">
-                        {profile.name}
-                    </p>
-                    {#if profile.subtitle}
-                        <p
-                            class="w-full text-[20px] leading-[normal] text-white/85"
-                        >
-                            {profile.subtitle}
-                        </p>
-                    {/if}
-                    <div
-                        class="mt-1 flex w-full items-center justify-start gap-4 text-[12px] text-white/60"
+                <div class="flex flex-wrap gap-3">
+                    <Link
+                        href={myTasksUrl}
+                        class="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-brand transition-colors hover:bg-white/90 dark:bg-[#111827] dark:text-white dark:hover:bg-[#1f2937]"
                     >
-                        {#if joinedLabel}
-                            {@render metaItem(Calendar02Icon, joinedLabel)}
-                        {/if}
-                        {@render metaItem(
-                            MailAtSign02Icon,
-                            profile.email,
-                            true,
-                        )}
-                    </div>
-                    <p class="mt-1 w-full text-[20px] text-white">
-                        {formatNumber(totalHours)}
-                        {t('dashboard_student.hero_hours_unit')}
-                    </p>
+                        {t('dashboard_student.view_my_tasks')}
+                    </Link>
+                    <Link
+                        href="/clubs"
+                        class="rounded-full border border-white/30 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                    >
+                        {t('nav.clubs')}
+                    </Link>
                 </div>
             </div>
         </section>
@@ -292,145 +214,213 @@
             </div>
         </section>
 
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('dashboard_student.my_clubs')} />
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {#each clubs as club (club.name)}
-                    <StatCard
-                        icon={UserGroup03Icon}
-                        label={club.name}
-                        value={t('dashboard_student.member_since', {
-                            year: club.memberSince,
-                        })}
-                        tone="list"
-                        class="cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_32px_0_rgba(0,0,0,0.12)]"
-                    >
-                        {#snippet sub()}
-                            <p class="mt-1 text-[12px] text-black/25">
-                                <span class="text-brand/25">
-                                    {club.volunteerHours}
-                                </span>
-                                <span> {t('dashboard.hours_unit')}</span>
-                            </p>
-                        {/snippet}
-                        <span
-                            class="flex shrink-0 items-center justify-center rounded-full bg-brand/25 px-2.5 pt-1.5 pb-1 text-[12px] text-brand"
-                        >
-                            {t('dashboard.status_active')}
-                        </span>
-                    </StatCard>
-                {/each}
-                <Link
-                    href="/clubs"
-                    class="flex h-[80px] cursor-pointer items-center justify-start gap-5 rounded-[10px] bg-white px-5 py-2.5 shadow-[0_8px_24px_0_rgba(0,0,0,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_32px_0_rgba(0,0,0,0.12)]"
-                >
-                    <div
-                        class="flex size-[50px] shrink-0 items-center justify-center rounded-full border-2 border-dashed border-black bg-brand/50 text-white shadow-[0_4px_12px_0_rgba(0,0,0,0.04)]"
-                    >
-                        <HugeiconsIcon
-                            strokeWidth={2}
-                            icon={PlusSignIcon}
-                            class="size-4"
-                        />
+        <section class="grid gap-5 lg:grid-cols-2">
+            <DashboardCard class="flex flex-col gap-4">
+                <SectionHeader title={t('dashboard_student.needs_attention')} />
+
+                {#if attentionTasks.length === 0}
+                    <EmptyState
+                        message={t('dashboard_student.empty_tasks')}
+                        class="shadow-none"
+                    />
+                {:else}
+                    <div class="space-y-3">
+                        {#each attentionTasks as task (task.id)}
+                            <Link
+                                href={task.detailUrl}
+                                class="block rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <div
+                                    class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                                >
+                                    <div class="space-y-2">
+                                        <p
+                                            class="text-sm font-medium text-black"
+                                        >
+                                            {task.title}
+                                        </p>
+                                        <p class="text-xs text-[#7e7e7e]">
+                                            {task.clubName} / {task.committeeName}
+                                        </p>
+                                        <div
+                                            class="flex flex-wrap items-center gap-2"
+                                        >
+                                            <TaskStatusBadge
+                                                status={task.status}
+                                            />
+                                            <TaskPriorityBadge
+                                                priority={task.priority}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-[#9a9a9a]">
+                                        {dueLabel(task.dueAt)}
+                                    </p>
+                                </div>
+                            </Link>
+                        {/each}
                     </div>
-                    <p class="text-start text-[12px] text-black">
-                        {t('clubs.join')}
-                    </p>
-                </Link>
-            </div>
+                {/if}
+            </DashboardCard>
+
+            <DashboardCard class="flex flex-col gap-4">
+                <SectionHeader title={t('dashboard_student.upcoming_tasks')} />
+
+                {#if upcomingTasks.length === 0}
+                    <EmptyState
+                        message={t('dashboard_student.empty_upcoming')}
+                        class="shadow-none"
+                    />
+                {:else}
+                    <div class="space-y-3">
+                        {#each upcomingTasks as task (task.id)}
+                            <Link
+                                href={task.detailUrl}
+                                class="block rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <div
+                                    class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+                                >
+                                    <div class="space-y-2">
+                                        <p
+                                            class="text-sm font-medium text-black"
+                                        >
+                                            {task.title}
+                                        </p>
+                                        <p class="text-xs text-[#7e7e7e]">
+                                            {task.clubName} / {task.committeeName}
+                                        </p>
+                                        <div
+                                            class="flex flex-wrap items-center gap-2"
+                                        >
+                                            <TaskStatusBadge
+                                                status={task.status}
+                                            />
+                                            <TaskPriorityBadge
+                                                priority={task.priority}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-[#9a9a9a]">
+                                        {dueLabel(task.dueAt)}
+                                    </p>
+                                </div>
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+            </DashboardCard>
         </section>
 
-        <!-- My attendance QR — shown to a club scanner to log presence. -->
-        <section class="flex flex-col gap-5">
-            <SectionHeader title={t('dashboard_student.qr_title')} />
-            <div
-                class="flex flex-col items-center gap-4 rounded-[20px] bg-white p-6 text-center shadow-[8px_8px_48px_8px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:gap-6 sm:text-start"
-            >
-                <button
-                    type="button"
-                    onclick={() => (qrOpen = true)}
-                    aria-label={t('dashboard_student.qr_enlarge')}
-                    class="size-40 shrink-0 cursor-pointer rounded-[14px] bg-white p-2 ring-1 ring-black/10 transition-transform hover:scale-[1.02] [&_svg]:size-full"
-                >
-                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html qrSvg}
-                </button>
-                <p class="max-w-md text-[14px] leading-relaxed text-[#5f5f5f]">
-                    {t('dashboard_student.qr_hint')}
-                </p>
-            </div>
+        <section
+            class="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
+        >
+            <DashboardCard class="flex flex-col gap-4">
+                <SectionHeader title={t('dashboard_student.recent_activity')} />
+
+                {#if recentUpdates.length === 0}
+                    <EmptyState
+                        message={t('dashboard_student.empty_activity')}
+                        class="shadow-none"
+                    />
+                {:else}
+                    <div class="space-y-3">
+                        {#each recentUpdates as update (update.id)}
+                            <Link
+                                href={update.url}
+                                class="block rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {update.title}
+                                </p>
+                                <p class="mt-1 text-xs text-[#7e7e7e]">
+                                    {update.clubName} / {update.committeeName}
+                                </p>
+                                {#if update.publishedAt}
+                                    <p class="mt-1 text-xs text-[#9a9a9a]">
+                                        {formatDate(update.publishedAt, {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        })}
+                                    </p>
+                                {/if}
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+            </DashboardCard>
+
+            <DashboardCard class="flex flex-col gap-4">
+                <SectionHeader title={t('dashboard_student.my_workspaces')} />
+
+                {#if workspaces.length === 0}
+                    <EmptyState
+                        message={t('dashboard_student.empty_workspaces')}
+                        class="shadow-none"
+                    />
+                {:else}
+                    <div class="space-y-3">
+                        {#each workspaces as workspace (workspace.id)}
+                            <Link
+                                href={`/clubs/${workspace.id}`}
+                                class="block rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {workspace.name}
+                                </p>
+                                <p class="mt-1 text-xs text-[#7e7e7e]">
+                                    {t('dashboard_student.member_since', {
+                                        year: workspace.memberSince,
+                                    })}
+                                </p>
+                                <p class="mt-1 text-xs text-[#9a9a9a]">
+                                    {t(
+                                        'dashboard_student.workspace_projects_count',
+                                        {
+                                            count: workspace.projectCount,
+                                        },
+                                    )}
+                                </p>
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+            </DashboardCard>
         </section>
 
-        <!-- My Certificates Section (real data) -->
         <section class="flex flex-col gap-5">
-            <SectionHeader title={t('dashboard_student.certificates')} />
+            <SectionHeader title={t('dashboard_student.my_projects')} />
 
-            {#if certificates.length === 0}
-                <div
-                    class="flex min-h-[120px] items-center justify-center rounded-[20px] bg-white shadow-[8px_8px_48px_8px_rgba(0,0,0,0.08)]"
-                >
-                    <p class="text-sm text-[#7e7e7e]">
-                        {t('dashboard_student.no_certificates')}
-                    </p>
-                </div>
+            {#if projects.length === 0}
+                <EmptyState message={t('dashboard_student.empty_projects')} />
             {:else}
                 <div
-                    class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+                    class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
                 >
-                    {#each certificates as cert (cert.id)}
-                        <CertificateCard
-                            title={cert.eventTitle}
-                            clubName={cert.clubName}
-                            issuedAt={cert.issuedAt}
-                            certificateNo={cert.certificateNo}
-                            downloadHref={`/certificates/${cert.id}/download`}
-                        />
-                    {/each}
-                </div>
-            {/if}
-        </section>
-
-        <!-- Featured events you may like -->
-        <section class="flex flex-col gap-5">
-            <SectionHeader
-                title={t('dashboard_student.featured_events_interest')}
-                href="/events"
-            />
-
-            {#if featuredEvents.length === 0}
-                <EmptyState
-                    class="shadow-[0_8px_24px_0_rgba(0,0,0,0.08)]"
-                    message={t('events.no_events')}
-                />
-            {:else}
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                    {#each featuredEvents as event (event.id)}
-                        <EventCard
-                            title={event.title}
-                            metaStart={formatEventDate(event.startsAt)}
-                            metaEnd={event.clubName}
-                            description={event.description}
-                            imageUrl={event.imageUrl}
-                            href={`/events/${event.id}`}
-                        />
+                    {#each projects as project (project.id)}
+                        <Link
+                            href={`/clubs/${project.clubId}/committees/${project.id}/manage`}
+                            class="rounded-[20px] bg-white p-5 text-start shadow-[8px_8px_48px_rgba(0,0,0,0.06)] transition-colors hover:bg-brand/5"
+                        >
+                            <p class="text-sm font-medium text-black">
+                                {project.name}
+                            </p>
+                            <p class="mt-1 text-xs text-[#7e7e7e]">
+                                {project.clubName}
+                            </p>
+                            {#if project.joinedAt}
+                                <p class="mt-2 text-xs text-[#9a9a9a]">
+                                    {formatDate(project.joinedAt, {
+                                        month: 'short',
+                                        year: 'numeric',
+                                    })}
+                                </p>
+                            {/if}
+                        </Link>
                     {/each}
                 </div>
             {/if}
         </section>
     </div>
 </div>
-
-<!-- Enlarged attendance QR for easier scanning. -->
-<Dialog bind:open={qrOpen}>
-    <DialogContent class="sm:max-w-sm">
-        <DialogHeader>
-            <DialogTitle>{t('dashboard_student.qr_title')}</DialogTitle>
-        </DialogHeader>
-        <div
-            class="mx-auto w-full max-w-[320px] rounded-[14px] bg-white p-4 [&_svg]:size-full"
-        >
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html qrSvg}
-        </div>
-    </DialogContent>
-</Dialog>

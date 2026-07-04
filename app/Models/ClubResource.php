@@ -19,6 +19,7 @@ class ClubResource extends Model
 
     protected $fillable = [
         'club_id',
+        'committee_id',
         'type',
         'title',
         'description',
@@ -41,6 +42,16 @@ class ClubResource extends Model
     }
 
     /**
+     * The project/committee this resource belongs to, or null for a workspace file.
+     *
+     * @return BelongsTo<Committee, $this>
+     */
+    public function committee(): BelongsTo
+    {
+        return $this->belongsTo(Committee::class);
+    }
+
+    /**
      * @param  Builder<ClubResource>  $query
      * @return Builder<ClubResource>
      */
@@ -56,5 +67,14 @@ class ClubResource extends Model
     public function scopeMedia(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_MEDIA);
+    }
+
+    /**
+     * @param  Builder<ClubResource>  $query
+     * @return Builder<ClubResource>
+     */
+    public function scopeForCommittee(Builder $query, Committee $committee): Builder
+    {
+        return $query->where('committee_id', $committee->id);
     }
 }

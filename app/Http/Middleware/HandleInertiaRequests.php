@@ -4,7 +4,10 @@ namespace App\Http\Middleware;
 
 use App\Models\Club;
 use App\Models\Committee;
+use App\Support\DemoAccounts;
 use App\Support\LoadsTranslations;
+use App\Support\TeamHub\TeamHubData;
+use App\Support\TeamHub\TeamHubNav;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -107,6 +110,7 @@ class HandleInertiaRequests extends Middleware
                             'name' => $user->name,
                             'email' => $user->email,
                             'role' => $user->role->value,
+                            'unread_notifications_count' => $user->unreadNotifications()->count(),
                             'managed_clubs' => $managedClubs,
                             'is_club_supervisor' => $managedClubs->isNotEmpty(),
                             'managed_committees' => $managedCommittees,
@@ -116,6 +120,21 @@ class HandleInertiaRequests extends Middleware
                     : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'hub' => $request->user()
+                ? (function () use ($request) {
+                    $user = $request->user();
+                    $hub = app(TeamHubData::class);
+
+                    return [
+                        'nav' => TeamHubNav::items($user),
+                        'workspaces' => $hub->workspaces($user),
+                    ];
+                })()
+                : null,
+            'demo' => [
+                'quick_login' => (bool) config('demo.quick_login'),
+                'accounts' => DemoAccounts::forSwitcher()->all(),
+            ],
         ];
     }
 }

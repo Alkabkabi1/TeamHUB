@@ -8,7 +8,7 @@ test('contact form accepts a valid submission', function () {
     $this->from(route('support'))
         ->post(route('support.contact'), [
             'name' => 'Sara Ahmed',
-            'email' => 'sara@uqu.edu.sa',
+            'email' => 'sara@teamhub.test',
             'message' => 'I need help joining a club.',
         ])
         ->assertRedirect(route('support'));

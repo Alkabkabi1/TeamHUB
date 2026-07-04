@@ -33,7 +33,7 @@ class CertificatesSeeder extends Seeder
 
     private function seedDemoStudentCertificate(): void
     {
-        $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+        $student = User::query()->where('email', 'student@teamhub.test')->first();
 
         if (! $student) {
             return;

@@ -23,7 +23,7 @@ return [
         'student_club' => 'Student club',
     ],
     'search_placeholder' => 'Search clubs and events…',
-    'uqu' => 'Umm Al-Qura University',
+    'organization' => 'Your organization',
     'calendar' => 'Club calendar',
     'calendar_prev' => 'Previous month',
     'calendar_next' => 'Next month',

@@ -4,11 +4,14 @@
     import { cn } from '@/lib/utils';
 
     type Option = { value: string; label: string };
+    type Direction = 'rtl' | 'ltr';
 
     // The dropdown content is portaled to <body>, outside the dir="rtl"
     // wrapper, so logical CSS props (start/end, ps/pe) would otherwise resolve
     // as LTR. Forward the page direction onto the content to fix that.
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
 
     let {
         value = $bindable(''),

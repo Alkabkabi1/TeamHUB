@@ -3,9 +3,9 @@
 return [
     'join' => [
         'full_name_required' => 'Student name is required.',
-        'university_email_required' => 'University email is required.',
-        'university_email_invalid' => 'University email is invalid.',
-        'university_email_domain' => 'You must use a UQU university email (uqu.edu.sa).',
+        'university_email_required' => 'Email is required.',
+        'university_email_invalid' => 'Email is invalid.',
+        'university_email_domain' => 'Please use a valid email address.',
         'phone_required' => 'Phone number is required.',
         'level_required' => 'Academic level is required.',
         'major_required' => 'Major is required.',
@@ -15,7 +15,7 @@ return [
         'motivation_required' => 'Please explain why you want to join.',
         'contribution_required' => 'Please describe how you will contribute.',
         'club_unavailable' => 'This club is not accepting applications right now.',
-        'email_mismatch' => 'University email must match your account email.',
+        'email_mismatch' => 'Email must match your account email.',
         'already_member' => 'You are already a member of this club.',
         'pending_application' => 'You already have a pending application for this club.',
     ],

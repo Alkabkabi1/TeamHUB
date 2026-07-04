@@ -66,7 +66,7 @@ class ClubResourcesSeeder extends Seeder
             $path = "resources/club-{$club->id}-doc-{$position}.pdf";
 
             if (! Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->put($path, DemoPdf::generate('Ruwad - '.$club->name));
+                Storage::disk('public')->put($path, DemoPdf::generate('TeamHUB - '.$club->name));
             }
 
             ClubResource::firstOrCreate(

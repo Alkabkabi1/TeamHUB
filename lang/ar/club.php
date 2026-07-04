@@ -23,7 +23,7 @@ return [
         'student_club' => 'نادي طلابي',
     ],
     'search_placeholder' => 'البحث عن الأنديه والفعاليات...',
-    'uqu' => 'جامعة ام القرى',
+    'organization' => 'منظمتك',
     'calendar' => 'تقويم النادي',
     'calendar_prev' => 'الشهر السابق',
     'calendar_next' => 'الشهر التالي',

@@ -23,5 +23,5 @@ return [
     'empty_hours' => 'لا توجد ساعات تطوع مسجلة.',
     'empty_attendance' => 'لا توجد فعاليات منتهية أو سجلات حضور.',
     'event_attendee_count' => ':count حاضر',
-    'footer' => 'منصة رُوَّاد الأندية — جامعة أم القرى',
+    'footer' => 'تيم هب',
 ];

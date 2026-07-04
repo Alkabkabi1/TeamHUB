@@ -2,7 +2,7 @@
 <tr>
 <td class="header">
 <a href="{{ $url }}" style="display: inline-block;">
-<img src="{{ asset('images/logo/ruwad-mark-white.png') }}" class="logo" alt="{{ config('app.name') }}">
+<img src="{{ asset('teamhub-icon.svg') }}" class="logo" alt="{{ config('app.name') }}">
 </a>
 </td>
 </tr>

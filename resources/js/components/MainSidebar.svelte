@@ -9,7 +9,7 @@
     to the viewport while scrolling.
 -->
 <aside
-    class="hidden w-60 shrink-0 bg-white shadow-[8px_8px_48px_0_rgba(0,0,0,0.08)] lg:block"
+    class="hidden w-60 shrink-0 bg-white shadow-[8px_8px_48px_0_rgba(0,0,0,0.08)] dark:bg-[#111827] dark:shadow-[8px_8px_48px_0_rgba(0,0,0,0.3)] lg:block"
 >
     <div class="sticky top-0 h-[100dvh] overflow-hidden">
         <MainSidebarContent />

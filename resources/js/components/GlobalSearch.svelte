@@ -38,6 +38,8 @@
         resources: SearchItem[];
     };
 
+    type Direction = 'rtl' | 'ltr' | 'auto';
+
     const emptyGroups: SearchGroups = {
         clubs: [],
         events: [],
@@ -45,7 +47,9 @@
         resources: [],
     };
 
-    const direction = $derived((page.props.direction as string) ?? 'rtl');
+    const direction = $derived(
+        (page.props.direction as Direction | undefined) ?? 'rtl',
+    );
     const auth = $derived(page.props.auth);
     const role = $derived(auth?.user?.role as string | undefined);
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { TaskPriority } from '@/components/team-hub/mock-data';
     import { priorityLabels } from '@/components/team-hub/mock-data';
+    import type { TaskPriority } from '@/types/team-hub';
 
     let {
         priority,
@@ -16,7 +16,10 @@
     };
 </script>
 
-<span class="inline-flex items-center gap-1.5 text-xs" style="color: var(--th-text-muted)">
+<span
+    class="inline-flex items-center gap-1.5 text-xs"
+    style="color: var(--th-text-muted)"
+>
     <span class="size-2 rounded-full {dotColors[priority]}"></span>
     {priorityLabels[priority]}
 </span>

@@ -2,8 +2,8 @@
 
 return [
     'title' => 'الأندية',
-    'hero_title' => 'جامعه ام القرى',
-    'hero_subtitle' => 'اكتشف الأندية الطلابية وانضم إلى المجتمعات التي تناسب اهتماماتك',
+    'hero_title' => 'TeamHUB',
+    'hero_subtitle' => 'اكتشف مساحات العمل والفرق والمجتمعات التي تناسب أهدافك',
     'section_aria' => 'الأندية الطلابية',
     'search_placeholder' => 'ابحث عن نادٍ...',
     'search_aria' => 'البحث عن الأندية',
@@ -33,5 +33,5 @@ return [
     'join' => 'انضمام',
     'no_clubs' => 'لا توجد أندية مطابقة لبحثك.',
     'uncategorized' => 'غير مصنف',
-    'default_description' => 'نادي طلابي ضمن منصة رواد الأندية.',
+    'default_description' => 'مساحة عمل مشتركة على TeamHUB.',
 ];

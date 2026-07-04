@@ -273,23 +273,34 @@ test('guests only receive public-data tools', function () {
     $tools = collect((new Assistant(null))->tools())
         ->map(fn ($tool) => class_basename($tool));
 
-    expect($tools)->toContain('SearchCatalog', 'FindClubs', 'FindEvents', 'FindCommittees', 'FindResources', 'ListNews', 'GetClubInfo', 'GetCommitteeInfo', 'GetEventDetails')
-        ->and($tools)->not->toContain('GetMyRegistrations')
-        ->and($tools)->not->toContain('GetMyApplications')
-        ->and($tools)->not->toContain('GetClubMembers')
-        ->and($tools)->not->toContain('GetClubPendingApplications');
+    expect($tools)->toContain('GetAppRoutes')
+        ->and($tools)->not->toContain('ListMyTasks')
+        ->and($tools)->not->toContain('FindTasks')
+        ->and($tools)->not->toContain('GetProjectSummary')
+        ->and($tools)->not->toContain('CreateTask')
+        ->and($tools)->not->toContain('AssignTask');
 });
 
-test('students get personal tools but not management tools', function () {
+test('students get task read tools and personal status updates but not management write tools', function () {
     $student = User::factory()->student()->create();
 
     $tools = collect((new Assistant($student))->tools())
         ->map(fn ($tool) => class_basename($tool));
 
-    expect($tools)->toContain('GetMyRegistrations', 'GetMyCertificates', 'GetMyApplications')
-        ->and($tools)->not->toContain('GetClubMembers')
-        ->and($tools)->not->toContain('GetClubReport')
-        ->and($tools)->not->toContain('GetClubPendingApplications');
+    expect($tools)->toContain('GetAppRoutes', 'ListMyTasks', 'FindTasks', 'GetProjectSummary', 'UpdateTaskStatus')
+        ->and($tools)->not->toContain('CreateTask')
+        ->and($tools)->not->toContain('AssignTask')
+        ->and($tools)->not->toContain('UpdateTaskDetails');
+});
+
+test('project managers receive task mutation tools', function () {
+    $club = Club::factory()->create();
+    $manager = supervisorForClub($club);
+
+    $tools = collect((new Assistant($manager))->tools())
+        ->map(fn ($tool) => class_basename($tool));
+
+    expect($tools)->toContain('CreateTask', 'AssignTask', 'UpdateTaskDetails', 'UpdateTaskStatus');
 });
 
 test('my registrations are scoped to the current user only', function () {

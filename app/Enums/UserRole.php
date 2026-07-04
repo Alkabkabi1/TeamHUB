@@ -28,7 +28,7 @@ enum UserRole: string implements HasLabel
     public function dashboardRoute(): string
     {
         return match ($this) {
-            self::Student => 'student-dashboard',
+            self::Student => 'hub.dashboard',
             // University staff administer everything in the Filament panel.
             self::UniversityStaff => 'filament.admin.pages.dashboard',
         };

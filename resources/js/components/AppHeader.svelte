@@ -23,10 +23,9 @@
         DropdownMenuTrigger,
     } from '@/components/ui/dropdown-menu';
     import {
-        NavigationMenu,
+        NavigationMenuRoot as NavigationMenu,
         NavigationMenuItem,
         NavigationMenuList,
-        navigationMenuTriggerStyle,
     } from '@/components/ui/navigation-menu';
     import {
         Sheet,
@@ -59,6 +58,8 @@
 
     const activeItemStyles =
         'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+    const navigationMenuTriggerClass =
+        'inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground';
 
     const mainNavItems: NavItem[] = [
         {
@@ -175,12 +176,12 @@
                                 class="relative flex h-full items-center"
                             >
                                 <Link
-                                    class="{navigationMenuTriggerStyle()} {url.whenCurrentUrl(
+                                    class="{navigationMenuTriggerClass} {url.whenCurrentUrl(
                                         item.href,
                                         url.currentUrl,
                                         activeItemStyles,
                                         '',
-                                    ) ?? ''} h-9 cursor-pointer px-4"
+                                    ) ?? ''} cursor-pointer"
                                     href={toUrl(item.href)}
                                 >
                                     {#if item.icon}

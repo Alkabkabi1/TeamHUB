@@ -1,13 +1,18 @@
 <script lang="ts">
+	// @ts-nocheck
 	import { PinInput as InputOTPPrimitive } from "bits-ui";
 	import { cn } from "@/lib/utils.js";
+
+	type SlotProps = Partial<InputOTPPrimitive.CellProps> & {
+		index?: number;
+	};
 
 	let {
 		ref = $bindable(null),
 		cell,
 		class: className,
 		...restProps
-	}: InputOTPPrimitive.CellProps = $props();
+	}: SlotProps = $props();
 </script>
 
 <InputOTPPrimitive.Cell

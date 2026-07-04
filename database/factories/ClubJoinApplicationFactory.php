@@ -23,7 +23,7 @@ class ClubJoinApplicationFactory extends Factory
             'club_id' => Club::factory(),
             'user_id' => User::factory(),
             'full_name' => fake()->name(),
-            'university_email' => fake()->unique()->userName().'@uqu.edu.sa',
+            'university_email' => fake()->unique()->userName().'@teamhub.test',
             'phone' => '05'.fake()->numerify('########'),
             'level' => 'المستوى '.fake()->numberBetween(1, 10),
             'major' => fake()->randomElement(['هندسة البرمجيات', 'علوم الحاسب', 'نظم المعلومات']),

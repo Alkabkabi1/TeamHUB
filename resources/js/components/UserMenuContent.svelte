@@ -10,6 +10,7 @@
     } from '@/components/ui/dropdown-menu';
     import UserInfo from '@/components/UserInfo.svelte';
     import { t } from '@/lib/i18n.svelte';
+    import { themeState } from '@/lib/theme.svelte';
     import { toUrl } from '@/lib/utils';
     import { logout } from '@/routes';
     import { edit } from '@/routes/profile';
@@ -20,6 +21,8 @@
     }: {
         user: User;
     } = $props();
+
+    const theme = themeState();
 
     function handleLogout(propsOnClick?: () => void) {
         return () => {
@@ -50,13 +53,28 @@
     </DropdownMenuItem>
 </DropdownMenuGroup>
 <DropdownMenuSeparator />
+<div class="px-1 py-1.5">
+    <button
+        type="button"
+        class="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+        onclick={() => theme.toggleAppearance()}
+    >
+        <span>{t('settings.nav_appearance')}</span>
+        <span class="text-xs text-muted-foreground">
+            {theme.resolvedAppearance() === 'dark'
+                ? t('settings.dark')
+                : t('settings.light')}
+        </span>
+    </button>
+</div>
+<DropdownMenuSeparator />
 <DropdownMenuItem>
     {#snippet child({ props })}
         <Link
             href={logout()}
             as="button"
             {...props}
-            onclick={handleLogout(props.onclick)}
+            onclick={handleLogout(props.onclick as (() => void) | undefined)}
             data-test="logout-button"
         >
             <HugeiconsIcon

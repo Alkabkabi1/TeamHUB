@@ -16,7 +16,7 @@ class VolunteerHoursSeeder extends Seeder
      */
     public function run(): void
     {
-        $supervisor = User::query()->where('email', 'club-leader@uqu.edu.sa')->first();
+        $supervisor = User::query()->where('email', 'club-leader@teamhub.test')->first();
 
         EventAttendance::query()
             ->whereIn('status', ['approved', 'checked_in'])
@@ -41,7 +41,7 @@ class VolunteerHoursSeeder extends Seeder
 
     private function seedDemoStudentVolunteerHours(?User $supervisor): void
     {
-        $student = User::query()->where('email', 'student@uqu.edu.sa')->first();
+        $student = User::query()->where('email', 'student@teamhub.test')->first();
 
         if (! $student) {
             return;

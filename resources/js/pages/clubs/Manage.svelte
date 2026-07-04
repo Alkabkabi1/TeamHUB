@@ -50,6 +50,7 @@
         DialogHeader,
         DialogTitle,
     } from '@/components/ui/dialog';
+    import WorkspaceManageShell from '@/components/WorkspaceManageShell.svelte';
     import { formatDate, formatNumber, t } from '@/lib/i18n.svelte';
     import type { ClubBranding } from '@/types';
 
@@ -78,6 +79,12 @@
         pendingApplicationsCount: number;
         upcomingEventsCount: number;
         membersCount: number;
+    };
+
+    type WorkspaceStats = {
+        projects_count: number;
+        tasks_count: number;
+        overdue_tasks_count: number;
     };
 
     type PendingMember = {
@@ -159,6 +166,26 @@
 
     type ManageClub = ClubBranding & { university: string | null };
 
+    type WorkspaceProject = {
+        id: number;
+        name: string;
+        description: string | null;
+        status: string;
+        logo_url: string | null;
+        members_count: number;
+        tasks_count: number;
+        overdue_tasks_count: number;
+    };
+
+    type RecentActivity = {
+        id: string;
+        type: 'task' | 'update';
+        title: string;
+        context: string;
+        time: string | null;
+        url: string;
+    };
+
     type FoundUser = { id: number; name: string; email: string };
 
     type Props = {
@@ -171,6 +198,9 @@
         hasDefaultTemplate: boolean;
         certificateTemplates: CertificateTemplateItem[];
         stats: DashboardStats;
+        workspaceStats: WorkspaceStats;
+        workspaceProjects: WorkspaceProject[];
+        recentActivity: RecentActivity[];
         members: Member[];
         pendingApplications: PendingMember[];
         managedEvents: ManagedEvent[];
@@ -187,6 +217,13 @@
         hasDefaultTemplate = false,
         certificateTemplates = [],
         stats,
+        workspaceStats = {
+            projects_count: 0,
+            tasks_count: 0,
+            overdue_tasks_count: 0,
+        },
+        workspaceProjects = [],
+        recentActivity = [],
         members = [],
         pendingApplications = [],
         managedEvents = [],
@@ -538,6 +575,8 @@
     <div
         class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:px-12 lg:py-10"
     >
+        <WorkspaceManageShell active="overview" {club} />
+
         <section
             aria-label={t('dashboard_supervisor.hero_aria')}
             class="w-full"
@@ -560,13 +599,13 @@
                 />
 
                 <img
-                    src="/images/hero/uqu-logo.png"
+                    src="/teamhub-icon.svg"
                     alt=""
                     aria-hidden="true"
                     class="pointer-events-none absolute top-[-1%] left-1/2 h-[66%] -translate-x-1/2 object-contain opacity-[0.05]"
                 />
                 <img
-                    src="/images/hero/uqu-logo.png"
+                    src="/teamhub-icon.svg"
                     alt=""
                     aria-hidden="true"
                     class="pointer-events-none absolute top-[9%] left-1/2 h-[40%] -translate-x-1/2 object-contain"
@@ -578,7 +617,7 @@
                     <p
                         class="text-[28px] leading-tight text-white sm:text-[36px]"
                     >
-                        {club.university ?? t('club.uqu')}
+                        {club.university ?? t('club.organization')}
                     </p>
                     <p
                         class="text-[18px] leading-snug text-white/80 sm:text-[22px]"
@@ -595,13 +634,13 @@
                 ></div>
 
                 <img
-                    src="/images/hero/uqu-logo.png"
+                    src="/teamhub-icon.svg"
                     alt=""
                     aria-hidden="true"
                     class="pointer-events-none absolute top-[-2.34%] right-[0.69%] aspect-[447/559] w-[24.02%] object-cover opacity-[0.04]"
                 />
                 <img
-                    src="/images/hero/uqu-logo.png"
+                    src="/teamhub-icon.svg"
                     alt=""
                     aria-hidden="true"
                     class="pointer-events-none absolute top-[22.4%] right-[8.73%] aspect-[447/559] w-[12.94%] object-cover"
@@ -618,7 +657,7 @@
                     class="absolute top-[50%] right-[24.7%] flex w-[24.8%] -translate-y-1/2 flex-col items-start gap-1 text-start"
                 >
                     <p class="w-full text-[40px] leading-[normal] text-white">
-                        {club.university ?? t('club.uqu')}
+                        {club.university ?? t('club.organization')}
                     </p>
                     <p
                         class="w-full text-[24px] leading-[normal] text-white/80"
@@ -648,6 +687,107 @@
                     />
                 {/each}
             </div>
+        </section>
+
+        <section class="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <DashboardCard class="flex flex-col gap-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-start">
+                        <h2 class="text-lg font-medium text-black">
+                            {t('app.projects')}
+                        </h2>
+                        <p class="text-sm text-[#7e7e7e]">
+                            {workspaceStats.projects_count}
+                            {t('app.projects')} • {workspaceStats.tasks_count}
+                            {t('tasks.title')}
+                        </p>
+                    </div>
+                    <Link
+                        href={`/clubs/${club.id}/committees`}
+                        class="rounded-full bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/20"
+                    >
+                        {t('app.show_more')}
+                    </Link>
+                </div>
+
+                {#if workspaceProjects.length === 0}
+                    <p class="text-sm text-[#7e7e7e]">
+                        {t('committees.empty')}
+                    </p>
+                {:else}
+                    <div class="grid gap-3 md:grid-cols-2">
+                        {#each workspaceProjects as project (project.id)}
+                            <Link
+                                href={`/clubs/${club.id}/committees/${project.id}/manage`}
+                                class="rounded-[16px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <div class="space-y-2">
+                                    <p class="text-sm font-medium text-black">
+                                        {project.name}
+                                    </p>
+                                    <p
+                                        class="line-clamp-2 text-xs text-[#7e7e7e]"
+                                    >
+                                        {project.description ??
+                                            t('clubs.default_description')}
+                                    </p>
+                                    <div
+                                        class="flex flex-wrap gap-2 text-xs text-[#9a9a9a]"
+                                    >
+                                        <span
+                                            >{project.members_count}
+                                            {t('app.members')}</span
+                                        >
+                                        <span>•</span>
+                                        <span
+                                            >{project.tasks_count}
+                                            {t('tasks.title')}</span
+                                        >
+                                        <span>•</span>
+                                        <span
+                                            >{project.overdue_tasks_count} overdue</span
+                                        >
+                                    </div>
+                                </div>
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+            </DashboardCard>
+
+            <DashboardCard class="flex flex-col gap-4">
+                <div class="text-start">
+                    <h2 class="text-lg font-medium text-black">
+                        {t('app.updates')}
+                    </h2>
+                    <p class="text-sm text-[#7e7e7e]">
+                        {workspaceStats.overdue_tasks_count} overdue
+                    </p>
+                </div>
+
+                {#if recentActivity.length === 0}
+                    <p class="text-sm text-[#7e7e7e]">{t('news.empty')}</p>
+                {:else}
+                    <div class="space-y-3">
+                        {#each recentActivity as item (item.id)}
+                            <Link
+                                href={item.url}
+                                class="block rounded-[14px] border border-black/10 p-3 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
+                            >
+                                <p class="text-sm font-medium text-black">
+                                    {item.title}
+                                </p>
+                                <p class="text-xs text-[#7e7e7e]">
+                                    {item.context}
+                                </p>
+                                <p class="mt-1 text-xs text-[#9a9a9a]">
+                                    {item.time}
+                                </p>
+                            </Link>
+                        {/each}
+                    </div>
+                {/if}
+            </DashboardCard>
         </section>
 
         {#if can(CAP.members)}

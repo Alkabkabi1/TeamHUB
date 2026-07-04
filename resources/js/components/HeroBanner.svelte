@@ -4,7 +4,7 @@
      * Figma "banner" design). Each page supplies its own copy via title /
      * subtitle and may override the two decorative logos: `foregroundLogo`
      * (the solid mark) and `backgroundLogo` (the large, low-opacity watermark
-     * sitting behind it). Both default to the Umm Al-Qura logo.
+     * sitting behind it). Both default to the TeamHUB icon.
      */
     type Props = {
         title: string;
@@ -18,8 +18,8 @@
         title,
         subtitle,
         ariaLabel,
-        foregroundLogo = '/images/hero/uqu-logo.png',
-        backgroundLogo = '/images/hero/uqu-logo.png',
+        foregroundLogo = '/teamhub-icon.svg',
+        backgroundLogo = '/teamhub-icon.svg',
     }: Props = $props();
 </script>
 

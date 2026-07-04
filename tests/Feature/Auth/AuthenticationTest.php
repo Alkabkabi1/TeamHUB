@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
+    config()->set('demo.quick_login', false);
+
     $response = $this->get(route('login'));
 
     $response->assertOk();
@@ -21,7 +23,7 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('student-dashboard', absolute: false));
+    $response->assertRedirect(route('hub.dashboard', absolute: false));
 });
 
 test('club supervisor is redirected to club supervisor dashboard after login', function () {
@@ -38,7 +40,7 @@ test('club supervisor is redirected to club supervisor dashboard after login', f
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('clubs.manage', $club, absolute: false));
+    $response->assertRedirect(route('hub.dashboard', absolute: false));
 });
 
 test('university staff is redirected to the filament panel after login', function () {

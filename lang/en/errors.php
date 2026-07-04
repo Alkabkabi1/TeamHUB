@@ -6,7 +6,7 @@ return [
 
     '403' => [
         'title' => 'Access denied',
-        'description' => 'You don’t have permission to view this page. If you think this is a mistake, contact your club supervisor.',
+        'description' => 'You don’t have permission to view this page. If you think this is a mistake, contact your workspace or project lead.',
     ],
     '404' => [
         'title' => 'Page not found',

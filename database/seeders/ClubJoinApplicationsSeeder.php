@@ -41,7 +41,7 @@ class ClubJoinApplicationsSeeder extends Seeder
         }
 
         $csClub = Club::query()->where('name', 'نادي الحاسبات')->first();
-        $supervisor = User::query()->where('email', 'club-leader@uqu.edu.sa')->first();
+        $supervisor = User::query()->where('email', 'club-leader@teamhub.test')->first();
 
         if (! $csClub) {
             return;
@@ -78,7 +78,7 @@ class ClubJoinApplicationsSeeder extends Seeder
         // who already has an application on this club.
         $pendingApplicants = User::query()
             ->where('role', 'student')
-            ->where('email', '!=', 'student@uqu.edu.sa')
+            ->where('email', '!=', 'student@teamhub.test')
             ->whereDoesntHave('joinApplications', fn ($query) => $query->where('club_id', $csClub->id))
             ->whereDoesntHave('clubMemberships', fn ($query) => $query->where('club_id', $csClub->id))
             ->limit(3)

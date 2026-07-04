@@ -19,7 +19,7 @@ test('profile information can be updated', function () {
         ->actingAs($user)
         ->patch(route('profile.update'), [
             'name' => 'Test User',
-            'email' => 'test@uqu.edu.sa',
+            'email' => 'test@teamhub.test',
         ]);
 
     $response
@@ -29,7 +29,7 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     expect($user->name)->toBe('Test User');
-    expect($user->email)->toBe('test@uqu.edu.sa');
+    expect($user->email)->toBe('test@teamhub.test');
     expect($user->email_verified_at)->toBeNull();
 });
 
