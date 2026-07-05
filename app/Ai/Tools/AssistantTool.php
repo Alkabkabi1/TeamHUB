@@ -2,13 +2,12 @@
 
 namespace App\Ai\Tools;
 
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\Committee;
-use App\Models\Event;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembershipRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Laravel\Ai\Contracts\Tool;
 
@@ -20,15 +19,9 @@ use Laravel\Ai\Contracts\Tool;
  */
 abstract class AssistantTool implements Tool
 {
-    /**
-     * The acting user, or null for an unauthenticated guest. Guests are only
-     * ever given the public-data tools, which do not read this property.
-     */
     public function __construct(protected ?User $user = null) {}
 
     /**
-     * Encode a structured result as a compact JSON string for the model.
-     *
      * @param  array<string, mixed>  $data
      */
     protected function json(array $data): string
@@ -36,12 +29,7 @@ abstract class AssistantTool implements Tool
         return json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}';
     }
 
-    /**
-     * Resolve a club from a free-text identifier (numeric id or name). Pass
-     * $activeOnly for public lookups; capability-gated tools resolve any
-     * non-archived club and rely on the Gate to authorize access.
-     */
-    protected function resolveClub(int|string|null $identifier, bool $activeOnly = false): ?Club
+    protected function resolveWorkspace(int|string|null $identifier, bool $activeOnly = false): ?Workspace
     {
         $identifier = trim((string) $identifier);
 
@@ -49,7 +37,7 @@ abstract class AssistantTool implements Tool
             return null;
         }
 
-        $query = Club::query()->when($activeOnly, fn ($q) => $q->where('status', 'active'));
+        $query = Workspace::query()->when($activeOnly, fn ($q) => $q->where('status', 'active'));
 
         if (ctype_digit($identifier)) {
             return $query->whereKey((int) $identifier)->first()
@@ -59,12 +47,7 @@ abstract class AssistantTool implements Tool
         return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
     }
 
-    /**
-     * Resolve a user from a free-text identifier (numeric id or full/partial
-     * name). When $club is given the search is scoped to approved members of
-     * that club, which narrows ambiguous name matches to the relevant pool.
-     */
-    protected function resolveUser(int|string|null $identifier, ?Club $club = null): ?User
+    protected function resolveUser(int|string|null $identifier, ?Workspace $workspace = null): ?User
     {
         $identifier = trim((string) $identifier);
 
@@ -74,10 +57,10 @@ abstract class AssistantTool implements Tool
 
         $query = User::query()
             ->when(
-                $club !== null,
+                $workspace !== null,
                 fn ($q) => $q->whereIn(
                     'id',
-                    $club->memberships()->where('status', 'approved')->select('user_id'),
+                    $workspace->memberships()->where('status', 'approved')->select('user_id'),
                 ),
             );
 
@@ -89,60 +72,30 @@ abstract class AssistantTool implements Tool
         return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
     }
 
-    /**
-     * Resolve an event from a free-text identifier (numeric id or title
-     * substring), optionally constrained to a parent club.
-     */
-    protected function resolveEvent(int|string|null $identifier, ?Club $club = null): ?Event
-    {
-        $identifier = trim((string) $identifier);
-
-        if ($identifier === '') {
-            return null;
-        }
-
-        $query = Event::query()
-            ->when($club !== null, fn ($q) => $q->where('club_id', $club->id));
-
-        if (ctype_digit($identifier)) {
-            return $query->clone()->whereKey((int) $identifier)->first()
-                ?? $query->where('title', 'like', "%{$identifier}%")->orderByDesc('starts_at')->first();
-        }
-
-        return $query->where('title', 'like', "%{$identifier}%")->orderByDesc('starts_at')->first();
-    }
-
-    /**
-     * Resolve a pending club join application, either by its numeric id or by
-     * matching an applicant's name within a given club. The by-name path lets
-     * the assistant act on an applicant the user just named (e.g. after listing
-     * pending applications) without having to surface a raw id. Returns null
-     * when nothing unambiguously matches.
-     */
-    protected function resolvePendingClubApplication(
+    protected function resolvePendingWorkspaceMembershipRequest(
         int|string|null $applicationId,
         int|string|null $applicant = null,
-        int|string|null $club = null,
-    ): ?ClubJoinApplication {
+        int|string|null $workspace = null,
+    ): ?WorkspaceMembershipRequest {
         $applicationId = trim((string) $applicationId);
 
         if ($applicationId !== '' && ctype_digit($applicationId)) {
-            return ClubJoinApplication::query()
-                ->with('club', 'user')
+            return WorkspaceMembershipRequest::query()
+                ->with('workspace', 'user')
                 ->whereKey((int) $applicationId)
                 ->first();
         }
 
-        $clubModel = $this->resolveClub($club);
+        $workspaceModel = $this->resolveWorkspace($workspace);
         $applicant = trim((string) $applicant);
 
-        if ($clubModel === null || $applicant === '') {
+        if ($workspaceModel === null || $applicant === '') {
             return null;
         }
 
-        return ClubJoinApplication::query()
-            ->with('club', 'user')
-            ->where('club_id', $clubModel->id)
+        return WorkspaceMembershipRequest::query()
+            ->with('workspace', 'user')
+            ->where('workspace_id', $workspaceModel->id)
             ->where('status', 'pending')
             ->where(function ($query) use ($applicant): void {
                 $query->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$applicant}%"))
@@ -152,11 +105,7 @@ abstract class AssistantTool implements Tool
             ->first();
     }
 
-    /**
-     * Resolve a committee from a free-text identifier (numeric id or name),
-     * optionally constrained to a parent club.
-     */
-    protected function resolveCommittee(int|string|null $identifier, ?Club $club = null): ?Committee
+    protected function resolveProject(int|string|null $identifier, ?Workspace $workspace = null): ?Project
     {
         $identifier = trim((string) $identifier);
 
@@ -164,9 +113,9 @@ abstract class AssistantTool implements Tool
             return null;
         }
 
-        $query = Committee::query()
-            ->when($club !== null, fn ($q) => $q->where('club_id', $club->id))
-            ->with('club');
+        $query = Project::query()
+            ->when($workspace !== null, fn ($q) => $q->where('workspace_id', $workspace->id))
+            ->with('workspace');
 
         if (ctype_digit($identifier)) {
             return $query->whereKey((int) $identifier)->first()
@@ -176,12 +125,7 @@ abstract class AssistantTool implements Tool
         return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
     }
 
-    /**
-     * Resolve a task from a free-text identifier (numeric id or title),
-     * optionally constrained to a single project/committee and always scoped to
-     * the current user's visible projects.
-     */
-    protected function resolveTask(int|string|null $identifier, ?Committee $committee = null): ?Task
+    protected function resolveTask(int|string|null $identifier, ?Project $project = null): ?Task
     {
         $identifier = trim((string) $identifier);
 
@@ -190,7 +134,7 @@ abstract class AssistantTool implements Tool
         }
 
         $query = $this->visibleTaskQuery()
-            ->when($committee !== null, fn (Builder $q) => $q->where('committee_id', $committee->id));
+            ->when($project !== null, fn (Builder $q) => $q->where('project_id', $project->id));
 
         if (ctype_digit($identifier)) {
             return $query->clone()->whereKey((int) $identifier)->first()
@@ -200,11 +144,7 @@ abstract class AssistantTool implements Tool
         return $query->where('title', 'like', "%{$identifier}%")->orderByDesc('updated_at')->first();
     }
 
-    /**
-     * Resolve an approved project member from a free-text identifier (numeric id
-     * or full/partial name) inside one committee only.
-     */
-    protected function resolveCommitteeMember(int|string|null $identifier, Committee $committee): ?User
+    protected function resolveProjectMember(int|string|null $identifier, Project $project): ?User
     {
         $identifier = trim((string) $identifier);
 
@@ -214,7 +154,7 @@ abstract class AssistantTool implements Tool
 
         $query = User::query()->whereIn(
             'id',
-            $committee->memberships()->where('status', 'approved')->select('user_id'),
+            $project->memberships()->where('status', 'approved')->select('user_id'),
         );
 
         if (ctype_digit($identifier)) {
@@ -225,44 +165,36 @@ abstract class AssistantTool implements Tool
         return $query->where('name', 'like', "%{$identifier}%")->orderBy('name')->first();
     }
 
-    /**
-     * Whether the acting user may view a project's tasks.
-     */
-    protected function canAccessCommittee(Committee $committee): bool
+    protected function canAccessProject(Project $project): bool
     {
         if ($this->user === null) {
             return false;
         }
 
-        if ($this->user->isUniversityStaff() || $this->user->canManageCommittee($committee)) {
+        if ($this->user->isAdmin() || $this->user->canManageProject($project)) {
             return true;
         }
 
-        return $this->user->committeeMemberships()
-            ->where('committee_id', $committee->id)
+        return $this->user->projectMemberships()
+            ->where('project_id', $project->id)
             ->where('status', 'approved')
             ->exists();
     }
 
-    /**
-     * Resolve a project visible to the acting user.
-     */
-    protected function resolveAccessibleCommittee(
+    protected function resolveAccessibleProject(
         int|string|null $identifier,
-        ?Club $club = null,
-    ): ?Committee {
-        $committee = $this->resolveCommittee($identifier, $club);
+        ?Workspace $workspace = null,
+    ): ?Project {
+        $project = $this->resolveProject($identifier, $workspace);
 
-        if ($committee === null || ! $this->canAccessCommittee($committee)) {
+        if ($project === null || ! $this->canAccessProject($project)) {
             return null;
         }
 
-        return $committee;
+        return $project;
     }
 
     /**
-     * A base query for tasks the acting user may view.
-     *
      * @return Builder<Task>
      */
     protected function visibleTaskQuery(): Builder
@@ -272,48 +204,48 @@ abstract class AssistantTool implements Tool
 
         $query = Task::query()
             ->with([
-                'committee:id,club_id,name',
-                'committee.club:id,name',
+                'project:id,workspace_id,name',
+                'project.workspace:id,name',
                 'assignee:id,name',
                 'creator:id,name',
             ]);
 
-        if ($user->isUniversityStaff()) {
+        if ($user->isAdmin()) {
             return $query;
         }
 
-        return $query->whereIn('committee_id', $this->accessibleCommitteeIds());
+        return $query->whereIn('project_id', $this->accessibleProjectIds());
     }
 
     /**
      * @return array<int, int>
      */
-    protected function accessibleCommitteeIds(): array
+    protected function accessibleProjectIds(): array
     {
         if ($this->user === null) {
             return [];
         }
 
-        if ($this->user->isUniversityStaff()) {
-            return Committee::query()->pluck('id')->map(fn (mixed $id): int => (int) $id)->all();
+        if ($this->user->isAdmin()) {
+            return Project::query()->pluck('id')->map(fn (mixed $id): int => (int) $id)->all();
         }
 
-        $membershipIds = $this->user->committeeMemberships()
+        $membershipIds = $this->user->projectMemberships()
             ->where('status', 'approved')
-            ->pluck('committee_id');
+            ->pluck('project_id');
 
-        $managedCommitteeIds = $this->user->managedCommittees()->pluck('id');
-        $managedClubIds = $this->user->managedClubs()->pluck('id');
+        $managedProjectIds = $this->user->managedProjects()->pluck('id');
+        $managedWorkspaceIds = $this->user->managedWorkspaces()->pluck('id');
 
-        $managedClubCommitteeIds = $managedClubIds->isEmpty()
+        $managedWorkspaceProjectIds = $managedWorkspaceIds->isEmpty()
             ? collect()
-            : Committee::query()
-                ->whereIn('club_id', $managedClubIds)
+            : Project::query()
+                ->whereIn('workspace_id', $managedWorkspaceIds)
                 ->pluck('id');
 
         return $membershipIds
-            ->merge($managedCommitteeIds)
-            ->merge($managedClubCommitteeIds)
+            ->merge($managedProjectIds)
+            ->merge($managedWorkspaceProjectIds)
             ->map(fn (mixed $id): int => (int) $id)
             ->unique()
             ->values()
@@ -337,24 +269,24 @@ abstract class AssistantTool implements Tool
             'assignee_name' => $task->assignee?->name,
             'creator_name' => $task->creator?->name,
             'workspace' => [
-                'id' => $task->committee?->club_id,
-                'name' => $task->committee?->club?->name ?? '',
-                'manage_url' => $task->committee?->club_id
-                    ? route('clubs.manage', [$task->committee->club_id], absolute: false)
+                'id' => $task->project?->workspace_id,
+                'name' => $task->project?->workspace?->name ?? '',
+                'manage_url' => $task->project?->workspace_id
+                    ? route('workspaces.manage', [$task->project->workspace_id], absolute: false)
                     : null,
             ],
             'project' => [
-                'id' => $task->committee_id,
-                'name' => $task->committee?->name ?? '',
-                'tasks_url' => $task->committee?->club_id
-                    ? route('committees.tasks.index', [$task->committee->club_id, $task->committee_id], absolute: false)
+                'id' => $task->project_id,
+                'name' => $task->project?->name ?? '',
+                'tasks_url' => $task->project?->workspace_id
+                    ? route('projects.tasks.index', [$task->project->workspace_id, $task->project_id], absolute: false)
                     : null,
-                'manage_url' => $task->committee?->club_id
-                    ? route('committees.manage', [$task->committee->club_id, $task->committee_id], absolute: false)
+                'manage_url' => $task->project?->workspace_id
+                    ? route('projects.manage', [$task->project->workspace_id, $task->project_id], absolute: false)
                     : null,
             ],
-            'detail_url' => $task->committee?->club_id
-                ? route('committees.tasks.show', [$task->committee->club_id, $task->committee_id, $task], absolute: false)
+            'detail_url' => $task->project?->workspace_id
+                ? route('projects.tasks.show', [$task->project->workspace_id, $task->project_id, $task], absolute: false)
                 : null,
             'has_deliverable' => $task->getFirstMedia(Task::DELIVERABLE_COLLECTION) !== null
                 || filled($task->deliverable_url)

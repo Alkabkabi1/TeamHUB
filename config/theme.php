@@ -15,6 +15,6 @@ return [
     |
     */
 
-    'brand' => env('APP_BRAND_COLOR', '#006471') ?: '#006471',
+    'brand' => env('APP_BRAND_COLOR', '#c8924a') ?: '#c8924a',
 
 ];

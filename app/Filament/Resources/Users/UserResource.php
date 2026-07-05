@@ -14,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -37,13 +36,9 @@ class UserResource extends Resource
         return __('admin.nav.users');
     }
 
-    /**
-     * Scope users to the staff member's own university (tenancy).
-     */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where('university_id', Auth::user()?->university_id);
+        return parent::getEloquentQuery();
     }
 
     public static function form(Schema $schema): Schema

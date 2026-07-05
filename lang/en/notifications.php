@@ -33,4 +33,10 @@ return [
         'action' => 'Open task',
         'mail_subject' => 'Changes requested for :task',
     ],
+    'admin_message' => [
+        'title' => 'Message from admin',
+        'body' => ':sender says: :message',
+        'action' => 'Open dashboard',
+        'mail_subject' => 'Message from :sender',
+    ],
 ];

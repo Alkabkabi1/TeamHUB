@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -8,36 +8,36 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 test('task belongs to a committee, creator, assignee, and reviewer', function () {
     $task = Task::factory()->create();
 
-    expect($task->committee())->toBeInstanceOf(BelongsTo::class)
+    expect($task->project())->toBeInstanceOf(BelongsTo::class)
         ->and($task->creator())->toBeInstanceOf(BelongsTo::class)
         ->and($task->assignee())->toBeInstanceOf(BelongsTo::class)
         ->and($task->reviewer())->toBeInstanceOf(BelongsTo::class);
 });
 
 test('task scopes filter by committee and assignee', function () {
-    $committee = Committee::factory()->create();
-    $otherCommittee = Committee::factory()->create();
+    $project = Project::factory()->create();
+    $otherCommittee = Project::factory()->create();
     $user = User::factory()->student()->create();
     $otherUser = User::factory()->student()->create();
 
     $matching = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'assigned_to' => $user->id,
     ]);
 
     Task::factory()->create([
-        'committee_id' => $otherCommittee->id,
+        'project_id' => $otherCommittee->id,
         'assigned_to' => $user->id,
     ]);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'assigned_to' => $otherUser->id,
     ]);
 
-    expect(Task::query()->forCommittee($committee)->count())->toBe(2)
+    expect(Task::query()->forProject($project)->count())->toBe(2)
         ->and(Task::query()->assignedTo($user)->count())->toBe(2)
-        ->and(Task::query()->forCommittee($committee)->assignedTo($user)->first()?->id)->toBe($matching->id);
+        ->and(Task::query()->forProject($project)->assignedTo($user)->first()?->id)->toBe($matching->id);
 });
 
 test('task personal scopes split assigned work into overdue, due today, upcoming, and no due date', function () {

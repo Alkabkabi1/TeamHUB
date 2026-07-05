@@ -16,15 +16,15 @@ namespace Database\Factories\Support;
 class DemoCoverImage
 {
     /**
-     * The default brand teal, used when a model has no theme color.
+     * The default brand gold, used when a model has no theme color.
      */
-    private const DEFAULT_COLOR = '#006471';
+    private const DEFAULT_COLOR = '#c8924a';
 
     /**
      * Generate a JPEG cover image and return its raw bytes.
      *
      * @param  string  $seed  Stable string (e.g. "event-12") that drives the layout.
-     * @param  string|null  $hexColor  Base color, typically the club's theme. Falls back to brand teal.
+     * @param  string|null  $hexColor  Base color, typically the club's theme. Falls back to brand gold.
      */
     public static function generate(string $seed, ?string $hexColor = null, int $width = 1200, int $height = 800): string
     {

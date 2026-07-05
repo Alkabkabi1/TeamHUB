@@ -30,7 +30,7 @@ class UpdateTaskRequest extends FormRequest
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'assigned_to' => ['nullable', 'integer', Rule::in($this->approvedCommitteeMemberIds())],
+            'assigned_to' => ['nullable', 'integer', Rule::in($this->approvedProjectMemberIds())],
             'priority' => ['nullable', 'string', Rule::in(TaskPriority::values())],
             'status' => ['nullable', 'string', Rule::in([TaskStatus::Todo->value, TaskStatus::InProgress->value])],
             'due_at' => ['nullable', 'date'],
@@ -55,7 +55,7 @@ class UpdateTaskRequest extends FormRequest
     /**
      * @return array<int, int>
      */
-    private function approvedCommitteeMemberIds(): array
+    private function approvedProjectMemberIds(): array
     {
         $task = $this->route('task');
 
@@ -63,7 +63,7 @@ class UpdateTaskRequest extends FormRequest
             return [];
         }
 
-        return $task->committee->memberships()
+        return $task->project->memberships()
             ->where('status', 'approved')
             ->pluck('user_id')
             ->map(fn (mixed $id): int => (int) $id)

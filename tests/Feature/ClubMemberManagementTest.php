@@ -1,159 +1,159 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
+use App\Enums\WorkspaceRole;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 /**
- * Create an approved membership in $club holding the given roles.
+ * Create an approved membership in $workspace holding the given roles.
  *
- * @param  array<int, ClubRole>  $roles
+ * @param  array<int, WorkspaceRole>  $roles
  */
-function membershipWithRoles(Club $club, array $roles, ?User $user = null): ClubMembership
+function membershipWithRoles(Workspace $workspace, array $roles, ?User $user = null): WorkspaceMembership
 {
     $user ??= User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership->syncClubRoles($roles);
+    $membership->syncWorkspaceRoles($roles);
 
     return $membership;
 }
 
 test('a club lead can add an existing student as an approved member', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $lead = membershipWithRoles($club, [ClubRole::ClubLead])->user;
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $lead = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead])->user;
     $student = User::factory()->student()->create();
 
     $this->actingAs($lead)
-        ->post(route('clubs.members.store', $club), ['user_id' => $student->id])
+        ->post(route('workspaces.members.store', $workspace), ['user_id' => $student->id])
         ->assertRedirect();
 
-    $membership = ClubMembership::where('user_id', $student->id)
-        ->where('club_id', $club->id)
+    $membership = WorkspaceMembership::where('user_id', $student->id)
+        ->where('workspace_id', $workspace->id)
         ->first();
 
     expect($membership)->not->toBeNull()
         ->and($membership->status)->toBe('approved')
-        ->and($membership->hasClubRole(ClubRole::Member))->toBeTrue();
+        ->and($membership->hasWorkspaceRole(WorkspaceRole::Member))->toBeTrue();
 });
 
 test('a plain member cannot add members', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $member = membershipWithRoles($club, [ClubRole::Member])->user;
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $member = membershipWithRoles($workspace, [WorkspaceRole::Member])->user;
     $student = User::factory()->student()->create();
 
     $this->actingAs($member)
-        ->post(route('clubs.members.store', $club), ['user_id' => $student->id])
+        ->post(route('workspaces.members.store', $workspace), ['user_id' => $student->id])
         ->assertForbidden();
 });
 
 test('a membership manager cannot grant a manager role when adding a member', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $manager = membershipWithRoles($club, [ClubRole::MembershipManager])->user;
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $manager = membershipWithRoles($workspace, [WorkspaceRole::MembershipManager])->user;
     $student = User::factory()->student()->create();
 
     $this->actingAs($manager)
-        ->post(route('clubs.members.store', $club), [
+        ->post(route('workspaces.members.store', $workspace), [
             'user_id' => $student->id,
-            'roles' => [ClubRole::MembershipManager->value],
+            'roles' => [WorkspaceRole::MembershipManager->value],
         ])
         ->assertForbidden();
 });
 
 test('member search returns matching students excluding existing members', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $lead = membershipWithRoles($club, [ClubRole::ClubLead])->user;
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $lead = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead])->user;
 
     $match = User::factory()->student()->create(['name' => 'Searchable Sara']);
-    $existing = membershipWithRoles($club, [ClubRole::Member])->user;
+    $existing = membershipWithRoles($workspace, [WorkspaceRole::Member])->user;
     $existing->update(['name' => 'Searchable Sami']);
 
     $this->actingAs($lead)
-        ->getJson(route('clubs.members.search', ['club' => $club, 'q' => 'Searchable']))
+        ->getJson(route('workspaces.members.search', ['workspace' => $workspace, 'q' => 'Searchable']))
         ->assertOk()
         ->assertJsonFragment(['id' => $match->id])
         ->assertJsonMissing(['id' => $existing->id]);
 });
 
 test('updating member roles requires the manage-club capability', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $membershipManager = membershipWithRoles($club, [ClubRole::MembershipManager])->user;
-    $target = membershipWithRoles($club, [ClubRole::Member]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $membershipManager = membershipWithRoles($workspace, [WorkspaceRole::MembershipManager])->user;
+    $target = membershipWithRoles($workspace, [WorkspaceRole::Member]);
 
     $this->actingAs($membershipManager)
-        ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $target]), [
-            'roles' => [ClubRole::MembershipManager->value],
+        ->put(route('workspaces.members.roles', ['workspace' => $workspace, 'membership' => $target]), [
+            'roles' => [WorkspaceRole::MembershipManager->value],
         ])
         ->assertForbidden();
 });
 
 test('a club lead can promote a member to a manager role', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $lead = membershipWithRoles($club, [ClubRole::ClubLead])->user;
-    $target = membershipWithRoles($club, [ClubRole::Member]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $lead = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead])->user;
+    $target = membershipWithRoles($workspace, [WorkspaceRole::Member]);
 
     $this->actingAs($lead)
-        ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $target]), [
-            'roles' => [ClubRole::MembershipManager->value],
+        ->put(route('workspaces.members.roles', ['workspace' => $workspace, 'membership' => $target]), [
+            'roles' => [WorkspaceRole::MembershipManager->value],
         ])
         ->assertRedirect();
 
     $target->refresh();
-    expect($target->hasClubRole(ClubRole::MembershipManager))->toBeTrue()
-        ->and($target->hasClubRole(ClubRole::Member))->toBeTrue();
+    expect($target->hasWorkspaceRole(WorkspaceRole::MembershipManager))->toBeTrue()
+        ->and($target->hasWorkspaceRole(WorkspaceRole::Member))->toBeTrue();
 });
 
 test('the last club lead cannot be demoted', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $leadMembership = membershipWithRoles($club, [ClubRole::ClubLead]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $leadMembership = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead]);
     $lead = $leadMembership->user;
 
     $this->actingAs($lead)
-        ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $leadMembership]), [
+        ->put(route('workspaces.members.roles', ['workspace' => $workspace, 'membership' => $leadMembership]), [
             'roles' => [],
         ]);
 
     $leadMembership->refresh();
-    expect($leadMembership->hasClubRole(ClubRole::ClubLead))->toBeTrue();
+    expect($leadMembership->hasWorkspaceRole(WorkspaceRole::WorkspaceLead))->toBeTrue();
 });
 
 test('the last club lead cannot be removed', function () {
     $staff = User::factory()->universityStaff()->create();
-    $club = Club::factory()->create(['status' => 'active']);
-    $leadMembership = membershipWithRoles($club, [ClubRole::ClubLead]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $leadMembership = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead]);
 
     $this->actingAs($staff)
-        ->delete(route('clubs.members.destroy', ['club' => $club, 'membership' => $leadMembership]));
+        ->delete(route('workspaces.members.destroy', ['workspace' => $workspace, 'membership' => $leadMembership]));
 
-    expect(ClubMembership::find($leadMembership->id))->not->toBeNull();
+    expect(WorkspaceMembership::find($leadMembership->id))->not->toBeNull();
 });
 
 test('a club lead can remove a plain member', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $lead = membershipWithRoles($club, [ClubRole::ClubLead])->user;
-    $target = membershipWithRoles($club, [ClubRole::Member]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $lead = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead])->user;
+    $target = membershipWithRoles($workspace, [WorkspaceRole::Member]);
 
     $this->actingAs($lead)
-        ->delete(route('clubs.members.destroy', ['club' => $club, 'membership' => $target]))
+        ->delete(route('workspaces.members.destroy', ['workspace' => $workspace, 'membership' => $target]))
         ->assertRedirect();
 
-    expect(ClubMembership::find($target->id))->toBeNull();
+    expect(WorkspaceMembership::find($target->id))->toBeNull();
 });
 
 test('roles cannot be managed on a membership belonging to another club', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $otherClub = Club::factory()->create(['status' => 'active']);
-    $lead = membershipWithRoles($club, [ClubRole::ClubLead])->user;
-    $foreignMembership = membershipWithRoles($otherClub, [ClubRole::Member]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $otherClub = Workspace::factory()->create(['status' => 'active']);
+    $lead = membershipWithRoles($workspace, [WorkspaceRole::WorkspaceLead])->user;
+    $foreignMembership = membershipWithRoles($otherClub, [WorkspaceRole::Member]);
 
     $this->actingAs($lead)
-        ->put(route('clubs.members.roles', ['club' => $club, 'membership' => $foreignMembership]), [
-            'roles' => [ClubRole::MembershipManager->value],
+        ->put(route('workspaces.members.roles', ['workspace' => $workspace, 'membership' => $foreignMembership]), [
+            'roles' => [WorkspaceRole::MembershipManager->value],
         ])
         ->assertNotFound();
 });

@@ -6,7 +6,6 @@
         DashboardSquare01Icon,
         Folder01Icon,
         TaskDone01Icon,
-        Upload04Icon,
     } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
     import { Link } from '@inertiajs/svelte';
@@ -30,12 +29,6 @@
             title: 'المشاريع',
             description: 'بطاقات المشاريع مع نسبة الإنجاز والفريق',
             icon: Folder01Icon,
-        },
-        {
-            href: '/preview/team-hub/deliverable',
-            title: 'تسليم المخرجات',
-            description: 'نافذة رفع ملف / رابط / ملاحظات عند إكمال المهمة',
-            icon: Upload04Icon,
         },
     ];
 </script>

@@ -11,7 +11,7 @@ test('home document exposes TeamHUB SEO meta tags', function () {
         ->toContain('<meta property="og:title" content="'.e(__('seo.title')).'">')
         ->toContain('<meta property="og:image" content="'.url('images/og-image.png').'">')
         ->toContain('<meta name="twitter:card" content="summary_large_image">')
-        ->toContain('<meta name="theme-color" content="#006471">')
+        ->toContain('<meta name="theme-color" content="'.config('theme.brand').'">')
         ->toContain('<link rel="canonical"')
         ->toContain('<link rel="manifest" href="/site.webmanifest">');
 });

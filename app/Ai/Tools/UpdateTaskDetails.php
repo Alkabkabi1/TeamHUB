@@ -24,7 +24,7 @@ class UpdateTaskDetails extends WriteTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return ['error' => 'No workspace matched that name.'];
@@ -34,7 +34,7 @@ class UpdateTaskDetails extends WriteTool
         $project = null;
 
         if (! empty($request['project'])) {
-            $project = $this->resolveAccessibleCommittee($request['project'], $workspace);
+            $project = $this->resolveAccessibleProject($request['project'], $workspace);
 
             if ($project === null) {
                 return ['error' => 'No visible project matched that name.'];
@@ -47,7 +47,7 @@ class UpdateTaskDetails extends WriteTool
             return ['error' => 'No visible task matched that name.'];
         }
 
-        if (! $this->user->canManageCommittee($task->committee)) {
+        if (! $this->user->canManageProject($task->project)) {
             return ['error' => 'Only project managers can edit these task details.'];
         }
 
@@ -121,7 +121,7 @@ class UpdateTaskDetails extends WriteTool
     {
         $task = $this->resolveTask((string) $params['task_id']);
 
-        if ($task === null || ! $this->user?->canManageCommittee($task->committee)) {
+        if ($task === null || ! $this->user?->canManageProject($task->project)) {
             return ['success' => false, 'message' => 'Only project managers can edit these task details.'];
         }
 

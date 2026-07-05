@@ -1,20 +1,19 @@
 <?php
 
-use App\Models\Club;
+use App\Models\Workspace;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 return new class extends Migration
 {
-    /**
-     * Seed the new tags taxonomy from the existing single-value `category`
-     * column so the clubs catalog has tags to filter by out of the box. The
-     * `category` column itself is left in place (still used by events, the
-     * home page, the club detail page and the admin panel).
-     */
     public function up(): void
     {
+        if (! Schema::hasTable('tags') || ! Schema::hasTable('clubs')) {
+            return;
+        }
+
         $categories = DB::table('clubs')
             ->whereNotNull('category')
             ->where('category', '!=', '')
@@ -35,15 +34,15 @@ return new class extends Migration
                 'updated_at' => now(),
             ]);
 
-            $clubIds = DB::table('clubs')
+            $workspaceIds = DB::table('clubs')
                 ->where('category', $category)
                 ->pluck('id');
 
-            foreach ($clubIds as $clubId) {
+            foreach ($workspaceIds as $workspaceId) {
                 DB::table('taggables')->insert([
                     'tag_id' => $tagId,
-                    'taggable_id' => $clubId,
-                    'taggable_type' => Club::class,
+                    'taggable_id' => $workspaceId,
+                    'taggable_type' => Workspace::class,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -53,7 +52,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        DB::table('taggables')->truncate();
-        DB::table('tags')->truncate();
+        if (Schema::hasTable('taggables')) {
+            DB::table('taggables')->truncate();
+        }
+
+        if (Schema::hasTable('tags')) {
+            DB::table('tags')->truncate();
+        }
     }
 };

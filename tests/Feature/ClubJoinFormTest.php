@@ -1,38 +1,37 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
+use App\Models\WorkspaceMembershipRequest;
 
 test('guest is redirected to login when visiting join form', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    $this->get(route('clubs.join.create', $club))
+    $this->get(route('workspaces.join.create', $workspace))
         ->assertRedirect(route('login'));
 });
 
 test('authenticated user can view join form with club props', function () {
     $user = User::factory()->create(['email' => 'applicant@teamhub.test']);
-    $club = Club::factory()->create(['name' => 'نادي الحاسبات', 'status' => 'active']);
+    $workspace = Workspace::factory()->create(['name' => 'مساحة الحاسبات', 'status' => 'active']);
 
     $this->actingAs($user)
-        ->get(route('clubs.join.create', $club))
+        ->get(route('workspaces.join.create', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubJoinForm')
-            ->where('club.name', 'نادي الحاسبات')
+            ->where('club.name', 'مساحة الحاسبات')
             ->where('defaults.full_name', $user->name)
-            ->where('defaults.university_email', 'applicant@teamhub.test')
         );
 });
 
 test('join form returns not found for inactive club', function () {
     $user = User::factory()->create();
-    $club = Club::factory()->inactive()->create();
+    $workspace = Workspace::factory()->inactive()->create();
 
     $this->actingAs($user)
-        ->get(route('clubs.join.create', $club))
+        ->get(route('workspaces.join.create', $workspace))
         ->assertNotFound();
 });
 
@@ -41,15 +40,15 @@ test('authenticated user can submit join application', function () {
         'name' => 'وئام راشد',
         'email' => 'applicant@teamhub.test',
     ]);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
-        ->assertRedirect(route('clubs.show', $club));
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
+        ->assertRedirect(route('workspaces.show', $workspace));
 
-    $application = ClubJoinApplication::query()
+    $application = WorkspaceMembershipRequest::query()
         ->where('user_id', $user->id)
-        ->where('club_id', $club->id)
+        ->where('workspace_id', $workspace->id)
         ->first();
 
     expect($application)->not->toBeNull()
@@ -57,40 +56,15 @@ test('authenticated user can submit join application', function () {
         ->and($application->weekly_hours)->toBe(4);
 });
 
-test('join application requires matching email address', function () {
-    $user = User::factory()->create(['email' => 'student@example.com']);
-    $club = Club::factory()->create(['status' => 'active']);
-
-    $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user, [
-            'university_email' => 'other@example.com',
-        ]))
-        ->assertSessionHasErrors('university_email');
-});
-
-test('join application accepts any valid email when it matches the logged-in user', function () {
-    $user = User::factory()->create(['email' => 'student@example.com']);
-    $club = Club::factory()->create(['status' => 'active']);
-
-    $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user, [
-            'university_email' => 'student@example.com',
-        ]))
-        ->assertRedirect(route('clubs.show', $club));
-});
-
 test('join application validates required fields', function () {
     $user = User::factory()->create(['email' => 'student@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), [])
+        ->post(route('workspaces.join.store', $workspace), [])
         ->assertSessionHasErrors([
             'full_name',
-            'university_email',
             'phone',
-            'level',
-            'major',
             'skills',
             'weekly_hours',
             'tools',
@@ -101,50 +75,46 @@ test('join application validates required fields', function () {
 
 test('duplicate pending application is rejected', function () {
     $user = User::factory()->create(['email' => 'dup@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubJoinApplication::factory()->pending()->create([
+    WorkspaceMembershipRequest::factory()->pending()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
-        'university_email' => $user->email,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
         ->assertSessionHasErrors('club');
 });
 
 test('existing club membership blocks new application', function () {
     $user = User::factory()->create(['email' => 'member@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
-        'role' => 'member',
-        'joined_at' => now(),
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
         ->assertSessionHasErrors('club');
 });
 
 test('join application rejected for inactive club', function () {
     $user = User::factory()->create(['email' => 'student@teamhub.test']);
-    $club = Club::factory()->inactive()->create();
+    $workspace = Workspace::factory()->inactive()->create();
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
         ->assertSessionHasErrors('club');
 });
 
-test('university staff gets 403 when posting a join application', function () {
-    // Only students may apply to join a club; staff are not club members.
-    $user = User::factory()->universityStaff()->create(['email' => 'staff@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+test('admins get 403 when posting a join application', function () {
+    $user = User::factory()->admin()->create(['email' => 'staff@teamhub.test']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
         ->assertForbidden();
 });

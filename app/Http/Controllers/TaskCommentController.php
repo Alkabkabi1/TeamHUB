@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskCommentRequest;
-use App\Models\Club;
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
@@ -15,8 +15,8 @@ class TaskCommentController extends Controller
 {
     public function store(
         StoreTaskCommentRequest $request,
-        Club $club,
-        Committee $committee,
+        Workspace $workspace,
+        Project $project,
         Task $task,
     ): RedirectResponse {
         /** @var User $user */
@@ -29,12 +29,12 @@ class TaskCommentController extends Controller
             'message' => __('tasks.comment_posted'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 
     public function destroy(
-        Club $club,
-        Committee $committee,
+        Workspace $workspace,
+        Project $project,
         Task $task,
         TaskComment $comment,
     ): RedirectResponse {
@@ -42,7 +42,7 @@ class TaskCommentController extends Controller
         $user = request()->user();
 
         abort_unless($comment->task_id === $task->id, 404);
-        abort_unless($comment->user_id === $user->id || $user->canManageCommittee($committee), 403);
+        abort_unless($comment->user_id === $user->id || $user->canManageProject($project), 403);
 
         $comment->delete();
 
@@ -51,6 +51,6 @@ class TaskCommentController extends Controller
             'message' => __('tasks.comment_deleted'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 }

@@ -8,7 +8,7 @@
     import ResourceFileRow from '@/components/ResourceFileRow.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
     import { t } from '@/lib/i18n.svelte';
-    import { resources as resourcesRoute } from '@/routes';
+    import { home } from '@/routes';
     import type { SelectOption } from '@/types';
 
     type Download = {
@@ -76,7 +76,7 @@
         />
 
         <CatalogFilterBar
-            action={resourcesRoute().url}
+            action={home().url}
             {filters}
             {filterOptions}
             searchPlaceholder={t('resources.search_placeholder')}
@@ -86,7 +86,7 @@
         <section class="flex flex-col gap-5">
             <SectionHeader
                 title={t('resources.downloads_section')}
-                href={resourcesRoute().url}
+                href={home().url}
             />
 
             {#if downloads.length === 0}

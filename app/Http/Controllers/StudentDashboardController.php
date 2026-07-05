@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClubJoinApplication;
-use App\Models\ClubMembership;
-use App\Models\CommitteeMembership;
-use App\Models\Post;
+use App\Models\ProjectMembership;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\WorkspaceMembership;
+use App\Models\WorkspaceMembershipRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,44 +19,44 @@ class StudentDashboardController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        if (! $user->isStudent()) {
+        if (! $user->isMember()) {
             abort(403);
         }
 
-        $workspaceMemberships = $user->clubMemberships()
+        $workspaceMemberships = $user->workspaceMemberships()
             ->where('status', 'approved')
-            ->with('club:id,name')
+            ->with('workspace:id,name')
             ->orderBy('joined_at')
             ->get();
 
-        $projectMemberships = $user->committeeMemberships()
+        $projectMemberships = $user->projectMemberships()
             ->where('status', 'approved')
-            ->with('committee.club:id,name')
+            ->with('project.workspace:id,name')
             ->orderBy('joined_at')
             ->get();
 
         $projectCountsByWorkspace = $projectMemberships
-            ->filter(fn (CommitteeMembership $membership) => $membership->committee !== null)
-            ->groupBy(fn (CommitteeMembership $membership) => $membership->committee?->club_id)
+            ->filter(fn (ProjectMembership $membership) => $membership->project !== null)
+            ->groupBy(fn (ProjectMembership $membership) => $membership->project?->workspace_id)
             ->map->count();
 
         $workspaces = $workspaceMemberships
-            ->filter(fn (ClubMembership $membership) => $membership->club !== null)
-            ->map(fn (ClubMembership $membership) => [
-                'id' => $membership->club_id,
-                'name' => $membership->club->name,
+            ->filter(fn (WorkspaceMembership $membership) => $membership->workspace !== null)
+            ->map(fn (WorkspaceMembership $membership) => [
+                'id' => $membership->workspace_id,
+                'name' => $membership->workspace->name,
                 'memberSince' => $membership->joined_at?->format('Y') ?? '',
-                'projectCount' => (int) ($projectCountsByWorkspace[$membership->club_id] ?? 0),
+                'projectCount' => (int) ($projectCountsByWorkspace[$membership->workspace_id] ?? 0),
             ])
             ->values();
 
         $projects = $projectMemberships
-            ->filter(fn (CommitteeMembership $membership) => $membership->committee !== null && $membership->committee->club !== null)
-            ->map(fn (CommitteeMembership $membership) => [
-                'id' => $membership->committee_id,
-                'name' => $membership->committee?->name ?? '',
-                'clubId' => $membership->committee?->club_id,
-                'clubName' => $membership->committee?->club?->name ?? '',
+            ->filter(fn (ProjectMembership $membership) => $membership->project !== null && $membership->project->workspace !== null)
+            ->map(fn (ProjectMembership $membership) => [
+                'id' => $membership->project_id,
+                'name' => $membership->project?->name ?? '',
+                'workspaceId' => $membership->project?->workspace_id,
+                'workspaceName' => $membership->project?->workspace?->name ?? '',
                 'joinedAt' => $membership->joined_at?->toIso8601String(),
             ])
             ->values();
@@ -64,7 +64,7 @@ class StudentDashboardController extends Controller
         $assignedTaskBaseQuery = Task::query()
             ->assignedTo($user)
             ->incomplete()
-            ->with(['committee:id,club_id,name', 'committee.club:id,name'])
+            ->with(['project:id,workspace_id,name', 'project.workspace:id,name'])
             ->orderBy('due_at')
             ->orderByDesc('updated_at');
 
@@ -87,28 +87,28 @@ class StudentDashboardController extends Controller
             ->take(6)
             ->values();
 
-        $latestApplication = $user->joinApplications()
+        $latestApplication = $user->membershipRequests()
             ->where('status', 'approved')
             ->latest('reviewed_at')
             ->first();
 
-        $committeeIds = $projectMemberships->pluck('committee_id')->filter()->unique()->values();
+        $projectIds = $projectMemberships->pluck('project_id')->filter()->unique()->values();
 
-        $recentUpdates = $committeeIds->isEmpty()
+        $recentUpdates = $projectIds->isEmpty()
             ? collect()
-            : Post::query()
-                ->whereIn('committee_id', $committeeIds)
-                ->with(['committee:id,name', 'club:id,name'])
+            : ProjectUpdate::query()
+                ->whereIn('project_id', $projectIds)
+                ->with(['project:id,name', 'workspace:id,name'])
                 ->latest('published_at')
                 ->limit(6)
                 ->get()
-                ->map(fn (Post $post) => [
+                ->map(fn (ProjectUpdate $post) => [
                     'id' => $post->id,
                     'title' => $post->title,
-                    'committeeName' => $post->committee?->name ?? '',
-                    'clubName' => $post->club?->name ?? '',
+                    'projectName' => $post->project?->name ?? '',
+                    'workspaceName' => $post->workspace?->name ?? '',
                     'publishedAt' => $post->published_at?->toIso8601String(),
-                    'url' => route('committees.updates.index', [$post->club_id, $post->committee_id], absolute: false),
+                    'url' => route('projects.updates.index', [$post->workspace_id, $post->project_id], absolute: false),
                 ])
                 ->values();
 
@@ -136,15 +136,13 @@ class StudentDashboardController extends Controller
         ]);
     }
 
-    private function profileSubtitle(?ClubJoinApplication $application): string
+    private function profileSubtitle(?WorkspaceMembershipRequest $application): string
     {
         if ($application === null) {
             return '';
         }
 
-        $parts = array_filter([$application->major, $application->level]);
-
-        return implode(' - ', $parts);
+        return (string) ($application->skills ?? '');
     }
 
     /**
@@ -160,11 +158,11 @@ class StudentDashboardController extends Controller
             'priority' => $task->priority->value,
             'priorityLabel' => __($task->priority->label()),
             'dueAt' => $task->due_at?->toIso8601String(),
-            'clubId' => $task->committee?->club_id,
-            'clubName' => $task->committee?->club?->name ?? '',
-            'committeeId' => $task->committee_id,
-            'committeeName' => $task->committee?->name ?? '',
-            'detailUrl' => route('committees.tasks.show', [$task->committee?->club_id, $task->committee_id, $task], absolute: false),
+            'workspaceId' => $task->project?->workspace_id,
+            'workspaceName' => $task->project?->workspace?->name ?? '',
+            'projectId' => $task->project_id,
+            'projectName' => $task->project?->name ?? '',
+            'detailUrl' => route('projects.tasks.show', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
         ];
     }
 }

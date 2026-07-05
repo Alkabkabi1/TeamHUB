@@ -1,83 +1,83 @@
 <?php
 
-use App\Enums\ClubCapability;
-use App\Enums\ClubRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
+use App\Enums\WorkspaceCapability;
+use App\Enums\WorkspaceRole;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 /**
- * @param  array<int, ClubRole>  $roles
+ * @param  array<int, WorkspaceRole>  $roles
  */
-function membership(User $user, Club $club, array $roles): ClubMembership
+function membership(User $user, Workspace $workspace, array $roles): WorkspaceMembership
 {
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles($roles);
+    $membership->syncWorkspaceRoles($roles);
 
     return $membership;
 }
 
-test('managedClubs returns only clubs where the user holds a manager role', function () {
+test('managedWorkspaces returns only workspaces where the user holds a manager role', function () {
     $user = User::factory()->student()->create();
-    $ledClub = Club::factory()->create(['status' => 'active']);
-    $memberClub = Club::factory()->create(['status' => 'active']);
+    $ledClub = Workspace::factory()->create(['status' => 'active']);
+    $memberClub = Workspace::factory()->create(['status' => 'active']);
 
-    membership($user, $ledClub, [ClubRole::ClubLead]);
-    membership($user, $memberClub, [ClubRole::Member]);
+    membership($user, $ledClub, [WorkspaceRole::WorkspaceLead]);
+    membership($user, $memberClub, [WorkspaceRole::Member]);
 
-    $managed = $user->managedClubs();
+    $managed = $user->managedWorkspaces();
 
     expect($managed)->toHaveCount(1)
         ->and($managed->first()->id)->toBe($ledClub->id);
 });
 
-test('canManageClub is true for managers and university staff, false otherwise', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+test('canManageWorkspace is true for managers and admins, false otherwise', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $lead = User::factory()->student()->create();
-    membership($lead, $club, [ClubRole::ClubLead]);
+    membership($lead, $workspace, [WorkspaceRole::WorkspaceLead]);
 
     $member = User::factory()->student()->create();
-    membership($member, $club, [ClubRole::Member]);
+    membership($member, $workspace, [WorkspaceRole::Member]);
 
     $outsider = User::factory()->student()->create();
     $staff = User::factory()->universityStaff()->create();
 
-    expect($lead->canManageClub($club))->toBeTrue()
-        ->and($staff->canManageClub($club))->toBeTrue()
-        ->and($member->canManageClub($club))->toBeFalse()
-        ->and($outsider->canManageClub($club))->toBeFalse();
+    expect($lead->canManageWorkspace($workspace))->toBeTrue()
+        ->and($staff->canManageWorkspace($workspace))->toBeTrue()
+        ->and($member->canManageWorkspace($workspace))->toBeFalse()
+        ->and($outsider->canManageWorkspace($workspace))->toBeFalse();
 });
 
-test('a club lead has the full capability set, a member has none', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+test('a workspace lead has the full capability set, a member has none', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $lead = User::factory()->student()->create();
-    membership($lead, $club, [ClubRole::ClubLead]);
+    membership($lead, $workspace, [WorkspaceRole::WorkspaceLead]);
 
     $member = User::factory()->student()->create();
-    membership($member, $club, [ClubRole::Member]);
+    membership($member, $workspace, [WorkspaceRole::Member]);
 
-    expect($lead->clubCapabilitiesFor($club))->toHaveCount(count(ClubCapability::cases()))
-        ->and($member->clubCapabilitiesFor($club))->toHaveCount(0);
+    expect($lead->workspaceCapabilitiesFor($workspace))->toHaveCount(count(WorkspaceCapability::cases()))
+        ->and($member->workspaceCapabilitiesFor($workspace))->toHaveCount(0);
 });
 
-test('homeUrl routes all non-staff users to the team hub dashboard', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+test('homeUrl routes all users to the team hub dashboard', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $lead = User::factory()->student()->create();
-    membership($lead, $club, [ClubRole::ClubLead]);
-    expect($lead->homeUrl())->toBe(route('hub.dashboard', absolute: false));
+    membership($lead, $workspace, [WorkspaceRole::WorkspaceLead]);
+    expect($lead->homeUrl())->toBe(route('dashboard', absolute: false));
 
     $student = User::factory()->student()->create();
-    expect($student->homeUrl())->toBe(route('hub.dashboard', absolute: false));
+    expect($student->homeUrl())->toBe(route('dashboard', absolute: false));
 
     $staff = User::factory()->universityStaff()->create();
-    expect($staff->homeUrl())->toBe(route('filament.admin.pages.dashboard', absolute: false));
+    expect($staff->homeUrl())->toBe(route('dashboard', absolute: false));
 });

@@ -1,90 +1,90 @@
 <?php
 
-use App\Enums\ClubCapability;
-use App\Enums\ClubRole;
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\Post;
+use App\Enums\WorkspaceCapability;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectUpdate;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
+use App\Models\WorkspaceMembershipRequest;
 
 /**
  * Create a club managed by a fresh club-lead supervisor and return both.
  *
  * @return array{0: User, 1: Club}
  */
-function managedClub(): array
+function managedWorkspace(): array
 {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    return [$supervisor, $club];
+    return [$supervisor, $workspace];
 }
 
 test('guest is redirected when visiting the club management dashboard', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    $this->get(route('clubs.manage', $club))
+    $this->get(route('workspaces.manage', $workspace))
         ->assertRedirect(route('login'));
 });
 
 test('a student with no role in the club cannot access its management dashboard', function () {
-    [, $club] = managedClub();
+    [, $workspace] = managedWorkspace();
     $student = User::factory()->student()->create();
 
     $this->actingAs($student)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertForbidden();
 });
 
 test('a plain member cannot access the management dashboard', function () {
-    [, $club] = managedClub();
+    [, $workspace] = managedWorkspace();
     $member = User::factory()->student()->create();
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($member)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertForbidden();
 });
 
 test('a manager of one club cannot manage a different club', function () {
-    [$supervisor] = managedClub();
-    $otherClub = Club::factory()->create(['status' => 'active']);
+    [$supervisor] = managedWorkspace();
+    $otherClub = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $otherClub))
+        ->get(route('workspaces.manage', $otherClub))
         ->assertForbidden();
 });
 
 test('university staff may manage any club', function () {
     $staff = User::factory()->universityStaff()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($staff)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
             // Staff bypass grants the full capability set.
-            ->has('capabilities', count(ClubCapability::cases()))
+            ->has('capabilities', count(WorkspaceCapability::cases()))
             ->where('canManageRoles', true)
         );
 });
 
 test('the management dashboard returns a valid inertia page for a club lead', function () {
-    [$supervisor, $club] = managedClub();
+    [$supervisor, $workspace] = managedWorkspace();
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -100,22 +100,22 @@ test('the management dashboard returns a valid inertia page for a club lead', fu
 });
 
 test('management dashboard lists members including managers', function () {
-    [$supervisor, $club] = managedClub();
+    [$supervisor, $workspace] = managedWorkspace();
     $member = User::factory()->student()->create(['name' => 'Member One']);
     $secondMember = User::factory()->student()->create(['name' => 'Member Two']);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $secondMember->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -125,29 +125,29 @@ test('management dashboard lists members including managers', function () {
                 fn ($row) => $row['email'] === $member->email
             ))
             ->where('members', fn ($members) => collect($members)->contains(
-                fn ($row) => $row['email'] === $supervisor->email && in_array('club_lead', $row['roles'], true)
+                fn ($row) => $row['email'] === $supervisor->email && in_array('workspace_lead', $row['roles'], true)
             ))
         );
 });
 
 test('pendingApplicationsCount counts ClubJoinApplication rows not ClubMembership rows', function () {
-    [$supervisor, $club] = managedClub();
+    [$supervisor, $workspace] = managedWorkspace();
 
-    ClubJoinApplication::factory()->pending()->count(2)->create([
-        'club_id' => $club->id,
+    WorkspaceMembershipRequest::factory()->pending()->count(2)->create([
+        'workspace_id' => $workspace->id,
     ]);
 
-    ClubJoinApplication::factory()->approved()->create([
-        'club_id' => $club->id,
+    WorkspaceMembershipRequest::factory()->approved()->create([
+        'workspace_id' => $workspace->id,
     ]);
 
-    ClubMembership::factory()->create([
-        'club_id' => $club->id,
+    WorkspaceMembership::factory()->create([
+        'workspace_id' => $workspace->id,
         'status' => 'pending',
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -156,15 +156,15 @@ test('pendingApplicationsCount counts ClubJoinApplication rows not ClubMembershi
 });
 
 test('dashboard includes workspace projects for the club', function () {
-    [$supervisor, $club] = managedClub();
+    [$supervisor, $workspace] = managedWorkspace();
 
-    $project = Committee::factory()->create([
-        'club_id' => $club->id,
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'name' => 'Demo Project',
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -175,20 +175,20 @@ test('dashboard includes workspace projects for the club', function () {
 });
 
 test('recent activity includes committee posts', function () {
-    [$supervisor, $club] = managedClub();
-    $project = Committee::factory()->create(['club_id' => $club->id]);
+    [$supervisor, $workspace] = managedWorkspace();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
-    $post = Post::factory()->create([
-        'club_id' => $club->id,
-        'committee_id' => $project->id,
+    $post = ProjectUpdate::factory()->create([
+        'workspace_id' => $workspace->id,
+        'project_id' => $project->id,
         'title' => 'Project Update',
         'published_at' => now()->subDay(),
     ]);
 
-    Post::factory()->create(['title' => 'Other Club Post']);
+    ProjectUpdate::factory()->create(['title' => 'Other Club Post']);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -199,16 +199,16 @@ test('recent activity includes committee posts', function () {
 });
 
 test('a membership manager only sees member-management capabilities on the dashboard', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $membershipManager = User::factory()->student()->create();
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $membershipManager->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::MembershipManager]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::MembershipManager]);
 
     $this->actingAs($membershipManager)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')

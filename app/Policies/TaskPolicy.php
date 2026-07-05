@@ -2,53 +2,53 @@
 
 namespace App\Policies;
 
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 
 class TaskPolicy
 {
-    public function viewAny(User $user, ?Committee $committee = null): bool
+    public function viewAny(User $user, ?Project $project = null): bool
     {
-        if ($committee === null) {
-            return $user->isUniversityStaff();
+        if ($project === null) {
+            return $user->isAdmin();
         }
 
-        return $this->isCommitteeMember($user, $committee);
+        return $this->isProjectMember($user, $project);
     }
 
     public function view(User $user, Task $task): bool
     {
-        return $this->isCommitteeMember($user, $task->committee);
+        return $this->isProjectMember($user, $task->project);
     }
 
-    public function create(User $user, ?Committee $committee = null): bool
+    public function create(User $user, ?Project $project = null): bool
     {
-        if ($committee === null) {
-            return $user->isUniversityStaff();
+        if ($project === null) {
+            return $user->isAdmin();
         }
 
-        return $user->canManageCommittee($committee);
+        return $user->canManageProject($project);
     }
 
     public function update(User $user, Task $task): bool
     {
-        return $user->canManageCommittee($task->committee) || $task->isAssignedTo($user);
+        return $user->canManageProject($task->project) || $task->isAssignedTo($user);
     }
 
     public function delete(User $user, Task $task): bool
     {
-        return $user->canManageCommittee($task->committee);
+        return $user->canManageProject($task->project);
     }
 
     public function submitDeliverable(User $user, Task $task): bool
     {
-        return $user->canManageCommittee($task->committee) || $task->isAssignedTo($user);
+        return $user->canManageProject($task->project) || $task->isAssignedTo($user);
     }
 
     public function approveDeliverable(User $user, Task $task): bool
     {
-        return $user->canManageCommittee($task->committee);
+        return $user->canManageProject($task->project);
     }
 
     public function requestChanges(User $user, Task $task): bool
@@ -56,11 +56,11 @@ class TaskPolicy
         return $this->approveDeliverable($user, $task);
     }
 
-    private function isCommitteeMember(User $user, Committee $committee): bool
+    private function isProjectMember(User $user, Project $project): bool
     {
-        return $user->canManageCommittee($committee)
-            || $user->committeeMemberships()
-                ->where('committee_id', $committee->id)
+        return $user->canManageProject($project)
+            || $user->projectMemberships()
+                ->where('project_id', $project->id)
                 ->where('status', 'approved')
                 ->exists();
     }

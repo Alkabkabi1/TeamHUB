@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/svelte';
 import { router } from '@inertiajs/svelte';
+import type { Component } from 'svelte';
 import AppLayout from '@/layouts/AppLayout.svelte';
 import MainLayout from '@/layouts/MainLayout.svelte';
 import SettingsLayout from '@/layouts/settings/Layout.svelte';
@@ -21,6 +22,18 @@ function prefersReducedMotion(): boolean {
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
+    resolve: (name) => {
+        const pages = import.meta.glob<{ default: Component }>(
+            './pages/**/*.svelte',
+        );
+        const page = pages[`./pages/${name}.svelte`];
+
+        if (!page) {
+            throw new Error(`Page not found: ${name}`);
+        }
+
+        return page();
+    },
     defaults: {
         // Animate page-to-page navigations with the View Transitions API.
         // Limited to GET visits (real navigations) and disabled when the user

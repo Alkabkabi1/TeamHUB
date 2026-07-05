@@ -1,18 +1,17 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
-test('club membership stores request review details', function () {
+test('workspace membership stores request review details', function () {
     $student = User::factory()->create();
     $reviewer = User::factory()->create();
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
 
-    $membership = ClubMembership::query()->create([
+    $membership = WorkspaceMembership::query()->create([
         'user_id' => $student->id,
-        'club_id' => $club->id,
-        'role' => 'member',
+        'workspace_id' => $workspace->id,
         'status' => 'rejected',
         'requested_at' => now()->subDay(),
         'reviewed_by' => $reviewer->id,

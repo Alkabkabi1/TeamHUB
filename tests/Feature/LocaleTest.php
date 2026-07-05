@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Club;
 use App\Models\User;
+use App\Models\Workspace;
 
 test('defaults to arabic when no locale cookie is present', function () {
     $this->get(route('home'))
@@ -99,11 +99,11 @@ test('posting locale updates preference for subsequent requests', function () {
 
 test('join success flash uses english when locale is en', function () {
     $user = User::factory()->create(['email' => 'applicant@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
         ->withUnencryptedCookie('locale', 'en')
-        ->post(route('clubs.join.store', $club), validJoinApplicationPayload($user))
-        ->assertRedirect(route('clubs.show', $club))
+        ->post(route('workspaces.join.store', $workspace), validJoinApplicationPayload($user))
+        ->assertRedirect(route('workspaces.show', $workspace))
         ->assertInertiaFlash('toast.message', __('join.submitted', [], 'en'));
 });

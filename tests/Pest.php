@@ -1,11 +1,8 @@
 <?php
 
-use App\Enums\CertificateField;
-use App\Models\CertificatePlaceholder;
-use App\Models\CertificateTemplate;
-use App\Models\Club;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -63,32 +60,15 @@ expect()->extend('toBeOne', function () {
 */
 
 /**
- * Give a club an active default certificate template (with a valid background
- * image and one placeholder) so certificates can be rendered from it.
+ * Create an approved supervisor membership for the given workspace and return the supervisor.
  */
-function giveClubDefaultTemplate(Club $club): CertificateTemplate
-{
-    $template = CertificateTemplate::factory()->default()->withImage()->create([
-        'club_id' => $club->id,
-    ]);
-
-    CertificatePlaceholder::factory()
-        ->binding(CertificateField::RecipientName)
-        ->create(['certificate_template_id' => $template->id]);
-
-    return $template;
-}
-
-/**
- * Create an approved supervisor membership for the given club and return the supervisor.
- */
-function supervisorForClub(Club $club): User
+function supervisorForClub(Workspace $workspace): User
 {
     $supervisor = User::factory()->clubSupervisor()->create();
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     return $supervisor;
@@ -101,10 +81,7 @@ function validJoinApplicationPayload(User $user, array $overrides = []): array
 {
     return array_merge([
         'full_name' => $user->name,
-        'university_email' => $user->email,
         'phone' => '0500000000',
-        'level' => 'المستوى العاشر',
-        'major' => 'هندسة البرمجيات',
         'skills' => 'برمجة وتصميم',
         'weekly_hours' => 4,
         'tools' => 'VS Code, Figma',

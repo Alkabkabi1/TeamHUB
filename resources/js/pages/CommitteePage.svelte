@@ -14,7 +14,7 @@
     import {
         join as committeeJoin,
         manage as committeeManage,
-    } from '@/routes/committees';
+    } from '@/routes/projects';
     import type { ClubRef } from '@/types';
 
     type Committee = {
@@ -115,7 +115,7 @@
 
         <div class="flex items-center justify-between gap-4">
             <Link
-                href={`/clubs/${club.id}/committees`}
+                href={`/workspaces/${club.id}/committees`}
                 class="text-sm text-[#7e7e7e] transition-colors hover:text-brand"
             >
                 {t('committees.back_to_list')}
@@ -153,7 +153,7 @@
         <section class="flex flex-col gap-5">
             <SectionHeader
                 title={t('app.updates')}
-                href={`/clubs/${club.id}/committees/${committee.id}/updates`}
+                href={`/workspaces/${club.id}/projects/${committee.id}/updates`}
             />
             {#if recentUpdates.length === 0}
                 <EmptyState message={t('club.no_news')} />
@@ -210,7 +210,7 @@
                         {t('committees.join_requires_club')}
                     </p>
                     <Link
-                        href={`/clubs/${club.id}/join`}
+                        href={`/workspaces/${club.id}/join`}
                         class="cursor-pointer rounded-[50px] bg-brand px-8 py-3 text-sm text-white transition-colors hover:bg-brand-dark"
                     >
                         {t('clubs.join')}

@@ -3,7 +3,7 @@
     import ManageShell from '@/components/ManageShell.svelte';
     import { t } from '@/lib/i18n.svelte';
 
-    type ManagedClub = { id: number; name: string };
+    type ManagedWorkspace = { id: number; name: string };
     type ClubRef = { id: number; name: string };
 
     let {
@@ -14,33 +14,33 @@
         active?: 'overview' | 'members' | 'settings';
     } = $props();
 
-    const managedClubs = $derived(
-        (page.props.auth?.user?.managed_clubs ?? []) as ManagedClub[],
+    const managedWorkspaces = $derived(
+        (page.props.auth?.user?.managed_workspaces ?? []) as ManagedWorkspace[],
     );
 
     const tabs = $derived([
         {
             id: 'overview',
             label: t('app.overview'),
-            href: `/clubs/${club.id}/manage`,
+            href: `/workspaces/${club.id}/manage`,
         },
         {
             id: 'members',
             label: t('app.manage_members'),
-            href: `/clubs/${club.id}/manage/members`,
+            href: `/workspaces/${club.id}/manage/members`,
         },
         {
             id: 'settings',
             label: t('app.manage_settings'),
-            href: `/clubs/${club.id}/theme/edit`,
+            href: `/workspaces/${club.id}/theme/edit`,
         },
     ]);
 
     const switcherItems = $derived(
-        managedClubs.map((item) => ({
+        managedWorkspaces.map((item) => ({
             id: item.id,
             name: item.name,
-            href: `/clubs/${item.id}/manage`,
+            href: `/workspaces/${item.id}/manage`,
         })),
     );
 </script>

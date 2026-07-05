@@ -2,22 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Certificate;
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\Event;
-use App\Models\EventAttendance;
-use App\Models\Post;
+use App\Models\ProjectUpdate;
 use App\Models\User;
-use App\Notifications\CertificateIssuedNotification;
-use App\Notifications\EventCancelledNotification;
-use App\Notifications\EventReminderNotification;
-use App\Notifications\EventUpdatedNotification;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembershipRequest;
 use App\Notifications\JoinApplicationReceivedNotification;
 use App\Notifications\MembershipApprovedNotification;
 use App\Notifications\MembershipRejectedNotification;
 use App\Notifications\NewPostNotification;
-use App\Notifications\RsvpConfirmationNotification;
 use Illuminate\Console\Command;
 
 class SendTestMails extends Command
@@ -38,30 +30,20 @@ class SendTestMails extends Command
         $recipient = new User;
         $recipient->name = 'Test Student';
         $recipient->email = $email;
-        // Drive the locale through the recipient's preference, since that is what
-        // the notifications actually honour (HasLocalePreference) when sending.
         $recipient->locale = $locale;
 
-        $club = $this->demoClub();
-        $event = $this->demoEvent();
-        $post = $this->demoPost($club);
-        $certificate = $this->demoCertificate($event, $club);
-        $application = $this->demoApplication($club);
+        $workspace = $this->demoWorkspace();
+        $post = $this->demoUpdate($workspace);
+        $application = $this->demoApplication($workspace);
 
         $emails = [
-            'Event reminder' => new EventReminderNotification($event),
-            'RSVP confirmation' => new RsvpConfirmationNotification($event),
-            'Event cancelled' => new EventCancelledNotification($event),
-            'Event updated' => new EventUpdatedNotification($event),
             'New post' => new NewPostNotification($post),
             'Join application received' => new JoinApplicationReceivedNotification($application),
-            'Membership approved' => new MembershipApprovedNotification($club),
-            'Membership rejected' => new MembershipRejectedNotification($club),
-            'Certificate issued' => new CertificateIssuedNotification($certificate),
+            'Membership approved' => new MembershipApprovedNotification($workspace),
+            'Membership rejected' => new MembershipRejectedNotification($workspace),
         ];
 
         foreach ($emails as $label => $notification) {
-            // notifyNow bypasses the queue so every message lands in Mailpit immediately.
             $recipient->notifyNow($notification);
             $this->line("  <info>✓</info> {$label}");
         }
@@ -72,84 +54,46 @@ class SendTestMails extends Command
         return self::SUCCESS;
     }
 
-    private function demoClub(): Club
+    private function demoWorkspace(): Workspace
     {
-        $club = Club::query()->first();
+        $workspace = Workspace::query()->first();
 
-        if (! $club) {
-            $club = new Club;
-            $club->id = 0;
-            $club->name = 'Demo Club';
-            $club->theme = '#006471';
+        if (! $workspace) {
+            $workspace = new Workspace;
+            $workspace->id = 0;
+            $workspace->name = 'Demo Workspace';
+            $workspace->theme = '#c8924a';
         }
 
-        return $club;
+        return $workspace;
     }
 
-    private function demoEvent(): Event
+    private function demoUpdate(Workspace $workspace): ProjectUpdate
     {
-        $event = Event::query()->first();
-
-        if (! $event) {
-            $event = new Event;
-            $event->id = 0;
-            $event->title = 'Demo Volunteer Day';
-            $event->starts_at = now()->addDay();
-            $event->location = 'Main Auditorium';
-        }
-
-        return $event;
-    }
-
-    private function demoPost(Club $club): Post
-    {
-        $post = Post::with('club')->first();
+        $post = ProjectUpdate::with('workspace')->first();
 
         if (! $post) {
-            $post = new Post;
+            $post = new ProjectUpdate;
             $post->id = 0;
             $post->title = 'Demo Announcement';
-            $post->setRelation('club', $club);
+            $post->setRelation('workspace', $workspace);
         }
 
         return $post;
     }
 
-    private function demoCertificate(Event $event, Club $club): Certificate
+    private function demoApplication(Workspace $workspace): WorkspaceMembershipRequest
     {
-        $certificate = Certificate::with('attendance.event.club')->first();
+        $application = WorkspaceMembershipRequest::with('workspace')->first();
 
-        if ($certificate && $certificate->attendance?->event?->club) {
-            return $certificate;
-        }
-
-        $event->setRelation('club', $club);
-
-        $attendance = new EventAttendance;
-        $attendance->id = 0;
-        $attendance->setRelation('event', $event);
-
-        $certificate = new Certificate;
-        $certificate->id = 0;
-        $certificate->certificate_no = 'CERT-DEMO0001';
-        $certificate->file_path = 'certificates/demo.pdf';
-        $certificate->setRelation('attendance', $attendance);
-
-        return $certificate;
-    }
-
-    private function demoApplication(Club $club): ClubJoinApplication
-    {
-        $application = ClubJoinApplication::with('club')->first();
-
-        if ($application && $application->club) {
+        if ($application && $application->workspace) {
             return $application;
         }
 
-        $application = new ClubJoinApplication;
+        $application = new WorkspaceMembershipRequest;
         $application->id = 0;
         $application->full_name = 'Test Applicant';
-        $application->setRelation('club', $club);
+        $application->setRelation('workspace', $workspace);
 
         return $application;
     }

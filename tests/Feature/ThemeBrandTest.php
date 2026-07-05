@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Club;
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
+use App\Models\Workspace;
 
 test('the app renders in light mode by default', function () {
     $this->get('/')
@@ -28,12 +28,12 @@ test('shared theme prop exposes the university default brand color', function ()
 });
 
 test('club page overrides the brand color with the club theme', function () {
-    $club = Club::factory()->create([
+    $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => '#123456',
     ]);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
@@ -42,12 +42,12 @@ test('club page overrides the brand color with the club theme', function () {
 });
 
 test('club page falls back to the default brand when the club has no theme', function () {
-    $club = Club::factory()->create([
+    $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => null,
     ]);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('theme.brand', config('theme.brand'))
@@ -55,21 +55,21 @@ test('club page falls back to the default brand when the club has no theme', fun
 });
 
 test('task pages inherit the project brand theme when present', function () {
-    $club = Club::factory()->create([
+    $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => '#123456',
     ]);
-    $committee = Committee::factory()->create([
-        'club_id' => $club->id,
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'theme' => '#654321',
     ]);
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $supervisor = supervisorForClub($club);
+    $supervisor = supervisorForClub($workspace);
 
     $this->actingAs($supervisor)
-        ->get(route('committees.tasks.show', [$club, $committee, $task]))
+        ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Show')
@@ -80,21 +80,21 @@ test('task pages inherit the project brand theme when present', function () {
 });
 
 test('task pages fall back to the workspace brand when the project has no theme', function () {
-    $club = Club::factory()->create([
+    $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => '#123456',
     ]);
-    $committee = Committee::factory()->create([
-        'club_id' => $club->id,
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'theme' => null,
     ]);
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $supervisor = supervisorForClub($club);
+    $supervisor = supervisorForClub($workspace);
 
     $this->actingAs($supervisor)
-        ->get(route('committees.tasks.index', [$club, $committee]))
+        ->get(route('projects.tasks.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Index')

@@ -1,59 +1,59 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\ClubResource;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectFile;
+use App\Models\ProjectMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 function projectFilesLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function projectFilesMember(Club $club, Committee $committee): User
+function projectFilesMember(Workspace $workspace, Project $project): User
 {
     $member = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $member->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles([CommitteeRole::Member]);
+    $membership->syncProjectRoles([ProjectRole::Member]);
 
     return $member;
 }
 
 test('approved project members can view the project files page', function () {
-    [$lead, $club, $committee] = projectFilesLeadAndCommittee();
-    $member = projectFilesMember($club, $committee);
+    [$lead, $workspace, $project] = projectFilesLeadAndCommittee();
+    $member = projectFilesMember($workspace, $project);
 
-    ClubResource::factory()->forCommittee($committee)->create([
+    ProjectFile::factory()->forProject($project)->create([
         'title' => 'Design brief',
     ]);
 
     $this->actingAs($member)
-        ->get(route('committees.files.index', [$club, $committee]))
+        ->get(route('projects.files.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/Files')
@@ -65,26 +65,26 @@ test('approved project members can view the project files page', function () {
 test('project leads can upload and delete project files', function () {
     Storage::fake('public');
 
-    [$lead, $club, $committee] = projectFilesLeadAndCommittee();
+    [$lead, $workspace, $project] = projectFilesLeadAndCommittee();
 
     $this->actingAs($lead)
-        ->post(route('committees.files.store', [$club, $committee]), [
+        ->post(route('projects.files.store', [$workspace, $project]), [
             'title' => 'Sprint assets',
             'description' => 'Shared image pack',
-            'type' => ClubResource::TYPE_MEDIA,
+            'type' => ProjectFile::TYPE_MEDIA,
             'access' => 'عام',
             'file' => UploadedFile::fake()->image('assets.png'),
         ])
         ->assertRedirect();
 
-    $resource = ClubResource::query()->where('committee_id', $committee->id)->firstOrFail();
+    $resource = ProjectFile::query()->where('project_id', $project->id)->firstOrFail();
 
     expect($resource->title)->toBe('Sprint assets');
     Storage::disk('public')->assertExists($resource->file_path);
 
     $this->actingAs($lead)
-        ->delete(route('committees.files.destroy', [$club, $committee, $resource]))
+        ->delete(route('projects.files.destroy', [$workspace, $project, $resource]))
         ->assertRedirect();
 
-    $this->assertDatabaseMissing('club_resources', ['id' => $resource->id]);
+    $this->assertDatabaseMissing('project_files', ['id' => $resource->id]);
 });

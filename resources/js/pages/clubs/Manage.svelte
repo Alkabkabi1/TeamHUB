@@ -7,7 +7,7 @@
     } from '@hugeicons/core-free-icons';
     import type { IconSvgElement } from '@hugeicons/svelte';
     import { Link, page } from '@inertiajs/svelte';
-    import { members as reportMembers } from '@/actions/App/Http/Controllers/ClubReportController';
+    import { members as reportMembers } from '@/actions/App/Http/Controllers/WorkspaceReportController';
     import AppHead from '@/components/AppHead.svelte';
     import ManageMembersSection from '@/components/clubs/manage/ManageMembersSection.svelte';
     import ClubThemeForm from '@/components/ClubThemeForm.svelte';
@@ -289,7 +289,7 @@
                         </p>
                     </div>
                     <Link
-                        href={`/clubs/${club.id}/committees`}
+                        href={`/workspaces/${club.id}/committees`}
                         class="rounded-full bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/20"
                     >
                         {t('app.show_more')}
@@ -304,7 +304,7 @@
                     <div class="grid gap-3 md:grid-cols-2">
                         {#each workspaceProjects as project (project.id)}
                             <Link
-                                href={`/clubs/${club.id}/committees/${project.id}/manage`}
+                                href={`/workspaces/${club.id}/projects/${project.id}/manage`}
                                 class="rounded-[16px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
                             >
                                 <div class="space-y-2">

@@ -4,7 +4,7 @@ import { page, router } from '@inertiajs/svelte';
  * Fallback brand color, kept in sync with config/theme.php and app.css. Only
  * used if the shared `theme` prop is ever missing.
  */
-const DEFAULT_BRAND = '#006471';
+const DEFAULT_BRAND = '#c8924a';
 
 /**
  * Apply a brand color by overriding the `--brand` custom property on the root

@@ -1,28 +1,26 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\Post;
+use App\Models\Project;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 test('club show page returns club data from database', function () {
-    $club = Club::factory()->create([
-        'name' => 'نادي الحاسبات',
+    $workspace = Workspace::factory()->create([
+        'name' => 'مساحة الحاسبات',
         'status' => 'active',
-        'category' => 'تقني',
     ]);
 
-    $committee = Committee::factory()->for($club)->create();
-    Task::factory()->count(2)->for($committee)->create(['status' => 'todo']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    Task::factory()->count(2)->create(['project_id' => $project->id, 'status' => 'todo']);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
-            ->where('club.name', 'نادي الحاسبات')
-            ->where('club.category', 'تقني')
+            ->where('club.name', 'مساحة الحاسبات')
             ->where('stats.members_count', 0)
             ->where('stats.projects_count', 1)
             ->where('stats.open_tasks_count', 2)
@@ -30,17 +28,15 @@ test('club show page returns club data from database', function () {
 });
 
 test('club show page includes member count', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $member = User::factory()->create();
 
-    ClubMembership::create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
-        'role' => 'member',
-        'joined_at' => now(),
+        'workspace_id' => $workspace->id,
     ]);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('stats.members_count', 1)
@@ -48,19 +44,19 @@ test('club show page includes member count', function () {
 });
 
 test('club show page lists committee project updates', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->for($club)->create();
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
-    Post::factory()->create([
-        'club_id' => $club->id,
-        'committee_id' => $committee->id,
+    ProjectUpdate::factory()->create([
+        'workspace_id' => $workspace->id,
+        'project_id' => $project->id,
         'title' => 'Project Update',
         'published_at' => now(),
     ]);
 
-    Post::factory()->create(['title' => 'Other Club Post']);
+    ProjectUpdate::factory()->create(['title' => 'Other Club Post']);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
@@ -70,9 +66,9 @@ test('club show page lists committee project updates', function () {
 });
 
 test('club show page recent updates is empty when club has no project posts', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')

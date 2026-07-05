@@ -33,4 +33,10 @@ return [
         'action' => 'فتح المهمة',
         'mail_subject' => 'تم طلب تعديلات على :task',
     ],
+    'admin_message' => [
+        'title' => 'رسالة من المسؤول',
+        'body' => 'يقول :sender: :message',
+        'action' => 'فتح لوحة التحكم',
+        'mail_subject' => 'رسالة من :sender',
+    ],
 ];

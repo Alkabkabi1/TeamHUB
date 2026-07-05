@@ -2,12 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Club;
-use App\Models\Committee;
+use App\Models\Project;
+use App\Models\Workspace;
+use App\Support\AppNav;
+use App\Support\DashboardData;
 use App\Support\DemoAccounts;
 use App\Support\LoadsTranslations;
-use App\Support\TeamHub\TeamHubData;
-use App\Support\TeamHub\TeamHubNav;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -61,73 +61,75 @@ class HandleInertiaRequests extends Middleware
 
                         // University staff can manage every club and committee;
                         // everyone else gets only the ones they hold a role in.
-                        if ($user->isUniversityStaff()) {
-                            $managedClubs = Club::all()
-                                ->map(fn ($club) => [
-                                    'id' => $club->id,
-                                    'name' => $club->name,
-                                    'logo_url' => $club->logo_url,
+                        if ($user->isAdmin()) {
+                            $managedWorkspaces = Workspace::all()
+                                ->map(fn ($workspace) => [
+                                    'id' => $workspace->id,
+                                    'name' => $workspace->name,
+                                    'logo_url' => $workspace->logo_url,
                                 ])
                                 ->values();
 
-                            $managedCommittees = Committee::all()
-                                ->map(fn ($committee) => [
-                                    'id' => $committee->id,
-                                    'name' => $committee->name,
-                                    'club_id' => $committee->club_id,
+                            $managedProjects = Project::all()
+                                ->map(fn ($project) => [
+                                    'id' => $project->id,
+                                    'name' => $project->name,
+                                    'workspace_id' => $project->workspace_id,
                                 ])
                                 ->values();
                         } else {
-                            $managedClubs = $user->managedClubs()
-                                ->map(fn ($club) => [
-                                    'id' => $club->id,
-                                    'name' => $club->name,
-                                    'logo_url' => $club->logo_url,
+                            $managedWorkspaces = $user->managedWorkspaces()
+                                ->map(fn ($workspace) => [
+                                    'id' => $workspace->id,
+                                    'name' => $workspace->name,
+                                    'logo_url' => $workspace->logo_url,
                                 ])
                                 ->values();
 
                             // Club leaders inherit management of every committee
                             // in their club, so merge those in with any committees
                             // the user leads directly via a committee role.
-                            $clubIds = $managedClubs->pluck('id');
-                            $inheritedCommittees = $clubIds->isNotEmpty()
-                                ? Committee::whereIn('club_id', $clubIds)->get()
+                            $workspaceIds = $managedWorkspaces->pluck('id');
+                            $inheritedProjects = $workspaceIds->isNotEmpty()
+                                ? Project::whereIn('workspace_id', $workspaceIds)->get()
                                 : collect();
 
-                            $managedCommittees = $user->managedCommittees()
-                                ->merge($inheritedCommittees)
+                            $managedProjects = $user->managedProjects()
+                                ->merge($inheritedProjects)
                                 ->unique('id')
-                                ->map(fn ($committee) => [
-                                    'id' => $committee->id,
-                                    'name' => $committee->name,
-                                    'club_id' => $committee->club_id,
+                                ->map(fn ($project) => [
+                                    'id' => $project->id,
+                                    'name' => $project->name,
+                                    'workspace_id' => $project->workspace_id,
                                 ])
                                 ->values();
                         }
+
+                        $unreadCount = once(fn (): int => $user->unreadNotifications()->count());
 
                         return [
                             'id' => $user->id,
                             'name' => $user->name,
                             'email' => $user->email,
                             'role' => $user->role->value,
-                            'unread_notifications_count' => $user->unreadNotifications()->count(),
-                            'managed_clubs' => $managedClubs,
-                            'is_club_supervisor' => $managedClubs->isNotEmpty(),
-                            'managed_committees' => $managedCommittees,
-                            'is_committee_leader' => $managedCommittees->isNotEmpty(),
+                            'unread_notifications_count' => $unreadCount,
+                            'managed_workspaces' => $managedWorkspaces,
+                            'is_workspace_lead' => $managedWorkspaces->isNotEmpty(),
+                            'managed_projects' => $managedProjects,
+                            'is_project_lead' => $managedProjects->isNotEmpty(),
                         ];
                     })()
                     : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'hub' => $request->user()
+            'app' => $request->user()
                 ? (function () use ($request) {
                     $user = $request->user();
-                    $hub = app(TeamHubData::class);
+                    $dashboardData = app(DashboardData::class);
 
                     return [
-                        'nav' => TeamHubNav::items($user),
-                        'workspaces' => $hub->workspaces($user),
+                        'nav' => AppNav::items($user),
+                        'workspaces' => $dashboardData->workspaces($user),
                     ];
                 })()
                 : null,

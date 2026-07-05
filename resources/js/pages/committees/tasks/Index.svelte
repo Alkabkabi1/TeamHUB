@@ -74,7 +74,7 @@
     function submit(event: SubmitEvent): void {
         event.preventDefault();
 
-        form.post(`/clubs/${club.id}/committees/${committee.id}/tasks`, {
+        form.post(`/workspaces/${club.id}/projects/${committee.id}/tasks`, {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
@@ -85,7 +85,7 @@
     }
 
     function detailUrl(taskId: number): string {
-        return `/clubs/${club.id}/committees/${committee.id}/tasks/${taskId}`;
+        return `/workspaces/${club.id}/projects/${committee.id}/tasks/${taskId}`;
     }
 
     $effect(() => {

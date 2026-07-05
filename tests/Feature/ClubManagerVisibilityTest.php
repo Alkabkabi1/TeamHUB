@@ -1,36 +1,36 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use App\Notifications\NewPostNotification;
-use App\Services\ClubSupervisorReportService;
+use App\Services\WorkspaceMemberReportService;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 test('a manager is excluded from the members report', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
 
     // A regular member.
     $member = User::factory()->create();
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     // A manager promoted via the role pivot.
     $manager = User::factory()->create();
-    $managerMembership = ClubMembership::factory()->approved()->create([
+    $managerMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $manager->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $managerMembership->assignClubRole(ClubRole::ClubLead);
+    $managerMembership->assignWorkspaceRole(WorkspaceRole::WorkspaceLead);
 
-    $members = app(ClubSupervisorReportService::class)->membersForClub($club);
+    $members = app(WorkspaceMemberReportService::class)->membersForWorkspace($workspace);
     $emails = collect($members)->pluck('email');
 
     expect($emails)->toContain($member->email)
@@ -40,30 +40,30 @@ test('a manager is excluded from the members report', function () {
 test('committee managers are not notified of new project updates', function () {
     Notification::fake();
 
-    $club = Club::factory()->create();
-    $committee = Committee::factory()->for($club)->create();
+    $workspace = Workspace::factory()->create();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $lead = User::factory()->create();
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $member = User::factory()->create();
-    CommitteeMembership::factory()->create([
+    ProjectMembership::factory()->create([
         'user_id' => $member->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
 
     $manager = User::factory()->create();
-    $managerMembership = CommitteeMembership::factory()->create([
+    $managerMembership = ProjectMembership::factory()->create([
         'user_id' => $manager->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $managerMembership->assignCommitteeRole(CommitteeRole::ContentManager);
+    $managerMembership->syncProjectRoles([ProjectRole::ContentManager]);
 
     $this->actingAs($lead)
-        ->post(route('committees.news.store', [$club, $committee]), [
+        ->post(route('projects.updates.store', [$workspace, $project]), [
             'title' => 'مرحبا',
             'body' => 'نص التحديث هنا للمشروع',
         ])
@@ -78,13 +78,13 @@ test('managedClub returns a fully hydrated club for theme and logo', function ()
     Storage::fake('public');
 
     $supervisor = User::factory()->create();
-    $club = Club::factory()->withTheme('#123456')->withLogo()->create();
-    ClubMembership::factory()->supervisor()->approved()->create([
+    $workspace = Workspace::factory()->withTheme('#123456')->withLogo()->create();
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $managed = $supervisor->managedClub();
+    $managed = $supervisor->managedWorkspace();
 
     expect($managed)->not->toBeNull()
         ->and($managed->theme)->toBe('#123456')

@@ -11,14 +11,14 @@
     import { currentUrlState } from '@/lib/currentUrl.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
-    import { manage } from '@/routes/committees';
-    import type { ManagedCommittee } from '@/types';
+    import { manage } from '@/routes/projects';
+    import type { ManagedProject } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
     type Direction = 'rtl' | 'ltr';
 
-    const managedCommittees = $derived(
-        (page.props.auth?.user?.managed_committees ?? []) as ManagedCommittee[],
+    const managedProjects = $derived(
+        (page.props.auth?.user?.managed_projects ?? []) as ManagedProject[],
     );
     const direction = $derived(
         (page.props.direction as Direction | undefined) ?? 'rtl',
@@ -26,9 +26,12 @@
     const url = currentUrlState();
 
     const isActive = $derived(
-        managedCommittees.some((committee) =>
+        managedProjects.some((project) =>
             url.isCurrentUrl(
-                manage({ club: committee.club_id, committee: committee.id }),
+                manage({
+                    workspace: project.workspace_id,
+                    project: project.id,
+                }),
                 url.currentUrl,
             ),
         ),
@@ -48,12 +51,12 @@
     );
 </script>
 
-{#if managedCommittees.length === 1}
+{#if managedProjects.length === 1}
     <Link
         href={toUrl(
             manage({
-                club: managedCommittees[0].club_id,
-                committee: managedCommittees[0].id,
+                workspace: managedProjects[0].workspace_id,
+                project: managedProjects[0].id,
             }),
         )}
         onclick={onNavigate}
@@ -66,7 +69,7 @@
             class={iconClass}
         />
     </Link>
-{:else if managedCommittees.length > 1}
+{:else if managedProjects.length > 1}
     <DropdownMenu>
         <DropdownMenuTrigger class={linkClass}>
             <span class={labelClass}>{t('nav.committee_leader_dashboard')}</span
@@ -78,14 +81,14 @@
             />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" dir={direction} class="min-w-52">
-            {#each managedCommittees as committee (committee.id)}
+            {#each managedProjects as project (project.id)}
                 <DropdownMenuItem>
                     {#snippet child({ props })}
                         <Link
                             href={toUrl(
                                 manage({
-                                    club: committee.club_id,
-                                    committee: committee.id,
+                                    workspace: project.workspace_id,
+                                    project: project.id,
                                 }),
                             )}
                             onclick={onNavigate}
@@ -93,7 +96,7 @@
                             class="w-full text-start"
                             {...props}
                         >
-                            {committee.name}
+                            {project.name}
                         </Link>
                     {/snippet}
                 </DropdownMenuItem>

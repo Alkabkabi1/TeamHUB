@@ -1,37 +1,37 @@
 <?php
 
-use App\Enums\ClubCapability;
-use App\Enums\ClubRole;
+use App\Enums\WorkspaceCapability;
+use App\Enums\WorkspaceRole;
 
 test('club lead holds every capability', function () {
-    expect(ClubRole::ClubLead->capabilities())->toBe(ClubCapability::all());
+    expect(WorkspaceRole::WorkspaceLead->capabilities())->toBe(WorkspaceCapability::all());
 });
 
 test('membership manager owns member management and reporting', function () {
-    $capabilities = ClubRole::MembershipManager->capabilities();
+    $capabilities = WorkspaceRole::MembershipManager->capabilities();
 
     expect($capabilities)
-        ->toContain(ClubCapability::ManageMembers)
-        ->toContain(ClubCapability::ViewReports)
-        ->not->toContain(ClubCapability::ManageClub);
+        ->toContain(WorkspaceCapability::ManageMembers)
+        ->toContain(WorkspaceCapability::ViewReports)
+        ->not->toContain(WorkspaceCapability::ManageWorkspace);
 });
 
 test('member carries no management capability', function () {
-    expect(ClubRole::Member->capabilities())->toBe([])
-        ->and(ClubRole::Member->isManager())->toBeFalse();
+    expect(WorkspaceRole::Member->capabilities())->toBe([])
+        ->and(WorkspaceRole::Member->isManager())->toBeFalse();
 });
 
 test('manager role values exclude the plain member role', function () {
-    expect(ClubRole::managerRoleValues())
-        ->not->toContain(ClubRole::Member->value)
-        ->toContain(ClubRole::ClubLead->value)
-        ->toContain(ClubRole::MembershipManager->value);
+    expect(WorkspaceRole::managerRoleValues())
+        ->not->toContain(WorkspaceRole::Member->value)
+        ->toContain(WorkspaceRole::WorkspaceLead->value)
+        ->toContain(WorkspaceRole::MembershipManager->value);
 });
 
 test('legacy roles map to named club roles', function () {
-    expect(ClubRole::fromLegacy('supervisor'))->toBe(ClubRole::ClubLead)
-        ->and(ClubRole::fromLegacy('club_supervisor'))->toBe(ClubRole::ClubLead)
-        ->and(ClubRole::fromLegacy('organizer'))->toBe(ClubRole::ClubLead)
-        ->and(ClubRole::fromLegacy('member'))->toBe(ClubRole::Member)
-        ->and(ClubRole::fromLegacy(null))->toBe(ClubRole::Member);
+    expect(WorkspaceRole::fromLegacy('supervisor'))->toBe(WorkspaceRole::WorkspaceLead)
+        ->and(WorkspaceRole::fromLegacy('club_supervisor'))->toBe(WorkspaceRole::WorkspaceLead)
+        ->and(WorkspaceRole::fromLegacy('organizer'))->toBe(WorkspaceRole::WorkspaceLead)
+        ->and(WorkspaceRole::fromLegacy('member'))->toBe(WorkspaceRole::Member)
+        ->and(WorkspaceRole::fromLegacy(null))->toBe(WorkspaceRole::Member);
 });

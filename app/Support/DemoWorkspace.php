@@ -2,23 +2,21 @@
 
 namespace App\Support;
 
-use App\Models\Club;
+use App\Models\Workspace;
 
 class DemoWorkspace
 {
     public const DEFAULT_NAME = 'TeamHUB Demo';
 
-    public static function defaultClub(): Club
+    public static function defaultWorkspace(): Workspace
     {
-        return Club::query()
+        return Workspace::query()
             ->where('status', 'active')
             ->orderBy('name')
             ->first()
-            ?? Club::query()->firstOrCreate(
+            ?? Workspace::query()->firstOrCreate(
                 ['name' => self::DEFAULT_NAME],
                 [
-                    'category' => 'تقني',
-                    'college' => 'كلية الحاسبات والمعلومات',
                     'status' => 'active',
                     'theme' => config('theme.brand'),
                 ],
@@ -30,15 +28,15 @@ class DemoWorkspace
      */
     public static function options(): array
     {
-        $club = self::defaultClub();
+        $workspace = self::defaultWorkspace();
 
-        return Club::query()
+        return Workspace::query()
             ->where('status', 'active')
             ->orderBy('name')
             ->get(['id', 'name'])
-            ->whenEmpty(fn () => collect([$club]))
+            ->whenEmpty(fn () => collect([$workspace]))
             ->unique('id')
-            ->map(fn (Club $item) => ['id' => $item->id, 'name' => $item->name])
+            ->map(fn (Workspace $item) => ['id' => $item->id, 'name' => $item->name])
             ->values()
             ->all();
     }

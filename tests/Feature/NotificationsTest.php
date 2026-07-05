@@ -1,43 +1,43 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Support\Facades\Mail;
 
 function notificationLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function notificationMember(Club $club, Committee $committee): User
+function notificationMember(Workspace $workspace, Project $project): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles([CommitteeRole::Member]);
+    $membership->syncProjectRoles([ProjectRole::Member]);
 
     return $user;
 }
@@ -45,11 +45,11 @@ function notificationMember(Club $club, Committee $committee): User
 test('members can view unread task notifications and mark them as read', function () {
     Mail::fake();
 
-    [$lead, $club, $committee] = notificationLeadAndCommittee();
-    $member = notificationMember($club, $committee);
+    [$lead, $workspace, $project] = notificationLeadAndCommittee();
+    $member = notificationMember($workspace, $project);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Ship the notification center',
             'assigned_to' => $member->id,
             'priority' => 'high',
@@ -79,11 +79,11 @@ test('members can view unread task notifications and mark them as read', functio
 test('members can mark all notifications as read', function () {
     Mail::fake();
 
-    [$lead, $club, $committee] = notificationLeadAndCommittee();
-    $member = notificationMember($club, $committee);
+    [$lead, $workspace, $project] = notificationLeadAndCommittee();
+    $member = notificationMember($workspace, $project);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'First unread task',
             'assigned_to' => $member->id,
             'priority' => 'medium',
@@ -92,7 +92,7 @@ test('members can mark all notifications as read', function () {
         ->assertRedirect();
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Second unread task',
             'assigned_to' => $member->id,
             'priority' => 'medium',

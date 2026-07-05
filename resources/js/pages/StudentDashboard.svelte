@@ -47,8 +47,8 @@
     type ProjectSummary = {
         id: number;
         name: string;
-        clubId: number;
-        clubName: string;
+        workspaceId: number;
+        workspaceName: string;
         joinedAt: string | null;
     };
 
@@ -60,18 +60,18 @@
         priority: 'low' | 'medium' | 'high' | 'urgent';
         priorityLabel: string;
         dueAt: string | null;
-        clubId: number;
-        clubName: string;
-        committeeId: number;
-        committeeName: string;
+        workspaceId: number;
+        workspaceName: string;
+        projectId: number;
+        projectName: string;
         detailUrl: string;
     };
 
     type UpdateItem = {
         id: number;
         title: string;
-        committeeName: string;
-        clubName: string;
+        projectName: string;
+        workspaceName: string;
         publishedAt: string | null;
         url: string;
     };
@@ -240,7 +240,7 @@
                                             {task.title}
                                         </p>
                                         <p class="text-xs text-[#7e7e7e]">
-                                            {task.clubName} / {task.committeeName}
+                                            {task.workspaceName} / {task.projectName}
                                         </p>
                                         <div
                                             class="flex flex-wrap items-center gap-2"
@@ -288,7 +288,7 @@
                                             {task.title}
                                         </p>
                                         <p class="text-xs text-[#7e7e7e]">
-                                            {task.clubName} / {task.committeeName}
+                                            {task.workspaceName} / {task.projectName}
                                         </p>
                                         <div
                                             class="flex flex-wrap items-center gap-2"
@@ -334,7 +334,7 @@
                                     {update.title}
                                 </p>
                                 <p class="mt-1 text-xs text-[#7e7e7e]">
-                                    {update.clubName} / {update.committeeName}
+                                    {update.workspaceName} / {update.projectName}
                                 </p>
                                 {#if update.publishedAt}
                                     <p class="mt-1 text-xs text-[#9a9a9a]">
@@ -363,7 +363,7 @@
                     <div class="space-y-3">
                         {#each workspaces as workspace (workspace.id)}
                             <Link
-                                href={`/clubs/${workspace.id}`}
+                                href={`/workspaces/${workspace.id}`}
                                 class="block rounded-[14px] border border-black/10 p-4 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
                             >
                                 <p class="text-sm font-medium text-black">
@@ -400,14 +400,14 @@
                 >
                     {#each projects as project (project.id)}
                         <Link
-                            href={`/clubs/${project.clubId}/committees/${project.id}/manage`}
+                            href={`/workspaces/${project.workspaceId}/projects/${project.id}/manage`}
                             class="rounded-[20px] bg-white p-5 text-start shadow-[8px_8px_48px_rgba(0,0,0,0.06)] transition-colors hover:bg-brand/5"
                         >
                             <p class="text-sm font-medium text-black">
                                 {project.name}
                             </p>
                             <p class="mt-1 text-xs text-[#7e7e7e]">
-                                {project.clubName}
+                                {project.workspaceName}
                             </p>
                             {#if project.joinedAt}
                                 <p class="mt-2 text-xs text-[#9a9a9a]">

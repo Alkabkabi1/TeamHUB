@@ -1,54 +1,54 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
-use App\Models\Post;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function projectOverviewLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    $committeeMembership = CommitteeMembership::factory()->create([
+    $projectMembership = ProjectMembership::factory()->create([
         'user_id' => $lead->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $committeeMembership->syncCommitteeRoles([CommitteeRole::CommitteeLead, CommitteeRole::Member]);
+    $projectMembership->syncProjectRoles([ProjectRole::ProjectLead, ProjectRole::Member]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
 test('project overview exposes task stats and recent updates props', function () {
-    [$lead, $club, $committee] = projectOverviewLeadAndCommittee();
+    [$lead, $workspace, $project] = projectOverviewLeadAndCommittee();
 
     $todoTask = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'status' => 'todo',
     ]);
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'status' => 'review',
         'due_at' => now()->subDay(),
     ]);
 
-    Post::factory()->create([
-        'club_id' => $club->id,
-        'committee_id' => $committee->id,
+    ProjectUpdate::factory()->create([
+        'workspace_id' => $workspace->id,
+        'project_id' => $project->id,
         'user_id' => $lead->id,
         'title' => 'First sprint update',
         'published_at' => now(),
@@ -57,7 +57,7 @@ test('project overview exposes task stats and recent updates props', function ()
     $todoTask->recordCreated($lead);
 
     $this->actingAs($lead)
-        ->get(route('committees.manage', [$club, $committee]))
+        ->get(route('projects.manage', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/Manage')

@@ -1,54 +1,54 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Support\Facades\Mail;
 
 function readinessLeadAndProject(): array
 {
-    $club = Club::factory()->create(['status' => 'active', 'name' => 'Validation Workspace']);
-    $committee = Committee::factory()->create([
-        'club_id' => $club->id,
+    $workspace = Workspace::factory()->create(['status' => 'active', 'name' => 'Validation Workspace']);
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'name' => 'Validation Project',
     ]);
     $lead = User::factory()->student()->create(['name' => 'Project Lead']);
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    $committeeMembership = CommitteeMembership::factory()->create([
+    $projectMembership = ProjectMembership::factory()->create([
         'user_id' => $lead->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $committeeMembership->syncCommitteeRoles([CommitteeRole::CommitteeLead, CommitteeRole::Member]);
+    $projectMembership->syncProjectRoles([ProjectRole::ProjectLead, ProjectRole::Member]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function readinessMember(Club $club, Committee $committee, string $name = 'Project Member'): User
+function readinessMember(Workspace $workspace, Project $project, string $name = 'Project Member'): User
 {
     $user = User::factory()->student()->create(['name' => $name]);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles([CommitteeRole::Member]);
+    $membership->syncProjectRoles([ProjectRole::Member]);
 
     return $user;
 }
@@ -56,19 +56,19 @@ function readinessMember(Club $club, Committee $committee, string $name = 'Proje
 test('the core teamhub workflow stays consistent from task assignment to approval', function () {
     Mail::fake();
 
-    [$lead, $club, $committee] = readinessLeadAndProject();
-    $member = readinessMember($club, $committee);
+    [$lead, $workspace, $project] = readinessLeadAndProject();
+    $member = readinessMember($workspace, $project);
 
     $this->actingAs($lead)
-        ->get(route('committees.manage', [$club, $committee]))
+        ->get(route('projects.manage', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/Manage')
-            ->where('committee.id', $committee->id)
+            ->where('committee.id', $project->id)
         );
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Ship the validation phase',
             'description' => 'Prove the core workflow before Phase 6.',
             'assigned_to' => $member->id,
@@ -78,10 +78,10 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         ])
         ->assertRedirect();
 
-    $task = Task::query()->where('committee_id', $committee->id)->latest()->firstOrFail();
+    $task = Task::query()->where('project_id', $project->id)->latest()->firstOrFail();
 
     $this->actingAs($member)
-        ->get(route('committees.tasks.show', [$club, $committee, $task]))
+        ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Show')
@@ -101,23 +101,23 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         );
 
     $this->actingAs($member)
-        ->patch(route('committees.tasks.update', [$club, $committee, $task]), [
+        ->patch(route('projects.tasks.update', [$workspace, $project, $task]), [
             'status' => 'in_progress',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.comments.store', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.comments.store', [$workspace, $project, $task]), [
             'body' => 'First draft is ready for review.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.deliverable', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.deliverable', [$workspace, $project, $task]), [
             'deliverable_url' => 'https://example.com/validation-draft',
             'deliverable_notes' => 'Draft uploaded for review.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($lead)
         ->get(route('notifications.index'))
@@ -128,16 +128,16 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         );
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.comments.store', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.comments.store', [$workspace, $project, $task]), [
             'body' => 'Reviewing now. Thanks for the quick turnaround.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.approve', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.approve', [$workspace, $project, $task]), [
             'review_notes' => 'Approved for release.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $task->refresh();
 
@@ -160,7 +160,7 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         ]);
 
     $this->actingAs($member)
-        ->get(route('committees.tasks.show', [$club, $committee, $task]))
+        ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Show')
@@ -182,11 +182,11 @@ test('the core teamhub workflow stays consistent from task assignment to approva
 test('member work surfaces stay aligned with the approved workflow outcome', function () {
     Mail::fake();
 
-    [$lead, $club, $committee] = readinessLeadAndProject();
-    $member = readinessMember($club, $committee, 'Dashboard Member');
+    [$lead, $workspace, $project] = readinessLeadAndProject();
+    $member = readinessMember($workspace, $project, 'Dashboard Member');
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Keep my work aligned',
             'assigned_to' => $member->id,
             'priority' => 'medium',
@@ -195,7 +195,7 @@ test('member work surfaces stay aligned with the approved workflow outcome', fun
         ])
         ->assertRedirect();
 
-    $task = Task::query()->where('committee_id', $committee->id)->latest()->firstOrFail();
+    $task = Task::query()->where('project_id', $project->id)->latest()->firstOrFail();
 
     $this->actingAs($member)
         ->get(route('my-tasks'))
@@ -206,17 +206,17 @@ test('member work surfaces stay aligned with the approved workflow outcome', fun
         );
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.deliverable', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.deliverable', [$workspace, $project, $task]), [
             'deliverable_url' => 'https://example.com/final',
             'deliverable_notes' => 'Ready.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.approve', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.approve', [$workspace, $project, $task]), [
             'review_notes' => 'Done.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->actingAs($member)
         ->get(route('my-tasks'))

@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Middleware\SetLocale;
-use App\Models\Club;
 use App\Models\User;
+use App\Models\Workspace;
 use App\Notifications\MembershipApprovedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -87,12 +87,12 @@ test('notification emails render in the recipient locale regardless of request l
     config(['mail.default' => 'array']);
     app()->setLocale('en'); // e.g. an English-using supervisor triggers the action
 
-    $club = Club::factory()->create(['name' => 'نادي الحاسبات']);
+    $workspace = Workspace::factory()->create(['name' => 'نادي الحاسبات']);
     $arabicUser = User::factory()->create(['locale' => null, 'email' => 'arabic@teamhub.test']);
     $englishUser = User::factory()->create(['locale' => 'en', 'email' => 'english@teamhub.test']);
 
-    $arabicUser->notifyNow(new MembershipApprovedNotification($club));
-    $englishUser->notifyNow(new MembershipApprovedNotification($club));
+    $arabicUser->notifyNow(new MembershipApprovedNotification($workspace));
+    $englishUser->notifyNow(new MembershipApprovedNotification($workspace));
 
     $bodies = [];
     foreach (Mail::mailer('array')->getSymfonyTransport()->messages() as $message) {

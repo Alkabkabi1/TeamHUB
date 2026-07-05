@@ -4,22 +4,48 @@
     import { Add01Icon, Search01Icon } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
     import { Link, router } from '@inertiajs/svelte';
+    import HubPagination from '@/components/team-hub/HubPagination.svelte';
     import ProjectCard from '@/components/team-hub/ProjectCard.svelte';
     import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import type { CreatableWorkspace, HubProject } from '@/types/team-hub';
 
+    type Paginator<T> = {
+        data: T[];
+        links: { url: string | null; label: string; active: boolean }[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number | null;
+        to: number | null;
+    };
+
     let {
-        projects = [],
+        projects = {
+            data: [],
+            links: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: 20,
+            total: 0,
+            from: null,
+            to: null,
+        },
         search = '',
         workspaceId = null,
         creatableWorkspaces = [],
     }: {
-        projects?: HubProject[];
+        projects?: Paginator<HubProject> | HubProject[];
         search?: string;
         workspaceId?: number | null;
         creatableWorkspaces?: CreatableWorkspace[];
     } = $props();
+
+    const projectItems = $derived(
+        Array.isArray(projects) ? projects : projects.data,
+    );
+    const pagination = $derived(Array.isArray(projects) ? null : projects);
 
     let query = $state(search);
     let showNewProject = $state(false);
@@ -48,7 +74,7 @@
                     {t('hub.nav.projects')}
                 </h1>
                 <p class="mt-1 text-sm" style="color: var(--th-text-muted)">
-                    {t('hub.active_projects', { count: projects.length })}
+                    {t('hub.active_projects', { count: projectItems.length })}
                 </p>
             </div>
             {#if creatableWorkspaces.length > 1}
@@ -116,9 +142,13 @@
         </form>
 
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {#each projects as project (project.id)}
+            {#each projectItems as project (project.id)}
                 <ProjectCard {project} />
             {/each}
         </div>
+
+        {#if pagination}
+            <HubPagination paginator={pagination} />
+        {/if}
     </div>
 </TeamHubLayout>

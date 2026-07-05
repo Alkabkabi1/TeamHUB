@@ -13,7 +13,7 @@ namespace Database\Factories\Support;
  */
 class DemoClubLogo
 {
-    private const DEFAULT_COLOR = '#006471';
+    private const DEFAULT_COLOR = '#c8924a';
 
     private const FONT = __DIR__.'/fonts/NotoKufiArabic-Black.ttf';
 
@@ -21,7 +21,7 @@ class DemoClubLogo
      * Generate a square emblem and return its raw JPEG bytes.
      *
      * @param  string  $monogram  A single Arabic letter to center on the badge.
-     * @param  string|null  $hexColor  The club's theme color; falls back to brand teal.
+     * @param  string|null  $hexColor  The club's theme color; falls back to brand gold.
      */
     public static function generate(string $monogram, ?string $hexColor = null, int $size = 600): string
     {

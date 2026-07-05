@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Club;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Support\Facades\File;
 
 test('user-facing source files do not contain legacy Ruwad or UQU branding', function () {
@@ -70,7 +70,7 @@ test('mail theme defaults to teamhub', function () {
 });
 
 test('key pages render without legacy branding strings', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $user = User::factory()->student()->create();
 
     $legacy = ['Ruwad', 'ruwad', 'رواد', 'ruwad-mark', 'uqu-logo', '@uqu.edu.sa', 'Repository', 'Documentation'];
@@ -87,8 +87,8 @@ test('key pages render without legacy branding strings', function () {
 
     $responses = [
         $this->get('/'),
-        $this->actingAs($user)->get(route('clubs.show', $club)),
-        $this->actingAs($user)->get(route('hub.dashboard')),
+        $this->actingAs($user)->get(route('workspaces.show', $workspace)),
+        $this->actingAs($user)->get(route('dashboard')),
     ];
 
     foreach ($responses as $response) {

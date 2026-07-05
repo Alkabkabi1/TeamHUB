@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TaskStatus;
-use App\Models\Post;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,13 +17,13 @@ class MyTasksController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        if (! $user->isStudent()) {
+        if (! $user->isMember()) {
             abort(403);
         }
 
         $baseQuery = Task::query()
             ->assignedTo($user)
-            ->with(['committee:id,club_id,name', 'committee.club:id,name'])
+            ->with(['project:id,workspace_id,name', 'project.workspace:id,name'])
             ->orderBy('due_at')
             ->orderByDesc('updated_at');
 
@@ -51,27 +51,27 @@ class MyTasksController extends Controller
             ->map(fn (Task $task): array => $this->presentTask($task, $user))
             ->values();
 
-        $committeeIds = $user->committeeMemberships()
+        $projectIds = $user->projectMemberships()
             ->where('status', 'approved')
-            ->pluck('committee_id')
+            ->pluck('project_id')
             ->unique()
             ->values();
 
-        $recentUpdates = $committeeIds->isEmpty()
+        $recentUpdates = $projectIds->isEmpty()
             ? collect()
-            : Post::query()
-                ->whereIn('committee_id', $committeeIds)
-                ->with(['committee:id,name', 'club:id,name'])
+            : ProjectUpdate::query()
+                ->whereIn('project_id', $projectIds)
+                ->with(['project:id,name', 'workspace:id,name'])
                 ->latest('published_at')
                 ->limit(6)
                 ->get()
-                ->map(fn (Post $post): array => [
+                ->map(fn (ProjectUpdate $post): array => [
                     'id' => $post->id,
                     'title' => $post->title,
-                    'committee_name' => $post->committee?->name ?? '',
-                    'club_name' => $post->club?->name ?? '',
+                    'project_name' => $post->project?->name ?? '',
+                    'club_name' => $post->workspace?->name ?? '',
                     'published_at' => $post->published_at?->toIso8601String(),
-                    'url' => route('committees.updates.index', [$post->club_id, $post->committee_id], absolute: false),
+                    'url' => route('projects.updates.index', [$post->workspace_id, $post->project_id], absolute: false),
                 ])
                 ->values();
 
@@ -121,11 +121,11 @@ class MyTasksController extends Controller
             'has_deliverable' => $task->getFirstMedia(Task::DELIVERABLE_COLLECTION) !== null
                 || filled($task->deliverable_url)
                 || filled($task->deliverable_notes),
-            'club' => $task->committee?->club?->only(['id', 'name']),
-            'committee' => $task->committee?->only(['id', 'name']),
-            'detail_url' => route('committees.tasks.show', [$task->committee?->club_id, $task->committee_id, $task], absolute: false),
-            'project_url' => route('committees.tasks.index', [$task->committee?->club_id, $task->committee_id], absolute: false),
-            'update_url' => route('committees.tasks.update', [$task->committee?->club_id, $task->committee_id, $task], absolute: false),
+            'club' => $task->project?->workspace?->only(['id', 'name']),
+            'committee' => $task->project?->only(['id', 'name']),
+            'detail_url' => route('projects.tasks.show', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
+            'project_url' => route('projects.tasks.index', [$task->project?->workspace_id, $task->project_id], absolute: false),
+            'update_url' => route('projects.tasks.update', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
             'quick_action' => $quickAction,
             'can_toggle_progress' => $task->isAssignedTo($user) && in_array($task->status, [TaskStatus::Todo, TaskStatus::InProgress], true),
         ];

@@ -25,7 +25,7 @@ class TaskDeliverableApprovedNotification extends Notification implements Should
 
     public function toMail(object $notifiable): MailMessage
     {
-        $this->task->loadMissing('committee.club');
+        $this->task->loadMissing('project.workspace');
 
         return (new MailMessage)
             ->subject(__('notifications.task_deliverable_approved.mail_subject', [
@@ -38,7 +38,7 @@ class TaskDeliverableApprovedNotification extends Notification implements Should
             ]))
             ->action(
                 __('notifications.task_deliverable_approved.action'),
-                route('committees.tasks.show', [$this->task->committee->club_id, $this->task->committee_id, $this->task]),
+                route('projects.tasks.show', [$this->task->project->workspace_id, $this->task->project_id, $this->task]),
             );
     }
 
@@ -47,7 +47,7 @@ class TaskDeliverableApprovedNotification extends Notification implements Should
      */
     public function toArray(object $notifiable): array
     {
-        $this->task->loadMissing('committee.club');
+        $this->task->loadMissing('project.workspace');
 
         return [
             'title' => __('notifications.task_deliverable_approved.title'),
@@ -56,7 +56,7 @@ class TaskDeliverableApprovedNotification extends Notification implements Should
                 'task' => $this->task->title,
             ]),
             'action_label' => __('notifications.task_deliverable_approved.action'),
-            'action_url' => route('committees.tasks.show', [$this->task->committee->club_id, $this->task->committee_id, $this->task], absolute: false),
+            'action_url' => route('projects.tasks.show', [$this->task->project->workspace_id, $this->task->project_id, $this->task], absolute: false),
             'task_id' => $this->task->id,
             'task_title' => $this->task->title,
             'kind' => 'task_deliverable_approved',

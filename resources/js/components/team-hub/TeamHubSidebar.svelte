@@ -41,8 +41,8 @@
     const currentPath = $derived(activePath ?? (page.url as string));
     const theme = themeState();
     const auth = $derived(page.props.auth);
-    const hub = $derived(
-        page.props.hub as
+    const app = $derived(
+        page.props.app as
             | { nav: HubNavItem[]; workspaces: HubWorkspace[] }
             | null
             | undefined,
@@ -60,8 +60,8 @@
               }
             | undefined,
     );
-    const navItems = $derived(hub?.nav ?? []);
-    const workspaces = $derived(hub?.workspaces ?? []);
+    const navItems = $derived(app?.nav ?? []);
+    const workspaces = $derived(app?.workspaces ?? []);
     const userName = $derived(auth?.user?.name ?? '');
     const displayName = $derived.by(() => {
         const email = auth?.user?.email;
@@ -185,13 +185,17 @@
                         </p>
                     {/if}
                 </div>
-                <button type="button" class="opacity-50" aria-label="الإعدادات">
+                <Link
+                    href="/settings/profile"
+                    class="opacity-50 transition-opacity hover:opacity-100"
+                    aria-label={t('nav.profile')}
+                >
                     <HugeiconsIcon
                         icon={Settings01Icon}
                         size={18}
                         style="color: var(--th-text-muted)"
                     />
-                </button>
+                </Link>
             </div>
         {/if}
 

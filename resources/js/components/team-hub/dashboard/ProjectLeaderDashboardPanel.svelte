@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { Link, useForm } from '@inertiajs/svelte';
+    import { Link, router, useForm } from '@inertiajs/svelte';
     import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
     import { t } from '@/lib/i18n.svelte';
 
     type Member = { id: number; name: string };
+    type ProjectOption = { id: number; title: string; workspace: string };
     type TeamMember = {
         id: number;
         name: string;
@@ -33,17 +34,29 @@
 
     let {
         project = null,
+        projects = [],
+        activeProjectId = null,
         team = [],
         reviewQueue = [],
         members = [],
         openTasks = 0,
     }: {
         project?: Project | null;
+        projects?: ProjectOption[];
+        activeProjectId?: number | null;
         team?: TeamMember[];
         reviewQueue?: ReviewTask[];
         members?: Member[];
         openTasks?: number;
     } = $props();
+
+    function switchProject(projectId: number): void {
+        router.get(
+            '/hub/dashboard',
+            { project: projectId },
+            { preserveScroll: true },
+        );
+    }
 
     const taskForm = useForm({
         committee_id: project?.id ?? '',
@@ -51,6 +64,10 @@
         assigned_to: members[0]?.id ?? '',
         due_at: '',
         priority: 'medium',
+    });
+
+    const reviewForm = useForm({
+        review_notes: '',
     });
 
     $effect(() => {
@@ -71,6 +88,31 @@
     </div>
 
     {#if project}
+        {#if projects.length > 1}
+            <label class="block max-w-md space-y-1 text-sm">
+                <span style="color: var(--th-text-muted)">
+                    {t('hub.leader.select_project')}
+                </span>
+                <select
+                    class="w-full rounded-xl border px-3 py-2"
+                    style="border-color: var(--th-border); background: var(--th-surface); color: var(--th-text)"
+                    value={activeProjectId ?? project.id}
+                    onchange={(e) =>
+                        switchProject(
+                            Number(
+                                (e.currentTarget as HTMLSelectElement).value,
+                            ),
+                        )}
+                >
+                    {#each projects as option (option.id)}
+                        <option value={option.id}>
+                            {option.title} · {option.workspace}
+                        </option>
+                    {/each}
+                </select>
+            </label>
+        {/if}
+
         <div
             class="th-card flex flex-col gap-4 rounded-2xl p-5 sm:flex-row sm:items-center sm:justify-between"
         >
@@ -181,13 +223,48 @@
                                     {task.deliverable_notes}
                                 </p>
                             {/if}
-                            <Link
-                                href={task.detail_url}
-                                class="mt-2 inline-block text-xs font-medium"
-                                style="color: var(--th-primary)"
-                            >
-                                {t('hub.leader.view_deliverable')}
-                            </Link>
+                            <div class="mt-2 flex flex-wrap items-center gap-2">
+                                <Link
+                                    href={task.detail_url}
+                                    class="text-xs font-medium"
+                                    style="color: var(--th-primary)"
+                                >
+                                    {t('hub.leader.view_deliverable')}
+                                </Link>
+                                <button
+                                    type="button"
+                                    class="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-medium text-white"
+                                    onclick={() =>
+                                        reviewForm
+                                            .transform(() => ({
+                                                review_notes: '',
+                                            }))
+                                            .post(
+                                                `/hub/leader/tasks/${task.id}/approve`,
+                                                { preserveScroll: true },
+                                            )}
+                                    disabled={reviewForm.processing}
+                                >
+                                    {t('tasks.approve')}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="rounded-lg border px-3 py-1 text-xs font-medium"
+                                    style="border-color: var(--th-border); color: var(--th-text)"
+                                    onclick={() =>
+                                        reviewForm
+                                            .transform(() => ({
+                                                review_notes: '',
+                                            }))
+                                            .post(
+                                                `/hub/leader/tasks/${task.id}/request-changes`,
+                                                { preserveScroll: true },
+                                            )}
+                                    disabled={reviewForm.processing}
+                                >
+                                    {t('tasks.request_changes')}
+                                </button>
+                            </div>
                         </div>
                     {:else}
                         <p class="text-sm" style="color: var(--th-text-muted)">

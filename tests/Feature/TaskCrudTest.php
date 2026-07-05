@@ -1,54 +1,54 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use App\Notifications\TaskAssignedNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 
 function projectLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function approvedProjectMember(Club $club, Committee $committee, array $roles = [CommitteeRole::Member]): User
+function approvedProjectMember(Workspace $workspace, Project $project, array $roles = [ProjectRole::Member]): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles($roles);
+    $membership->syncProjectRoles($roles);
 
     return $user;
 }
 
 test('tasks table includes the expected core columns', function () {
     expect(Schema::hasColumns('tasks', [
-        'committee_id',
+        'project_id',
         'created_by',
         'assigned_to',
         'title',
@@ -67,41 +67,41 @@ test('tasks table includes the expected core columns', function () {
 });
 
 test('approved project members can view the project task list', function () {
-    [$lead, $club, $committee] = projectLeadAndCommittee();
-    $member = approvedProjectMember($club, $committee);
+    [$lead, $workspace, $project] = projectLeadAndCommittee();
+    $member = approvedProjectMember($workspace, $project);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Wire the authenticated task list',
     ]);
 
     $this->actingAs($member)
-        ->get(route('committees.tasks.index', [$club, $committee]))
+        ->get(route('projects.tasks.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Index')
-            ->where('committee.id', $committee->id)
+            ->where('committee.id', $project->id)
             ->has('tasks', 1)
         );
 });
 
 test('outsiders cannot view project tasks', function () {
-    [, $club, $committee] = projectLeadAndCommittee();
+    [, $workspace, $project] = projectLeadAndCommittee();
     $outsider = User::factory()->student()->create();
 
     $this->actingAs($outsider)
-        ->get(route('committees.tasks.index', [$club, $committee]))
+        ->get(route('projects.tasks.index', [$workspace, $project]))
         ->assertForbidden();
 });
 
 test('a project lead can create and delete a task', function () {
-    [$lead, $club, $committee] = projectLeadAndCommittee();
-    $member = approvedProjectMember($club, $committee);
+    [$lead, $workspace, $project] = projectLeadAndCommittee();
+    $member = approvedProjectMember($workspace, $project);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Create the first TeamHUB task',
             'description' => 'Hook up the real task domain',
             'assigned_to' => $member->id,
@@ -111,45 +111,45 @@ test('a project lead can create and delete a task', function () {
         ])
         ->assertRedirect();
 
-    $task = Task::query()->where('committee_id', $committee->id)->firstOrFail();
+    $task = Task::query()->where('project_id', $project->id)->firstOrFail();
 
     expect($task->title)->toBe('Create the first TeamHUB task')
         ->and($task->assigned_to)->toBe($member->id);
 
     $this->actingAs($lead)
-        ->delete(route('committees.tasks.destroy', [$club, $committee, $task]))
-        ->assertRedirect(route('committees.tasks.index', [$club, $committee]));
+        ->delete(route('projects.tasks.destroy', [$workspace, $project, $task]))
+        ->assertRedirect(route('projects.tasks.index', [$workspace, $project]));
 
     $this->assertSoftDeleted('tasks', ['id' => $task->id]);
 });
 
 test('a project member cannot create tasks', function () {
-    [$lead, $club, $committee] = projectLeadAndCommittee();
-    $member = approvedProjectMember($club, $committee);
+    [$lead, $workspace, $project] = projectLeadAndCommittee();
+    $member = approvedProjectMember($workspace, $project);
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Unauthorized task',
         ])
         ->assertForbidden();
 });
 
 test('an assignee can update their own task progress', function () {
-    [$lead, $club, $committee] = projectLeadAndCommittee();
-    $member = approvedProjectMember($club, $committee);
+    [$lead, $workspace, $project] = projectLeadAndCommittee();
+    $member = approvedProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'todo',
     ]);
 
     $this->actingAs($member)
-        ->patch(route('committees.tasks.update', [$club, $committee, $task]), [
+        ->patch(route('projects.tasks.update', [$workspace, $project, $task]), [
             'status' => 'in_progress',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     expect($task->fresh()->status->value)->toBe('in_progress');
 });
@@ -157,12 +157,12 @@ test('an assignee can update their own task progress', function () {
 test('creating and reassigning a task logs activity and sends assignment notifications', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = projectLeadAndCommittee();
-    $firstAssignee = approvedProjectMember($club, $committee);
-    $secondAssignee = approvedProjectMember($club, $committee);
+    [$lead, $workspace, $project] = projectLeadAndCommittee();
+    $firstAssignee = approvedProjectMember($workspace, $project);
+    $secondAssignee = approvedProjectMember($workspace, $project);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.store', [$club, $committee]), [
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Coordinate the phase five launch',
             'assigned_to' => $firstAssignee->id,
             'priority' => 'medium',
@@ -170,7 +170,7 @@ test('creating and reassigning a task logs activity and sends assignment notific
         ])
         ->assertRedirect();
 
-    $task = Task::query()->where('committee_id', $committee->id)->latest()->firstOrFail();
+    $task = Task::query()->where('project_id', $project->id)->latest()->firstOrFail();
 
     expect(
         TaskActivity::query()
@@ -184,10 +184,10 @@ test('creating and reassigning a task logs activity and sends assignment notific
     Notification::assertSentTo($firstAssignee, TaskAssignedNotification::class);
 
     $this->actingAs($lead)
-        ->patch(route('committees.tasks.update', [$club, $committee, $task]), [
+        ->patch(route('projects.tasks.update', [$workspace, $project, $task]), [
             'assigned_to' => $secondAssignee->id,
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     expect(
         TaskActivity::query()

@@ -22,7 +22,7 @@ class AssignTask extends WriteTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return ['error' => 'No workspace matched that name.'];
@@ -32,7 +32,7 @@ class AssignTask extends WriteTool
         $project = null;
 
         if (! empty($request['project'])) {
-            $project = $this->resolveAccessibleCommittee($request['project'], $workspace);
+            $project = $this->resolveAccessibleProject($request['project'], $workspace);
 
             if ($project === null) {
                 return ['error' => 'No visible project matched that name.'];
@@ -45,11 +45,11 @@ class AssignTask extends WriteTool
             return ['error' => 'No visible task matched that name.'];
         }
 
-        if (! $this->user->canManageCommittee($task->committee)) {
+        if (! $this->user->canManageProject($task->project)) {
             return ['error' => 'Only project managers can reassign tasks.'];
         }
 
-        $assignee = $this->resolveCommitteeMember($request['assignee'] ?? null, $task->committee);
+        $assignee = $this->resolveProjectMember($request['assignee'] ?? null, $task->project);
 
         if ($assignee === null) {
             return ['error' => 'No approved project member matched that assignee.'];
@@ -77,13 +77,13 @@ class AssignTask extends WriteTool
     {
         $task = $this->resolveTask((string) $params['task_id']);
 
-        if ($task === null || ! $this->user?->canManageCommittee($task->committee)) {
+        if ($task === null || ! $this->user?->canManageProject($task->project)) {
             return ['success' => false, 'message' => 'Only project managers can reassign tasks.'];
         }
 
         $task->loadMissing('assignee:id,name,email,locale');
         $originalAssignee = $task->assignee;
-        $newAssignee = $this->resolveCommitteeMember((string) $params['assignee_id'], $task->committee);
+        $newAssignee = $this->resolveProjectMember((string) $params['assignee_id'], $task->project);
 
         if ($newAssignee === null) {
             return ['success' => false, 'message' => 'The selected assignee is not an approved project member.'];

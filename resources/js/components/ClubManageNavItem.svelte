@@ -11,14 +11,14 @@
     import { currentUrlState } from '@/lib/currentUrl.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
-    import { manage } from '@/routes/clubs';
-    import type { ManagedClub } from '@/types';
+    import { manage } from '@/routes/workspaces';
+    import type { ManagedWorkspace } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
     type Direction = 'rtl' | 'ltr';
 
-    const managedClubs = $derived(
-        (page.props.auth?.user?.managed_clubs ?? []) as ManagedClub[],
+    const managedWorkspaces = $derived(
+        (page.props.auth?.user?.managed_workspaces ?? []) as ManagedWorkspace[],
     );
     const direction = $derived(
         (page.props.direction as Direction | undefined) ?? 'rtl',
@@ -27,7 +27,7 @@
 
     // Highlight whenever the current page is any managed club's dashboard.
     const isActive = $derived(
-        managedClubs.some((club) =>
+        managedWorkspaces.some((club) =>
             url.isCurrentUrl(manage(club.id), url.currentUrl),
         ),
     );
@@ -46,10 +46,10 @@
     );
 </script>
 
-{#if managedClubs.length === 1}
+{#if managedWorkspaces.length === 1}
     <!-- Manages exactly one club: a direct dashboard link. -->
     <Link
-        href={toUrl(manage(managedClubs[0].id))}
+        href={toUrl(manage(managedWorkspaces[0].id))}
         onclick={onNavigate}
         class={linkClass}
     >
@@ -60,7 +60,7 @@
             class={iconClass}
         />
     </Link>
-{:else if managedClubs.length > 1}
+{:else if managedWorkspaces.length > 1}
     <!-- Manages several clubs: a dropdown to pick which dashboard to open. -->
     <DropdownMenu>
         <DropdownMenuTrigger class={linkClass}>
@@ -72,7 +72,7 @@
             />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" dir={direction} class="min-w-52">
-            {#each managedClubs as club (club.id)}
+            {#each managedWorkspaces as club (club.id)}
                 <DropdownMenuItem>
                     {#snippet child({ props })}
                         <Link

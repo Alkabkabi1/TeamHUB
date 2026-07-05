@@ -1,13 +1,13 @@
 <?php
 
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
-use App\Models\Post;
+use App\Enums\ProjectRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function phase4MemberContext(): array
 {
@@ -16,28 +16,28 @@ function phase4MemberContext(): array
         'email' => 'phase4-member@example.com',
     ]);
 
-    $workspaceA = Club::factory()->create(['name' => 'Workspace Alpha', 'status' => 'active']);
-    $workspaceB = Club::factory()->create(['name' => 'Workspace Beta', 'status' => 'active']);
+    $workspaceA = Workspace::factory()->create(['name' => 'Workspace Alpha', 'status' => 'active']);
+    $workspaceB = Workspace::factory()->create(['name' => 'Workspace Beta', 'status' => 'active']);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $workspaceA->id,
+        'workspace_id' => $workspaceA->id,
     ]);
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $workspaceB->id,
+        'workspace_id' => $workspaceB->id,
     ]);
 
-    $projectA = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project One']);
-    $projectB = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project Two']);
-    $projectC = Committee::factory()->create(['club_id' => $workspaceB->id, 'name' => 'Project Three']);
+    $projectA = Project::factory()->create(['workspace_id' => $workspaceA->id, 'name' => 'Project One']);
+    $projectB = Project::factory()->create(['workspace_id' => $workspaceA->id, 'name' => 'Project Two']);
+    $projectC = Project::factory()->create(['workspace_id' => $workspaceB->id, 'name' => 'Project Three']);
 
     foreach ([$projectA, $projectB, $projectC] as $project) {
-        $membership = CommitteeMembership::factory()->create([
+        $membership = ProjectMembership::factory()->create([
             'user_id' => $user->id,
-            'committee_id' => $project->id,
+            'project_id' => $project->id,
         ]);
-        $membership->syncCommitteeRoles([CommitteeRole::Member]);
+        $membership->syncProjectRoles([ProjectRole::Member]);
     }
 
     return [$user, $workspaceA, $workspaceB, $projectA, $projectB, $projectC];
@@ -52,7 +52,7 @@ test('student dashboard shows TeamHUB work summary and recent project activity',
     [$user, $workspaceA, $workspaceB, $projectA, $projectB, $projectC] = phase4MemberContext();
 
     Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Overdue task',
@@ -61,7 +61,7 @@ test('student dashboard shows TeamHUB work summary and recent project activity',
     ]);
 
     Task::factory()->create([
-        'committee_id' => $projectB->id,
+        'project_id' => $projectB->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Due today task',
@@ -70,7 +70,7 @@ test('student dashboard shows TeamHUB work summary and recent project activity',
     ]);
 
     Task::factory()->create([
-        'committee_id' => $projectC->id,
+        'project_id' => $projectC->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Upcoming task',
@@ -78,9 +78,9 @@ test('student dashboard shows TeamHUB work summary and recent project activity',
         'status' => 'review',
     ]);
 
-    Post::factory()->create([
-        'club_id' => $workspaceA->id,
-        'committee_id' => $projectA->id,
+    ProjectUpdate::factory()->create([
+        'workspace_id' => $workspaceA->id,
+        'project_id' => $projectA->id,
         'user_id' => $user->id,
         'title' => 'Project update',
         'published_at' => now(),

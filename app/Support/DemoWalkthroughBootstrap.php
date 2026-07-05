@@ -2,15 +2,15 @@
 
 namespace App\Support;
 
-use App\Enums\CommitteeRole;
+use App\Enums\ProjectRole;
 use App\Enums\TaskStatus;
 use App\Enums\UserRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 class DemoWalkthroughBootstrap
 {
@@ -36,38 +36,38 @@ class DemoWalkthroughBootstrap
 
     private static function ensureAdmin(User $user): void
     {
-        if ($user->role !== UserRole::UniversityStaff) {
-            $user->forceFill(['role' => UserRole::UniversityStaff])->save();
+        if ($user->role !== UserRole::Admin) {
+            $user->forceFill(['role' => UserRole::Admin])->save();
         }
 
-        DemoWorkspace::defaultClub();
+        DemoWorkspace::defaultWorkspace();
     }
 
     private static function ensureProjectLeader(User $user): void
     {
-        $committee = self::demoCommittee();
+        $project = self::demoProject();
 
-        self::ensureClubMember($user, $committee->club_id);
-        self::ensureCommitteeRole($user, $committee, [CommitteeRole::CommitteeLead]);
-        self::ensureSampleTasks($committee, $user);
+        self::ensureWorkspaceMember($user, $project->workspace_id);
+        self::ensureProjectRole($user, $project, [ProjectRole::ProjectLead]);
+        self::ensureSampleTasks($project, $user);
     }
 
     private static function ensureStaff(User $user): void
     {
-        $committee = self::demoCommittee();
+        $project = self::demoProject();
 
-        self::ensureClubMember($user, $committee->club_id);
-        self::ensureCommitteeRole($user, $committee, [CommitteeRole::Member]);
-        self::ensureSampleTasks($committee, User::query()->where('email', 'project-leader@teamhub.test')->first() ?? $user);
+        self::ensureWorkspaceMember($user, $project->workspace_id);
+        self::ensureProjectRole($user, $project, [ProjectRole::Member]);
+        self::ensureSampleTasks($project, User::query()->where('email', 'project-lead@teamhub.test')->first() ?? $user);
     }
 
-    private static function demoCommittee(): Committee
+    private static function demoProject(): Project
     {
-        $club = Club::query()->where('name', self::DEMO_CLUB)->first()
-            ?? DemoWorkspace::defaultClub();
+        $workspace = Workspace::query()->where('name', self::DEMO_CLUB)->first()
+            ?? DemoWorkspace::defaultWorkspace();
 
-        return Committee::query()->firstOrCreate(
-            ['club_id' => $club->id, 'name' => self::DEMO_COMMITTEE],
+        return Project::query()->firstOrCreate(
+            ['workspace_id' => $workspace->id, 'name' => self::DEMO_COMMITTEE],
             [
                 'description' => 'مشروع تجريبي لعرض سير العمل في TeamHUB.',
                 'status' => 'active',
@@ -75,10 +75,10 @@ class DemoWalkthroughBootstrap
         );
     }
 
-    private static function ensureClubMember(User $user, int $clubId): void
+    private static function ensureWorkspaceMember(User $user, int $workspaceId): void
     {
-        $membership = ClubMembership::query()->firstOrCreate(
-            ['user_id' => $user->id, 'club_id' => $clubId],
+        $membership = WorkspaceMembership::query()->firstOrCreate(
+            ['user_id' => $user->id, 'workspace_id' => $workspaceId],
             [
                 'status' => 'approved',
                 'requested_at' => now()->subMonths(3),
@@ -96,12 +96,12 @@ class DemoWalkthroughBootstrap
     }
 
     /**
-     * @param  array<int, CommitteeRole>  $roles
+     * @param  array<int, ProjectRole>  $roles
      */
-    private static function ensureCommitteeRole(User $user, Committee $committee, array $roles): void
+    private static function ensureProjectRole(User $user, Project $project, array $roles): void
     {
-        $membership = CommitteeMembership::query()->firstOrCreate(
-            ['user_id' => $user->id, 'committee_id' => $committee->id],
+        $membership = ProjectMembership::query()->firstOrCreate(
+            ['user_id' => $user->id, 'project_id' => $project->id],
             [
                 'status' => 'approved',
                 'requested_at' => now()->subMonths(3),
@@ -111,14 +111,30 @@ class DemoWalkthroughBootstrap
             ],
         );
 
-        $membership->assignCommitteeRole(CommitteeRole::Member);
+        $membership->assignProjectRole(ProjectRole::Member);
 
         foreach ($roles as $role) {
-            $membership->assignCommitteeRole($role);
+            $membership->assignProjectRole($role);
         }
     }
 
-    private static function ensureSampleTasks(Committee $committee, User $creator): void
+    public static function ensureDemoStaffOnProject(Project $project, User $reviewedBy): void
+    {
+        if (! config('demo.quick_login')) {
+            return;
+        }
+
+        $staff = User::query()->where('email', 'staff@teamhub.test')->first();
+
+        if ($staff === null) {
+            return;
+        }
+
+        self::ensureWorkspaceMember($staff, $project->workspace_id);
+        self::ensureProjectRole($staff, $project, [ProjectRole::Member]);
+    }
+
+    private static function ensureSampleTasks(Project $project, User $creator): void
     {
         $staff = User::query()->where('email', 'staff@teamhub.test')->first();
 
@@ -126,12 +142,12 @@ class DemoWalkthroughBootstrap
             return;
         }
 
-        if ($committee->tasks()->exists()) {
+        if ($project->tasks()->exists()) {
             return;
         }
 
         Task::query()->create([
-            'committee_id' => $committee->id,
+            'project_id' => $project->id,
             'created_by' => $creator->id,
             'assigned_to' => $staff->id,
             'title' => 'إعداد خطة المشروع الأولى',
@@ -142,7 +158,7 @@ class DemoWalkthroughBootstrap
         ]);
 
         Task::query()->create([
-            'committee_id' => $committee->id,
+            'project_id' => $project->id,
             'created_by' => $creator->id,
             'assigned_to' => $staff->id,
             'title' => 'تصميم واجهة العرض',
@@ -156,7 +172,7 @@ class DemoWalkthroughBootstrap
         ]);
 
         Task::query()->create([
-            'committee_id' => $committee->id,
+            'project_id' => $project->id,
             'created_by' => $creator->id,
             'assigned_to' => null,
             'title' => 'توثيق متطلبات المشروع',

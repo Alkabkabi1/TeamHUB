@@ -33,7 +33,7 @@
             onclick={openGlobalSearch}
             aria-label={t('app.search')}
             aria-keyshortcuts="Meta+K Control+K"
-            class="group flex h-[60px] flex-1 cursor-pointer items-center gap-3 rounded-[50px] bg-white px-6 text-start shadow-[8px_8px_24px_0_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[8px_8px_32px_0_rgba(0,100,113,0.18)] focus-visible:shadow-[8px_8px_32px_0_rgba(0,100,113,0.18)] focus-visible:outline-none dark:bg-[#15191f] dark:shadow-[8px_8px_24px_0_rgba(0,0,0,0.3)]"
+            class="group flex h-[60px] flex-1 cursor-pointer items-center gap-3 rounded-[50px] bg-white px-6 text-start shadow-[8px_8px_24px_0_rgba(0,0,0,0.08)] transition-shadow hover:shadow-[8px_8px_32px_0_rgba(200,146,74,0.18)] focus-visible:shadow-[8px_8px_32px_0_rgba(200,146,74,0.18)] focus-visible:outline-none dark:bg-[#15191f] dark:shadow-[8px_8px_24px_0_rgba(0,0,0,0.3)]"
         >
             <span
                 class="flex shrink-0 items-center justify-center rounded-full p-1 text-[#7e7e7e] transition-colors group-hover:text-brand dark:text-[#a1a1aa]"

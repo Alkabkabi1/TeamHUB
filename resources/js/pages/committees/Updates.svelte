@@ -34,7 +34,7 @@
     } = $props();
 
     function removeUpdate(id: number): void {
-        router.delete(`/news/${id}`, { preserveScroll: true });
+        router.delete(`/updates/${id}`, { preserveScroll: true });
     }
 </script>
 
@@ -58,7 +58,7 @@
 
             {#if canManageUpdates}
                 <Link
-                    href={`/clubs/${club.id}/committees/${committee.id}/news/create`}
+                    href={`/workspaces/${club.id}/projects/${committee.id}/updates/create`}
                     class="rounded-full bg-brand px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
                 >
                     {t('committees.dashboard.add_news')}
@@ -93,7 +93,7 @@
                                 {#if canManageUpdates}
                                     <div class="flex flex-wrap gap-2">
                                         <Link
-                                            href={`/clubs/${club.id}/committees/${committee.id}/news/${update.id}/edit`}
+                                            href={`/workspaces/${club.id}/projects/${committee.id}/updates/${update.id}/edit`}
                                             class="rounded-full bg-brand/10 px-4 py-2 text-xs font-medium text-brand transition-colors hover:bg-brand/20"
                                         >
                                             {t('committees.dashboard.edit')}

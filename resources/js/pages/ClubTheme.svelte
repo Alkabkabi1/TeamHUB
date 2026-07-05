@@ -24,7 +24,7 @@
     <!-- Header banner -->
     <section
         class="relative overflow-hidden rounded-[28px] px-6 py-10 text-start shadow-[8px_8px_48px_8px_rgba(0,0,0,0.08)] sm:px-10"
-        style="background-color: {club.theme ?? '#006471'};"
+        style="background-color: {club.theme ?? '#c8924a'};"
     >
         <div class="relative z-10">
             <p class="text-[24px] leading-tight text-white sm:text-[30px]">

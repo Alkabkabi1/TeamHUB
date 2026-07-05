@@ -107,7 +107,7 @@
     html {
         scrollbar-gutter: stable;
         scroll-behavior: smooth;
-        scrollbar-color: #006471 #fdfdfd;
+        scrollbar-color: var(--brand) var(--background);
         scrollbar-width: thin;
     }
 }
@@ -119,22 +119,22 @@
     }
 
     ::-webkit-scrollbar-track {
-        background: #fdfdfd;
+        background: var(--background);
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: #006471;
+        background-color: var(--brand);
         border-radius: 9999px;
-        border: 3px solid #fdfdfd;
+        border: 3px solid var(--background);
         background-clip: padding-box;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background-color: #005158;
+        background-color: var(--brand-dark);
     }
 
     ::-webkit-scrollbar-corner {
-        background: #fdfdfd;
+        background: var(--background);
     }
 
     ::-webkit-scrollbar-button {
@@ -153,7 +153,7 @@
     }
 
     .thin-scrollbar::-webkit-scrollbar-thumb {
-        border: 1px solid #fdfdfd;
+        border: 1px solid var(--background);
     }
 }
 
@@ -163,7 +163,7 @@
       (inline on <html>) for a university or club; `--brand-dark` follows
       automatically because it is mixed from `--brand`.
     */
-    --brand: #006471;
+    --brand: #c8924a;
     --brand-dark: color-mix(in srgb, var(--brand) 82%, black);
     --brand-foreground: #ffffff;
 

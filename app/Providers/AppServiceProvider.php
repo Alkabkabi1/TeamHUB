@@ -3,11 +3,15 @@
 namespace App\Providers;
 
 use App\Ai\PendingActionService;
-use App\Enums\ClubCapability;
-use App\Enums\CommitteeCapability;
-use App\Models\Club;
-use App\Models\Committee;
+use App\Enums\ProjectCapability;
+use App\Enums\WorkspaceCapability;
+use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Policies\ProjectPolicy;
+use App\Policies\TaskPolicy;
+use App\Policies\WorkspacePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,7 +55,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-        $this->configureClubCapabilities();
+        $this->configurePolicies();
+        $this->configureWorkspaceCapabilities();
         $this->configureErrorPages();
     }
 
@@ -84,34 +89,41 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
+    protected function configurePolicies(): void
+    {
+        Gate::policy(Workspace::class, WorkspacePolicy::class);
+        Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
+    }
+
     /**
      * Register a Gate ability per club and committee capability. Each ability
      * authorizes a user against a specific club or committee; university staff
      * bypass both capability sets.
      */
-    protected function configureClubCapabilities(): void
+    protected function configureWorkspaceCapabilities(): void
     {
         Gate::before(function (User $user, string $ability): ?bool {
-            $capabilityAbilities = [...ClubCapability::values(), ...CommitteeCapability::values()];
+            $capabilityAbilities = [...WorkspaceCapability::values(), ...ProjectCapability::values()];
 
-            if ($user->isUniversityStaff() && in_array($ability, $capabilityAbilities, true)) {
+            if ($user->isAdmin() && in_array($ability, $capabilityAbilities, true)) {
                 return true;
             }
 
             return null;
         });
 
-        foreach (ClubCapability::cases() as $capability) {
+        foreach (WorkspaceCapability::cases() as $capability) {
             Gate::define(
                 $capability->value,
-                fn (User $user, Club $club): bool => $user->hasClubCapability($capability, $club),
+                fn (User $user, Workspace $workspace): bool => $user->hasWorkspaceCapability($capability, $workspace),
             );
         }
 
-        foreach (CommitteeCapability::cases() as $capability) {
+        foreach (ProjectCapability::cases() as $capability) {
             Gate::define(
                 $capability->value,
-                fn (User $user, Committee $committee): bool => $user->hasCommitteeCapability($capability, $committee),
+                fn (User $user, Project $project): bool => $user->hasProjectCapability($capability, $project),
             );
         }
     }

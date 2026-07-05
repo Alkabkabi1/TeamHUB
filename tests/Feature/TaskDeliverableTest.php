@@ -1,14 +1,14 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use App\Notifications\TaskChangesRequestedNotification;
 use App\Notifications\TaskDeliverableApprovedNotification;
 use App\Notifications\TaskSubmittedForReviewNotification;
@@ -18,33 +18,33 @@ use Illuminate\Support\Facades\Storage;
 
 function deliveryProjectLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function deliveryProjectMember(Club $club, Committee $committee, array $roles = [CommitteeRole::Member]): User
+function deliveryProjectMember(Workspace $workspace, Project $project, array $roles = [ProjectRole::Member]): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles($roles);
+    $membership->syncProjectRoles($roles);
 
     return $user;
 }
@@ -53,23 +53,23 @@ test('an assignee can submit a deliverable with a file, link, and notes', functi
     Storage::fake('public');
     Notification::fake();
 
-    [$lead, $club, $committee] = deliveryProjectLeadAndCommittee();
-    $member = deliveryProjectMember($club, $committee);
+    [$lead, $workspace, $project] = deliveryProjectLeadAndCommittee();
+    $member = deliveryProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'in_progress',
     ]);
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.deliverable', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.deliverable', [$workspace, $project, $task]), [
             'deliverable_file' => UploadedFile::fake()->create('demo.pdf', 200, 'application/pdf'),
             'deliverable_url' => 'https://figma.com/file/demo',
             'deliverable_notes' => 'Uploaded the draft and linked the design review.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $task->refresh();
 
@@ -88,11 +88,11 @@ test('an assignee can submit a deliverable with a file, link, and notes', functi
 test('a project lead can approve a submitted deliverable', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = deliveryProjectLeadAndCommittee();
-    $member = deliveryProjectMember($club, $committee);
+    [$lead, $workspace, $project] = deliveryProjectLeadAndCommittee();
+    $member = deliveryProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'review',
@@ -100,10 +100,10 @@ test('a project lead can approve a submitted deliverable', function () {
     ]);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.approve', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.approve', [$workspace, $project, $task]), [
             'review_notes' => 'Looks good. Shipping it.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $task->refresh();
 
@@ -121,11 +121,11 @@ test('a project lead can approve a submitted deliverable', function () {
 test('a project lead can request changes on a submitted deliverable', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = deliveryProjectLeadAndCommittee();
-    $member = deliveryProjectMember($club, $committee);
+    [$lead, $workspace, $project] = deliveryProjectLeadAndCommittee();
+    $member = deliveryProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'review',
@@ -133,10 +133,10 @@ test('a project lead can request changes on a submitted deliverable', function (
     ]);
 
     $this->actingAs($lead)
-        ->post(route('committees.tasks.request-changes', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.request-changes', [$workspace, $project, $task]), [
             'review_notes' => 'Please tighten the copy and re-upload the PDF.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $task->refresh();
 
@@ -152,18 +152,18 @@ test('a project lead can request changes on a submitted deliverable', function (
 });
 
 test('non-managers cannot approve deliverables', function () {
-    [$lead, $club, $committee] = deliveryProjectLeadAndCommittee();
-    $member = deliveryProjectMember($club, $committee);
-    $otherMember = deliveryProjectMember($club, $committee);
+    [$lead, $workspace, $project] = deliveryProjectLeadAndCommittee();
+    $member = deliveryProjectMember($workspace, $project);
+    $otherMember = deliveryProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'review',
     ]);
 
     $this->actingAs($otherMember)
-        ->post(route('committees.tasks.approve', [$club, $committee, $task]))
+        ->post(route('projects.tasks.approve', [$workspace, $project, $task]))
         ->assertForbidden();
 });

@@ -13,7 +13,7 @@
         index as committeesIndex,
         show as committeeShow,
         create as committeeCreate,
-    } from '@/routes/committees';
+    } from '@/routes/projects';
     import type { Club, SelectOption } from '@/types';
 
     type CommitteeItem = {

@@ -10,7 +10,7 @@
         logo_url?: string | null;
         status?: string;
     };
-    type ManagedCommittee = { id: number; name: string; club_id: number };
+    type ManagedProject = { id: number; name: string; workspace_id: number };
 
     let {
         club,
@@ -22,45 +22,45 @@
         active?: 'overview' | 'tasks' | 'files' | 'updates' | 'settings';
     } = $props();
 
-    const managedCommittees = $derived(
-        (page.props.auth?.user?.managed_committees ?? []) as ManagedCommittee[],
+    const managedProjects = $derived(
+        (page.props.auth?.user?.managed_projects ?? []) as ManagedProject[],
     );
 
     const tabs = $derived([
         {
             id: 'overview',
             label: t('app.overview'),
-            href: `/clubs/${club.id}/committees/${committee.id}/manage`,
+            href: `/workspaces/${club.id}/projects/${committee.id}/manage`,
         },
         {
             id: 'tasks',
             label: t('tasks.title'),
-            href: `/clubs/${club.id}/committees/${committee.id}/tasks`,
+            href: `/workspaces/${club.id}/projects/${committee.id}/tasks`,
         },
         {
             id: 'files',
             label: t('app.files'),
-            href: `/clubs/${club.id}/committees/${committee.id}/files`,
+            href: `/workspaces/${club.id}/projects/${committee.id}/files`,
         },
         {
             id: 'updates',
             label: t('app.updates'),
-            href: `/clubs/${club.id}/committees/${committee.id}/updates`,
+            href: `/workspaces/${club.id}/projects/${committee.id}/updates`,
         },
     ]);
 
     const switcherItems = $derived(
-        managedCommittees.map((item) => ({
+        managedProjects.map((item) => ({
             id: item.id,
             name: item.name,
-            href: `/clubs/${item.club_id}/committees/${item.id}/manage`,
+            href: `/workspaces/${item.workspace_id}/projects/${item.id}/manage`,
         })),
     );
 </script>
 
 <ManageShell
     title={committee.name}
-    breadcrumb={{ label: club.name, href: `/clubs/${club.id}/manage` }}
+    breadcrumb={{ label: club.name, href: `/workspaces/${club.id}/manage` }}
     {tabs}
     {active}
     switcherLabel={t('app.project')}
@@ -68,7 +68,7 @@
 >
     {#snippet headerActions()}
         <Link
-            href={`/clubs/${club.id}/committees/${committee.id}/edit`}
+            href={`/workspaces/${club.id}/projects/${committee.id}/edit`}
             class={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 active === 'settings'
                     ? 'bg-brand text-white'

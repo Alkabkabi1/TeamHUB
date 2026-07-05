@@ -1,18 +1,18 @@
 <?php
 
 use App\Ai\Agents\Assistant;
-use App\Ai\Tools\ApproveClubApplication;
-use App\Ai\Tools\FindClubs;
-use App\Ai\Tools\FindCommittees;
-use App\Ai\Tools\GetClubMembers;
-use App\Ai\Tools\GetClubPendingApplications;
-use App\Ai\Tools\GetClubReport;
+use App\Ai\Tools\ApproveWorkspaceMembershipRequest;
+use App\Ai\Tools\FindProjects;
+use App\Ai\Tools\FindWorkspaces;
 use App\Ai\Tools\GetMyApplications;
-use App\Ai\Tools\RejectClubApplication;
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\Committee;
+use App\Ai\Tools\GetWorkspaceMembers;
+use App\Ai\Tools\GetWorkspacePendingApplications;
+use App\Ai\Tools\GetWorkspaceReport;
+use App\Ai\Tools\RejectWorkspaceMembershipRequest;
+use App\Models\Project;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembershipRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Ai\Tools\Request;
@@ -28,141 +28,141 @@ function decodeTool(string $json): array
 }
 
 test('a plain student cannot read a club member roster', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
     $student = User::factory()->student()->create();
 
-    $result = decodeTool((new GetClubMembers($student))->handle(new Request(['club' => $club->name])));
+    $result = decodeTool((new GetWorkspaceMembers($student))->handle(new Request(['workspace' => $workspace->name])));
 
     expect($result)->toHaveKey('error')
         ->and($result)->not->toHaveKey('members');
 });
 
 test('a club supervisor can read their club member roster', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
 
-    $result = decodeTool((new GetClubMembers($supervisor))->handle(new Request(['club' => $club->name])));
+    $result = decodeTool((new GetWorkspaceMembers($supervisor))->handle(new Request(['workspace' => $workspace->name])));
 
     expect($result)->not->toHaveKey('error')
         ->and($result)->toHaveKey('members')
-        ->and($result['club'])->toBe($club->name);
+        ->and($result['workspace'])->toBe($workspace->name);
 });
 
 test('a plain student cannot read a club report', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
     $student = User::factory()->student()->create();
 
-    $result = decodeTool((new GetClubReport($student))->handle(new Request(['club' => $club->name, 'type' => 'stats'])));
+    $result = decodeTool((new GetWorkspaceReport($student))->handle(new Request(['workspace' => $workspace->name, 'type' => 'stats'])));
 
     expect($result)->toHaveKey('error')
         ->and($result)->not->toHaveKey('report');
 });
 
 test('a club supervisor can read their club stats report', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
 
-    $result = decodeTool((new GetClubReport($supervisor))->handle(new Request(['club' => $club->name, 'type' => 'stats'])));
+    $result = decodeTool((new GetWorkspaceReport($supervisor))->handle(new Request(['workspace' => $workspace->name, 'type' => 'stats'])));
 
     expect($result)->not->toHaveKey('error')
         ->and($result)->toHaveKey('report')
         ->and($result['report'])->toHaveKey('membersCount');
 });
 
-test('FindCommittees lists and searches committees by keyword', function () {
-    $club = Club::factory()->create();
+test('FindProjects lists and searches committees by keyword', function () {
+    $workspace = Workspace::factory()->create();
 
-    Committee::factory()->create(['club_id' => $club->id, 'name' => 'اللجنة التقنية']);
-    Committee::factory()->create(['club_id' => $club->id, 'name' => 'اللجنة الثقافية']);
+    Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'اللجنة التقنية']);
+    Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'اللجنة الثقافية']);
 
     $student = User::factory()->student()->create();
 
-    $all = decodeTool((new FindCommittees($student))->handle(new Request([])));
-    expect(collect($all['committees'])->pluck('name'))
+    $all = decodeTool((new FindProjects($student))->handle(new Request([])));
+    expect(collect($all['projects'])->pluck('name'))
         ->toContain('اللجنة التقنية', 'اللجنة الثقافية');
 
-    $filtered = decodeTool((new FindCommittees($student))->handle(new Request(['search' => 'تقني'])));
-    expect(collect($filtered['committees'])->pluck('name'))
+    $filtered = decodeTool((new FindProjects($student))->handle(new Request(['search' => 'تقني'])));
+    expect(collect($filtered['projects'])->pluck('name'))
         ->toContain('اللجنة التقنية')
         ->not->toContain('اللجنة الثقافية');
 });
 
-test('FindClubs lists active clubs and excludes inactive ones', function () {
-    Club::factory()->create(['name' => 'نادي نشط', 'status' => 'active']);
-    Club::factory()->inactive()->create(['name' => 'نادي غير نشط']);
+test('FindWorkspaces lists active clubs and excludes inactive ones', function () {
+    Workspace::factory()->create(['name' => 'نادي نشط', 'status' => 'active']);
+    Workspace::factory()->inactive()->create(['name' => 'نادي غير نشط']);
 
     $student = User::factory()->student()->create();
 
-    $result = decodeTool((new FindClubs($student))->handle(new Request([])));
-    $names = collect($result['clubs'])->pluck('name');
+    $result = decodeTool((new FindWorkspaces($student))->handle(new Request([])));
+    $names = collect($result['workspaces'])->pluck('name');
 
     expect($names)->toContain('نادي نشط')
         ->and($names)->not->toContain('نادي غير نشط');
 });
 
 test('GetMyApplications returns the user\'s applications with status', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
     $me = User::factory()->student()->create();
     $other = User::factory()->student()->create();
 
-    ClubJoinApplication::factory()->approved()->create(['user_id' => $me->id, 'club_id' => $club->id]);
-    ClubJoinApplication::factory()->pending()->create(['user_id' => $other->id, 'club_id' => $club->id]);
+    WorkspaceMembershipRequest::factory()->approved()->create(['user_id' => $me->id, 'workspace_id' => $workspace->id]);
+    WorkspaceMembershipRequest::factory()->pending()->create(['user_id' => $other->id, 'workspace_id' => $workspace->id]);
 
     $result = decodeTool((new GetMyApplications($me))->handle(new Request([])));
 
     expect($result['applications'])->toHaveCount(1)
         ->and($result['applications'][0]['status'])->toBe('approved')
-        ->and($result['applications'][0]['club'])->toBe($club->name);
+        ->and($result['applications'][0]['workspace'])->toBe($workspace->name);
 });
 
 test('a plain student cannot list a club\'s pending applications', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
     $student = User::factory()->student()->create();
 
-    $result = decodeTool((new GetClubPendingApplications($student))->handle(new Request(['club' => $club->name])));
+    $result = decodeTool((new GetWorkspacePendingApplications($student))->handle(new Request(['workspace' => $workspace->name])));
 
     expect($result)->toHaveKey('error')
         ->and($result)->not->toHaveKey('applications');
 });
 
 test('a club supervisor can list pending applications', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
 
-    ClubJoinApplication::factory()->pending()->create(['club_id' => $club->id]);
+    WorkspaceMembershipRequest::factory()->pending()->create(['workspace_id' => $workspace->id]);
 
-    $result = decodeTool((new GetClubPendingApplications($supervisor))->handle(new Request(['club' => $club->name])));
+    $result = decodeTool((new GetWorkspacePendingApplications($supervisor))->handle(new Request(['workspace' => $workspace->name])));
 
     expect($result)->not->toHaveKey('error')
         ->and($result['pendingCount'])->toBe(1);
 });
 
 test('the pending applications listing surfaces each application id', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
 
-    $application = ClubJoinApplication::factory()->pending()->create(['club_id' => $club->id]);
+    $application = WorkspaceMembershipRequest::factory()->pending()->create(['workspace_id' => $workspace->id]);
 
-    $result = decodeTool((new GetClubPendingApplications($supervisor))->handle(new Request(['club' => $club->name])));
+    $result = decodeTool((new GetWorkspacePendingApplications($supervisor))->handle(new Request(['workspace' => $workspace->name])));
 
     expect($result['applications'][0]['id'])->toBe($application->id);
 });
 
-test('ApproveClubApplication resolves a pending application by applicant name', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+test('ApproveWorkspaceMembershipRequest resolves a pending application by applicant name', function () {
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
     $applicant = User::factory()->student()->create(['name' => 'هند البقمي']);
 
-    $application = ClubJoinApplication::factory()->pending()->create([
-        'club_id' => $club->id,
+    $application = WorkspaceMembershipRequest::factory()->pending()->create([
+        'workspace_id' => $workspace->id,
         'user_id' => $applicant->id,
     ]);
 
     $this->actingAs($supervisor);
-    $tool = new ApproveClubApplication($supervisor);
+    $tool = new ApproveWorkspaceMembershipRequest($supervisor);
 
     // No application_id — resolve by applicant name within the club.
-    $result = decodeTool($tool->handle(new Request(['applicant' => 'هند', 'club' => $club->name])));
+    $result = decodeTool($tool->handle(new Request(['applicant' => 'هند', 'workspace' => $workspace->name])));
 
     expect($result['status'])->toBe('pending_confirmation')
         ->and($result['summary'])->toContain('هند البقمي');
@@ -174,20 +174,20 @@ test('ApproveClubApplication resolves a pending application by applicant name', 
         ->and($application->fresh()->status)->toBe('approved');
 });
 
-test('RejectClubApplication resolves a pending application by applicant name', function () {
-    $club = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+test('RejectWorkspaceMembershipRequest resolves a pending application by applicant name', function () {
+    $workspace = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
     $applicant = User::factory()->student()->create(['name' => 'سلطان الرشيدي']);
 
-    $application = ClubJoinApplication::factory()->pending()->create([
-        'club_id' => $club->id,
+    $application = WorkspaceMembershipRequest::factory()->pending()->create([
+        'workspace_id' => $workspace->id,
         'user_id' => $applicant->id,
     ]);
 
     $this->actingAs($supervisor);
-    $tool = new RejectClubApplication($supervisor);
+    $tool = new RejectWorkspaceMembershipRequest($supervisor);
 
-    $result = decodeTool($tool->handle(new Request(['applicant' => 'سلطان', 'club' => $club->name])));
+    $result = decodeTool($tool->handle(new Request(['applicant' => 'سلطان', 'workspace' => $workspace->name])));
 
     expect($result['status'])->toBe('pending_confirmation')
         ->and($result['summary'])->toContain('سلطان الرشيدي');
@@ -200,21 +200,21 @@ test('RejectClubApplication resolves a pending application by applicant name', f
 });
 
 test('resolving by applicant name is scoped to the named club', function () {
-    $club = Club::factory()->create();
-    $otherClub = Club::factory()->create();
-    $supervisor = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $otherClub = Workspace::factory()->create();
+    $supervisor = supervisorForClub($workspace);
     $applicant = User::factory()->student()->create(['name' => 'خالد المالكي']);
 
     // A pending application for the SAME applicant, but in a different club.
-    ClubJoinApplication::factory()->pending()->create([
-        'club_id' => $otherClub->id,
+    WorkspaceMembershipRequest::factory()->pending()->create([
+        'workspace_id' => $otherClub->id,
         'user_id' => $applicant->id,
     ]);
 
     $this->actingAs($supervisor);
 
     $result = decodeTool(
-        (new ApproveClubApplication($supervisor))->handle(new Request(['applicant' => 'خالد', 'club' => $club->name])),
+        (new ApproveWorkspaceMembershipRequest($supervisor))->handle(new Request(['applicant' => 'خالد', 'workspace' => $workspace->name])),
     );
 
     // Nothing matches within the supervisor's club, so no action is created.
@@ -246,8 +246,8 @@ test('students get task read tools and personal status updates but not managemen
 });
 
 test('project managers receive task mutation tools', function () {
-    $club = Club::factory()->create();
-    $manager = supervisorForClub($club);
+    $workspace = Workspace::factory()->create();
+    $manager = supervisorForClub($workspace);
 
     $tools = collect((new Assistant($manager))->tools())
         ->map(fn ($tool) => class_basename($tool));

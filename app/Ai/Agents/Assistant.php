@@ -137,8 +137,8 @@ class Assistant implements Agent, Conversational, HasTools
      */
     protected function managesAnything(): bool
     {
-        return $this->user->isUniversityStaff()
-            || $this->user->managedClubs()->isNotEmpty()
-            || $this->user->managedCommittees()->isNotEmpty();
+        return $this->user->isAdmin()
+            || $this->user->managedWorkspaces()->isNotEmpty()
+            || $this->user->managedProjects()->isNotEmpty();
     }
 }

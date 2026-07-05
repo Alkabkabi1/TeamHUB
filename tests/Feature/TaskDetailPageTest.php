@@ -1,62 +1,62 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function taskDetailLeadAndProject(): array
 {
-    $club = Club::factory()->create(['status' => 'active', 'theme' => '#112233']);
-    $committee = Committee::factory()->create([
-        'club_id' => $club->id,
+    $workspace = Workspace::factory()->create(['status' => 'active', 'theme' => '#112233']);
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'theme' => '#445566',
     ]);
     $lead = User::factory()->student()->create();
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    $committeeMembership = CommitteeMembership::factory()->create([
+    $projectMembership = ProjectMembership::factory()->create([
         'user_id' => $lead->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $committeeMembership->syncCommitteeRoles([CommitteeRole::CommitteeLead, CommitteeRole::Member]);
+    $projectMembership->syncProjectRoles([ProjectRole::ProjectLead, ProjectRole::Member]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function taskDetailMember(Club $club, Committee $committee): User
+function taskDetailMember(Workspace $workspace, Project $project): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles([CommitteeRole::Member]);
+    $membership->syncProjectRoles([ProjectRole::Member]);
 
     return $user;
 }
 
 test('task detail page renders comments, activities, and collaboration flags', function () {
-    [$lead, $club, $committee] = taskDetailLeadAndProject();
-    $member = taskDetailMember($club, $committee);
+    [$lead, $workspace, $project] = taskDetailLeadAndProject();
+    $member = taskDetailMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'status' => 'in_progress',
@@ -68,7 +68,7 @@ test('task detail page renders comments, activities, and collaboration flags', f
     $task->addComment($member, 'The main draft is ready.');
 
     $this->actingAs($lead)
-        ->get(route('committees.tasks.show', [$club, $committee, $task]))
+        ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/tasks/Show')

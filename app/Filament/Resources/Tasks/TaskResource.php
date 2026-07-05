@@ -45,8 +45,8 @@ class TaskResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['committee.club', 'assignee'])
-            ->whereHas('committee.club', fn (Builder $query) => $query->where('university_id', Auth::user()?->university_id));
+            ->with(['project.workspace', 'assignee'])
+            ->whereHas('project.workspace', fn (Builder $query) => $query->where('university_id', Auth::user()?->university_id));
     }
 
     public static function form(Schema $schema): Schema

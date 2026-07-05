@@ -14,17 +14,17 @@
         store as memberStore,
         updateRoles as memberUpdateRoles,
         destroy as memberDestroy,
-    } from '@/actions/App/Http/Controllers/CommitteeMemberController';
+    } from '@/actions/App/Http/Controllers/ProjectMemberController';
     import {
         approve as requestApprove,
         reject as requestReject,
-    } from '@/actions/App/Http/Controllers/CommitteeMembershipController';
-    import { members as reportMembers } from '@/actions/App/Http/Controllers/CommitteeReportController';
+    } from '@/actions/App/Http/Controllers/ProjectMembershipController';
+    import { members as reportMembers } from '@/actions/App/Http/Controllers/ProjectReportController';
     import {
         create as newsCreate,
         edit as newsEdit,
         destroy as postDestroy,
-    } from '@/actions/App/Http/Controllers/NewsController';
+    } from '@/actions/App/Http/Controllers/ProjectUpdateController';
     import AppHead from '@/components/AppHead.svelte';
     import DashboardCard from '@/components/DashboardCard.svelte';
     import EmptyState from '@/components/EmptyState.svelte';
@@ -289,7 +289,14 @@
     }
 
     function deletePost(id: number): void {
-        router.delete(postDestroy(id).url, { preserveScroll: true });
+        router.delete(
+            postDestroy({
+                workspace: club.id,
+                project: committee.id,
+                post: id,
+            }).url,
+            { preserveScroll: true },
+        );
     }
 </script>
 
@@ -338,7 +345,7 @@
                     </p>
                 </div>
                 <Link
-                    href={`/clubs/${club.id}/committees/${committee.id}/tasks`}
+                    href={`/workspaces/${club.id}/projects/${committee.id}/tasks`}
                     class="rounded-full bg-brand px-5 py-2 text-[13px] text-white transition-colors hover:bg-brand-dark"
                 >
                     {t('tasks.title')}
@@ -360,7 +367,7 @@
                         </p>
                     </div>
                     <Link
-                        href={`/clubs/${club.id}/committees/${committee.id}/tasks`}
+                        href={`/workspaces/${club.id}/projects/${committee.id}/tasks`}
                         class="rounded-full bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/20"
                     >
                         {t('app.show_more')}
@@ -415,7 +422,7 @@
                     <div class="space-y-3">
                         {#each recentUpdates as update (update.id)}
                             <Link
-                                href={`/clubs/${club.id}/committees/${committee.id}/updates`}
+                                href={`/workspaces/${club.id}/projects/${committee.id}/updates`}
                                 class="block rounded-[14px] border border-black/10 p-3 text-start transition-colors hover:border-brand/30 hover:bg-brand/5"
                             >
                                 <p class="text-sm font-medium text-black">

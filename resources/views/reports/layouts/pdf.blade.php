@@ -15,7 +15,7 @@
         h1 {
             font-size: 18px;
             margin: 0 0 8px;
-            color: #006471;
+            color: {{ config('theme.brand') }};
         }
         .meta {
             margin-bottom: 16px;
@@ -35,8 +35,8 @@
             text-align: {{ $locale === 'ar' ? 'right' : 'left' }};
         }
         th {
-            background: #f0f9fa;
-            color: #006471;
+            background: #faf6f0;
+            color: {{ config('theme.brand') }};
         }
         .summary {
             margin-top: 12px;
@@ -53,7 +53,7 @@
         .event-block h2 {
             font-size: 14px;
             margin: 0 0 6px;
-            color: #006471;
+            color: {{ config('theme.brand') }};
         }
         .footer {
             position: fixed;

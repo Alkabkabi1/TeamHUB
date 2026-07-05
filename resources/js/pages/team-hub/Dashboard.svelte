@@ -156,6 +156,8 @@
         {:else if demoPersona === 'project_leader'}
             <ProjectLeaderDashboardPanel
                 project={dashboard.project as never}
+                projects={dashboard.projects as never}
+                activeProjectId={dashboard.active_project_id as number | null}
                 team={dashboard.team as never}
                 reviewQueue={dashboard.review_queue as never}
                 members={dashboard.members as never}

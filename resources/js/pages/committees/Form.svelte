@@ -9,7 +9,7 @@
         index as committeesIndex,
         store as committeeStore,
         update as committeeUpdate,
-    } from '@/routes/committees';
+    } from '@/routes/projects';
     import type { ClubRef, SelectOption } from '@/types';
 
     type CommitteeData = {

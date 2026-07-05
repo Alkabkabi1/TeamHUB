@@ -82,7 +82,7 @@
         manageUrl: string;
     } = $props();
 
-    const taskUrl = `/clubs/${club.id}/committees/${committee.id}/tasks/${task.id}`;
+    const taskUrl = `/workspaces/${club.id}/projects/${committee.id}/tasks/${task.id}`;
 
     const updateForm = useForm({
         title: task.title,

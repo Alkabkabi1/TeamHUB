@@ -14,7 +14,7 @@
         store as storeMember,
         updateRoles as updateMemberRoles,
         destroy as destroyMember,
-    } from '@/actions/App/Http/Controllers/ClubMemberController';
+    } from '@/actions/App/Http/Controllers/WorkspaceMemberController';
     import DashboardCard from '@/components/DashboardCard.svelte';
     import SectionHeading from '@/components/SectionHeading.svelte';
     import StatusBadge from '@/components/StatusBadge.svelte';
@@ -81,7 +81,7 @@
 
             try {
                 const result = (await http.submit(
-                    searchMembers({ club: clubId }, { query: { q } }),
+                    searchMembers({ workspace: clubId }, { query: { q } }),
                 )) as { users: ClubManageFoundUser[] };
                 userResults = result.users ?? [];
             } catch {
@@ -111,7 +111,7 @@
         if (confirm(t('members.confirm_remove'))) {
             router.delete(
                 destroyMember.url({
-                    club: clubId,
+                    workspace: clubId,
                     membership: member.membershipId,
                 }),
                 { preserveScroll: true },
@@ -142,7 +142,7 @@
 
         router.put(
             updateMemberRoles.url({
-                club: clubId,
+                workspace: clubId,
                 membership: roleTarget.membershipId,
             }),
             { roles: selectedRoles },
@@ -479,7 +479,7 @@
                         type="checkbox"
                         checked={selectedRoles.includes(option.value)}
                         onchange={() => toggleRole(option.value)}
-                        class="size-4 accent-[#006471]"
+                        class="size-4 accent-brand"
                     />
                 </label>
             {/each}

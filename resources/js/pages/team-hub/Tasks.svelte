@@ -5,22 +5,46 @@
     import { HugeiconsIcon } from '@hugeicons/svelte';
     import { router } from '@inertiajs/svelte';
     import TaskStatusBadge from '@/components/tasks/TaskStatusBadge.svelte';
+    import HubPagination from '@/components/team-hub/HubPagination.svelte';
     import TasksTable from '@/components/team-hub/TasksTable.svelte';
     import TeamHubLayout from '@/layouts/team-hub/TeamHubLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import type { HubTask, TaskStatus } from '@/types/team-hub';
 
+    type Paginator<T> = {
+        data: T[];
+        links: { url: string | null; label: string; active: boolean }[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number | null;
+        to: number | null;
+    };
+
     let {
-        tasks = [],
+        tasks = {
+            data: [],
+            links: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: 20,
+            total: 0,
+            from: null,
+            to: null,
+        },
         search = '',
         status = 'all',
         workspaceId = null,
     }: {
-        tasks?: HubTask[];
+        tasks?: Paginator<HubTask> | HubTask[];
         search?: string;
         status?: TaskStatus | 'all';
         workspaceId?: number | null;
     } = $props();
+
+    const taskItems = $derived(Array.isArray(tasks) ? tasks : tasks.data);
+    const pagination = $derived(Array.isArray(tasks) ? null : tasks);
 
     const statuses: (TaskStatus | 'all')[] = [
         'all',
@@ -117,9 +141,15 @@
             {/each}
         </div>
 
-        <TasksTable {tasks} />
+        <TasksTable tasks={taskItems} />
         <p class="mt-4 text-center text-sm" style="color: var(--th-text-muted)">
-            {t('hub.task_count', { count: tasks.length })}
+            {t('hub.task_count', {
+                count: pagination?.total ?? taskItems.length,
+            })}
         </p>
+
+        {#if pagination}
+            <HubPagination paginator={pagination} />
+        {/if}
     </div>
 </TeamHubLayout>

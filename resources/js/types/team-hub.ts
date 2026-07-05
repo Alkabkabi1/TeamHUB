@@ -77,7 +77,7 @@ export type CalendarMarker = {
 };
 
 export type RoleContext = {
-    panel: 'student' | 'committee_lead' | 'club_lead' | 'staff';
+    panel: 'member' | 'project_lead' | 'workspace_lead' | 'staff';
     review_count: number;
     assigned_count: number;
 };

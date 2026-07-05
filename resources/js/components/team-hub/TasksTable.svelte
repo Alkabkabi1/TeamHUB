@@ -46,31 +46,17 @@
                             {#if task.url}
                                 <Link
                                     href={task.url}
-                                    class="flex items-center gap-2.5 font-medium hover:underline"
+                                    class="font-medium hover:underline"
                                     style="color: var(--th-text)"
                                 >
-                                    <input
-                                        type="checkbox"
-                                        class="size-4 rounded border-gray-300 accent-[var(--th-primary)]"
-                                        checked={task.status === 'done'}
-                                        tabindex={-1}
-                                        onclick={(e) => e.preventDefault()}
-                                    />
                                     {task.title}
                                 </Link>
                             {:else}
-                                <div class="flex items-center gap-2.5">
-                                    <input
-                                        type="checkbox"
-                                        class="size-4 rounded border-gray-300 accent-[var(--th-primary)]"
-                                        checked={task.status === 'done'}
-                                    />
-                                    <span
-                                        class="font-medium"
-                                        style="color: var(--th-text)"
-                                        >{task.title}</span
-                                    >
-                                </div>
+                                <span
+                                    class="font-medium"
+                                    style="color: var(--th-text)"
+                                    >{task.title}</span
+                                >
                             {/if}
                         </td>
                         <td

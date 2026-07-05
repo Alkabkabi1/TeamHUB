@@ -1,6 +1,5 @@
 <script lang="ts">
     import {
-        BookDownloadIcon,
         DashboardBrowsingIcon,
         Home03Icon,
         Notification01Icon,
@@ -8,7 +7,6 @@
         Logout03Icon,
         Setting07Icon,
         UserCircleIcon,
-        UserGroup03Icon,
     } from '@hugeicons/core-free-icons';
     import { page, router } from '@inertiajs/svelte';
     import ClubManageNavItem from '@/components/ClubManageNavItem.svelte';
@@ -19,8 +17,7 @@
     import { toUrl } from '@/lib/utils';
     import {
         home,
-        clubs,
-        resources,
+        dashboard,
         login,
         logout,
         studentDashboard,
@@ -35,8 +32,8 @@
     const role = $derived(auth?.user?.role as string);
     const isAuthenticated = $derived(!!auth?.user);
     // Club supervision is a per-club relationship, not a global role.
-    const isClubSupervisor = $derived(!!auth?.user?.is_club_supervisor);
-    const isCommitteeLeader = $derived(!!auth?.user?.is_committee_leader);
+    const isWorkspaceLead = $derived(!!auth?.user?.is_workspace_lead);
+    const isProjectLead = $derived(!!auth?.user?.is_project_lead);
     const unreadNotificationsCount = $derived(
         Number(auth?.user?.unread_notifications_count ?? 0),
     );
@@ -48,12 +45,15 @@
     // dedicated cross-project tasks view.
     const mainNavItems: NavItem[] = $derived([
         { title: t('nav.home'), href: home(), icon: Home03Icon },
-        { title: t('nav.clubs'), href: clubs(), icon: UserGroup03Icon },
-        {
-            title: t('nav.resources'),
-            href: resources(),
-            icon: BookDownloadIcon,
-        },
+        ...(isAuthenticated
+            ? [
+                  {
+                      title: t('nav.dashboard'),
+                      href: dashboard(),
+                      icon: DashboardBrowsingIcon,
+                  },
+              ]
+            : []),
         {
             title: t('nav.my_work'),
             href: studentDashboard(),
@@ -73,7 +73,7 @@
             badge: unreadNotificationsCount,
             roles: ['student', 'university_staff'],
         },
-        ...(isClubSupervisor
+        ...(isWorkspaceLead
             ? [
                   {
                       title: t('nav.club_supervisor_dashboard'),
@@ -83,7 +83,7 @@
                   },
               ]
             : []),
-        ...(isCommitteeLeader
+        ...(isProjectLead
             ? [
                   {
                       title: t('nav.committee_leader_dashboard'),

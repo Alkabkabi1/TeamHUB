@@ -1,24 +1,24 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembershipRequest;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-test('club join application belongs to club user and reviewer', function () {
-    $application = ClubJoinApplication::factory()->create();
+test('workspace membership request belongs to workspace user and reviewer', function () {
+    $application = WorkspaceMembershipRequest::factory()->create();
 
-    expect($application->club())->toBeInstanceOf(BelongsTo::class)
-        ->and($application->club->id)->toBe($application->club_id)
+    expect($application->workspace())->toBeInstanceOf(BelongsTo::class)
+        ->and($application->workspace->id)->toBe($application->workspace_id)
         ->and($application->user())->toBeInstanceOf(BelongsTo::class)
         ->and($application->user->id)->toBe($application->user_id);
 });
 
-test('club join application casts attributes correctly', function () {
+test('workspace membership request casts attributes correctly', function () {
     $reviewer = User::factory()->create();
     $reviewedAt = now()->startOfSecond();
 
-    $application = ClubJoinApplication::factory()->approved()->create([
+    $application = WorkspaceMembershipRequest::factory()->approved()->create([
         'reviewed_by' => $reviewer->id,
         'reviewed_at' => $reviewedAt,
         'weekly_hours' => 6,
@@ -31,7 +31,7 @@ test('club join application casts attributes correctly', function () {
 });
 
 test('pending factory state keeps application awaiting review', function () {
-    $application = ClubJoinApplication::factory()->pending()->create();
+    $application = WorkspaceMembershipRequest::factory()->pending()->create();
 
     expect($application->status)->toBe('pending')
         ->and($application->reviewed_at)->toBeNull()
@@ -39,7 +39,7 @@ test('pending factory state keeps application awaiting review', function () {
 });
 
 test('approved factory state records review metadata', function () {
-    $application = ClubJoinApplication::factory()->approved()->create();
+    $application = WorkspaceMembershipRequest::factory()->approved()->create();
 
     expect($application->status)->toBe('approved')
         ->and($application->reviewed_at)->not->toBeNull();
@@ -49,7 +49,7 @@ test('rejected factory state records review metadata', function () {
     $reviewer = User::factory()->clubSupervisor()->create();
     $reviewedAt = now()->startOfSecond();
 
-    $application = ClubJoinApplication::factory()->rejected()->create([
+    $application = WorkspaceMembershipRequest::factory()->rejected()->create([
         'reviewed_by' => $reviewer->id,
         'reviewed_at' => $reviewedAt,
     ]);
@@ -60,18 +60,15 @@ test('rejected factory state records review metadata', function () {
         ->and($application->reviewer->id)->toBe($reviewer->id);
 });
 
-test('club join application is mass assignable', function () {
-    $club = Club::factory()->create();
+test('workspace membership request is mass assignable', function () {
+    $workspace = Workspace::factory()->create();
     $user = User::factory()->create();
 
-    $application = ClubJoinApplication::create([
-        'club_id' => $club->id,
+    $application = WorkspaceMembershipRequest::create([
+        'workspace_id' => $workspace->id,
         'user_id' => $user->id,
         'full_name' => 'وئام راشد',
-        'university_email' => $user->email,
         'phone' => '0500000000',
-        'level' => 'المستوى العاشر',
-        'major' => 'هندسة البرمجيات',
         'skills' => 'برمجة',
         'weekly_hours' => 4,
         'tools' => 'VS Code',
@@ -82,6 +79,6 @@ test('club join application is mass assignable', function () {
 
     expect($application->fresh())
         ->full_name->toBe('وئام راشد')
-        ->major->toBe('هندسة البرمجيات')
+        ->skills->toBe('برمجة')
         ->status->toBe('pending');
 });

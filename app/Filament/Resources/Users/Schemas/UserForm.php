@@ -29,7 +29,7 @@ class UserForm
                 Select::make('role')
                     ->label(__('admin.users.form.role'))
                     ->options(UserRole::class)
-                    ->default(UserRole::Student->value)
+                    ->default(UserRole::Member->value)
                     ->required(),
 
                 // Password: required when creating; on edit it is hidden behind a

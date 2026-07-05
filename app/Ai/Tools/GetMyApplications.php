@@ -2,7 +2,7 @@
 
 namespace App\Ai\Tools;
 
-use App\Models\ClubJoinApplication;
+use App\Models\WorkspaceMembershipRequest;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Tools\Request;
 use Stringable;
@@ -21,15 +21,13 @@ class GetMyApplications extends AssistantTool
 
     public function handle(Request $request): Stringable|string
     {
-        $applications = $this->user->joinApplications()
-            ->with('club:id,name')
+        $applications = $this->user->membershipRequests()
+            ->with('workspace:id,name')
             ->latest()
             ->get()
-            ->map(fn (ClubJoinApplication $application): array => [
-                'club' => $application->club?->name,
+            ->map(fn (WorkspaceMembershipRequest $application): array => [
+                'workspace' => $application->workspace?->name,
                 'status' => $application->status,
-                'major' => $application->major,
-                'level' => $application->level,
                 'submittedAt' => $application->created_at?->toIso8601String(),
                 'reviewedAt' => $application->reviewed_at?->toIso8601String(),
             ])

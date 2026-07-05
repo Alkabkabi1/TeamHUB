@@ -6,9 +6,9 @@
     import EmptyState from '@/components/EmptyState.svelte';
     import HeroBanner from '@/components/HeroBanner.svelte';
     import { formatNumber, t } from '@/lib/i18n.svelte';
-    import { clubs as clubsRoute } from '@/routes';
-    import { show as clubsShow } from '@/routes/clubs';
-    import { create as clubsJoinCreate } from '@/routes/clubs/join';
+    import { home } from '@/routes';
+    import { show as clubsShow } from '@/routes/workspaces';
+    import { create as clubsJoinCreate } from '@/routes/workspaces/join';
     import type { ClubListItem, SelectOption } from '@/types';
 
     let {
@@ -74,7 +74,7 @@
         />
 
         <CatalogFilterBar
-            action={clubsRoute().url}
+            action={home().url}
             {filters}
             {filterOptions}
             searchPlaceholder={t('clubs.search_placeholder')}

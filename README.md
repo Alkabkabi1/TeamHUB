@@ -3,7 +3,7 @@
 > Arabic-first teamwork platform for small organizations — workspaces, projects, tasks, deliverables, and files in one place.
 
 **Repository:** [github.com/Alkabkabi1/TeamHUB](https://github.com/Alkabkabi1/TeamHUB)  
-**Status:** TeamHUB MVP implemented locally; next roadmap handoff is Phase 8 deploy/pilot  
+**Status:** Phase 1 (domain re-engineering) **approved** — see [docs/PHASE_1_CLOSURE.md](./docs/PHASE_1_CLOSURE.md)  
 **License:** MIT — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE)  
 **Planning doc:** [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 
@@ -17,7 +17,7 @@ TeamHUB started from the Ruwad university-clubs codebase and now operates as a *
 
 | Area | Description |
 |------|-------------|
-| **Workspaces & projects** | Org container + project teams (mapped from Club → Workspace, Committee → Project) |
+| **Workspaces & projects** | Org container + project teams (`Workspace`, `Project`) |
 | **Tasks** | Title, description, assignee, due date, priority, status |
 | **Deliverables on complete** | Upload a file, paste a link (Figma, Drive, GitHub PR), or add notes when finishing work |
 | **Review workflow** | `Todo` → `In Progress` → `Review` → `Done` — submit output, lead approves |
@@ -93,24 +93,33 @@ php artisan serve
 npm run dev
 ```
 
-### TeamHUB docs
+### Documentation
+
+**Product & engineering**
+
+- [Phase 1 closure report](./docs/PHASE_1_CLOSURE.md) — sign-off, verification, Phase 2 handoff
+- [Product vision](./docs/PRODUCT_VISION.md)
+- [Domain model](./docs/DOMAIN_MODEL.md)
+- [Engineering principles](./docs/ENGINEERING_PRINCIPLES.md)
+
+**Operations**
 
 - [TeamHUB user guide](./TEAMHUB_USER_GUIDE.md)
 - [TeamHUB deploy runbook](./TEAMHUB_DEPLOY_RUNBOOK.md)
 - [Validation checklist](./VALIDATION_READINESS_CHECKLIST.md)
 
-### Internal glossary
+### Domain vocabulary
 
-For the current MVP, TeamHUB reuses the existing domain models internally:
+Backend and database use canonical names. UI filenames still carry legacy labels until Phase 2:
 
-| Existing model | TeamHUB meaning |
-|----------------|-----------------|
-| `Club` | Workspace |
-| `Committee` | Project |
-| `ClubMembership` | Workspace membership |
-| `CommitteeMembership` | Project membership |
-| `Post` | Project update |
-| `ClubResource` | Project file |
+| Canonical (live) | Legacy UI residue (Phase 2) |
+|------------------|-------------------------------|
+| `Workspace` | `ClubPage`, `ClubTheme`, … |
+| `Project` | `CommitteePage`, … |
+| `WorkspaceMembership` | — |
+| `ProjectMembership` | — |
+| `ProjectUpdate` | — |
+| `ProjectFile` | — |
 
 ### Design preview (TeamHUB UI)
 
@@ -146,14 +155,15 @@ tests/               Pest feature & unit tests
 
 ## Roadmap
 
-Implementation has been delivered in phases. Current state:
+| Phase | Focus | Status |
+|-------|-------|--------|
+| **0** | Product vision, domain model, engineering principles | Done |
+| **1** | Domain re-engineering (Workspace → Project → Task) | **Done** — [closure report](./docs/PHASE_1_CLOSURE.md) |
+| **1.5** | P0 hardening (AI, Inertia contract, demo accounts) | Done |
+| **2** | UI / surface rename (`ClubPage` → `WorkspacePage`, etc.) | Next |
+| **3+** | Deploy, pilot, polish | Planned |
 
-1. **Phases 0–2** — Branding pivot, task model, deliverables, and review workflow are complete
-2. **Phases 3–6** — Workspace/project shells, member dashboard, comments, notifications, and task-first AI assistant are complete
-3. **Phase 7** — Polish, i18n, docs, and validation are the current release-hardening pass
-4. **Phase 8** — Next handoff: deployment, pilot rollout, and operational follow-up
-
-Full checklists: [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
+Legacy pivot checklist: [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 
 ---
 

@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubJoinApplication;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
+use App\Models\WorkspaceMembershipRequest;
 
 test('isMember is false for guest on club page', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    $this->get(route('clubs.show', $club))
+    $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
@@ -18,10 +18,10 @@ test('isMember is false for guest on club page', function () {
 
 test('isMember is false for user with no membership', function () {
     $user = User::factory()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
-        ->get(route('clubs.show', $club))
+        ->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
@@ -31,17 +31,15 @@ test('isMember is false for user with no membership', function () {
 
 test('isMember is true for approved member', function () {
     $user = User::factory()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
-        'status' => 'approved',
-        'joined_at' => now(),
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($user)
-        ->get(route('clubs.show', $club))
+        ->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
@@ -51,60 +49,18 @@ test('isMember is true for approved member', function () {
 
 test('isMember is true for user with pending application', function () {
     $user = User::factory()->create(['email' => 'pending@teamhub.test']);
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubJoinApplication::factory()->pending()->create([
+    WorkspaceMembershipRequest::factory()->pending()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
-        'university_email' => $user->email,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($user)
-        ->get(route('clubs.show', $club))
+        ->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('ClubPage')
             ->where('isMember', true)
-        );
-});
-
-test('is_member flag is false on clubs catalog for non-member', function () {
-    $user = User::factory()->create();
-    $club = Club::factory()->create(['status' => 'active', 'name' => 'Test Club']);
-
-    $this->actingAs($user)
-        ->get(route('clubs'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('ClubsPage')
-            ->has('clubs', 1, fn ($c) => $c
-                ->where('id', $club->id)
-                ->where('is_member', false)
-                ->etc()
-            )
-        );
-});
-
-test('is_member flag is true on clubs catalog for approved member', function () {
-    $user = User::factory()->create();
-    $club = Club::factory()->create(['status' => 'active', 'name' => 'Test Club']);
-
-    ClubMembership::create([
-        'user_id' => $user->id,
-        'club_id' => $club->id,
-        'status' => 'approved',
-        'joined_at' => now(),
-    ]);
-
-    $this->actingAs($user)
-        ->get(route('clubs'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('ClubsPage')
-            ->has('clubs', 1, fn ($c) => $c
-                ->where('id', $club->id)
-                ->where('is_member', true)
-                ->etc()
-            )
         );
 });

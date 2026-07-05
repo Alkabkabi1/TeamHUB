@@ -2,75 +2,46 @@
 
 namespace App\Models;
 
-use App\Enums\ClubCapability;
-use App\Enums\ClubRole;
-use App\Enums\CommitteeCapability;
-use App\Enums\CommitteeRole;
+use App\Enums\ProjectCapability;
+use App\Enums\ProjectRole;
 use App\Enums\UserRole;
-use App\Support\DemoRoles;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
+use App\Enums\WorkspaceCapability;
+use App\Enums\WorkspaceRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'university_id', 'locale'])]
+#[Fillable(['name', 'email', 'password', 'role', 'locale'])]
 #[Hidden([
     'password',
     'two_factor_secret',
     'two_factor_recovery_codes',
     'remember_token',
-    'qr_token',
 ])]
 class User extends Authenticatable implements FilamentUser, HasLocalePreference
 {
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
-    /**
-     * Only university staff may enter the Filament administration panel.
-     */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isUniversityStaff();
+        return $this->isAdmin();
     }
 
-    /**
-     * The locale notifications (and other localized messages) are rendered in.
-     *
-     * Arabic is the platform default, so users who never explicitly switched
-     * to English always receive Arabic regardless of who triggers the message
-     * or the request locale at send time.
-     */
     public function preferredLocale(): string
     {
         return $this->locale ?: 'ar';
     }
 
-    /**
-     * @return BelongsTo<University, $this>
-     */
-    public function university(): BelongsTo
-    {
-        return $this->belongsTo(University::class);
-    }
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
@@ -78,300 +49,187 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
         'role' => UserRole::class,
     ];
 
-    public function eventAttendances()
+    public function workspaceMemberships(): HasMany
     {
-        return $this->hasMany(EventAttendance::class);
+        return $this->hasMany(WorkspaceMembership::class);
     }
 
-    public function volunteerHours()
+    public function workspaceMembership(): HasOne
     {
-        return $this->hasMany(VolunteerHour::class);
+        return $this->hasOne(WorkspaceMembership::class);
     }
 
-    /**
-     * The opaque token encoded in the user's personal attendance QR code,
-     * generated and persisted lazily on first use.
-     */
-    public function attendanceQrToken(): string
-    {
-        if (empty($this->qr_token)) {
-            $this->forceFill(['qr_token' => (string) Str::uuid()])->save();
-        }
-
-        return $this->qr_token;
-    }
-
-    /**
-     * The user's attendance QR rendered as an inline SVG markup string. A club
-     * Attendance Scanner reads the encoded token to log the student's presence.
-     */
-    public function attendanceQrSvg(): string
-    {
-        $renderer = new ImageRenderer(
-            new RendererStyle(320, 1),
-            new SvgImageBackEnd,
-        );
-
-        return (new Writer($renderer))->writeString($this->attendanceQrToken());
-    }
-
-    /**
-     * @return HasMany<Certificate, $this>
-     */
-    public function certificates(): HasMany
-    {
-        return $this->hasMany(Certificate::class);
-    }
-
-    public function clubMemberships()
-    {
-        return $this->hasMany(ClubMembership::class);
-    }
-
-    public function clubMembership()
-    {
-        return $this->hasOne(ClubMembership::class);
-    }
-
-    public function club()
+    public function workspace(): HasOneThrough
     {
         return $this->hasOneThrough(
-            Club::class,
-            ClubMembership::class,
-            'user_id', // FK in club_memberships
-            'id',      // PK in clubs
-            'id',      // PK in users
-            'club_id'  // FK in club_memberships
+            Workspace::class,
+            WorkspaceMembership::class,
+            'user_id',
+            'id',
+            'id',
+            'workspace_id',
         );
     }
 
-    public function joinApplications()
+    public function membershipRequests(): HasMany
     {
-        return $this->hasMany(ClubJoinApplication::class);
+        return $this->hasMany(WorkspaceMembershipRequest::class);
     }
 
-    /**
-     * Whether the user belongs to the genuinely-global university-staff tier.
-     */
-    public function isUniversityStaff(): bool
+    public function isAdmin(): bool
     {
-        return $this->role === UserRole::UniversityStaff;
+        return $this->role === UserRole::Admin;
     }
 
-    /**
-     * Whether the user belongs to the student tier.
-     */
-    public function isStudent(): bool
+    public function isMember(): bool
     {
-        return $this->role === UserRole::Student;
+        return $this->role === UserRole::Member;
     }
 
-    /**
-     * The (relative) URL the user should land on after authenticating. Staff go
-     * to the Filament panel; users who manage one or more clubs land on their
-     * first club's management dashboard; everyone else goes to the student
-     * dashboard.
-     */
     public function homeUrl(): string
     {
-        if (config('demo.quick_login') && DemoRoles::find($this->email) !== null) {
-            return route('hub.dashboard', absolute: false);
-        }
-
-        if ($this->isUniversityStaff()) {
-            return route(UserRole::UniversityStaff->dashboardRoute(), absolute: false);
-        }
-
-        return route('hub.dashboard', absolute: false);
+        return route('dashboard', absolute: false);
     }
 
-    /**
-     * The user's approved membership in a given club, if any.
-     */
-    public function clubMembershipFor(Club $club): ?ClubMembership
+    public function workspaceMembershipFor(Workspace $workspace): ?WorkspaceMembership
     {
-        return $this->clubMemberships()
-            ->where('club_id', $club->id)
+        return $this->workspaceMemberships()
+            ->where('workspace_id', $workspace->id)
             ->where('status', 'approved')
             ->with('roles')
             ->first();
     }
 
     /**
-     * The capabilities the user holds within a given club (union of role capabilities).
-     *
-     * @return Collection<int, ClubCapability>
+     * @return Collection<int, WorkspaceCapability>
      */
-    public function clubCapabilitiesFor(Club $club): Collection
+    public function workspaceCapabilitiesFor(Workspace $workspace): Collection
     {
-        $membership = $this->clubMembershipFor($club);
+        $membership = $this->workspaceMembershipFor($workspace);
 
         if ($membership === null) {
             return collect();
         }
 
-        return $membership->clubRoles()
-            ->flatMap(fn (ClubRole $role): array => $role->capabilities())
+        return $membership->workspaceRoles()
+            ->flatMap(fn (WorkspaceRole $role): array => $role->capabilities())
             ->unique()
             ->values();
     }
 
-    public function hasClubCapability(ClubCapability $capability, Club $club): bool
+    public function hasWorkspaceCapability(WorkspaceCapability $capability, Workspace $workspace): bool
     {
-        return $this->clubCapabilitiesFor($club)->contains($capability);
+        return $this->workspaceCapabilitiesFor($workspace)->contains($capability);
+    }
+
+    public function canManageWorkspace(Workspace $workspace): bool
+    {
+        return $this->isAdmin() || $this->workspaceCapabilitiesFor($workspace)->isNotEmpty();
     }
 
     /**
-     * Whether the user may open a club's management dashboard. University staff
-     * may manage any club (Gate::before); everyone else needs at least one
-     * club-scoped capability there.
+     * @return Collection<int, Workspace>
      */
-    public function canManageClub(Club $club): bool
+    public function managedWorkspaces(): Collection
     {
-        return $this->isUniversityStaff() || $this->clubCapabilitiesFor($club)->isNotEmpty();
-    }
-
-    /**
-     * The clubs in which the user holds at least one management role, with the
-     * club's branding eager-loaded. Soft-deleted (archived) clubs are excluded.
-     *
-     * @return Collection<int, Club>
-     */
-    public function managedClubs(): Collection
-    {
-        return $this->clubMemberships()
+        return $this->workspaceMemberships()
             ->where('status', 'approved')
-            ->whereHas('roles', fn ($query) => $query->whereIn('role', ClubRole::managerRoleValues()))
-            ->with('club')
+            ->whereHas('roles', fn ($query) => $query->whereIn('role', WorkspaceRole::managerRoleValues()))
+            ->with('workspace')
             ->get()
-            ->pluck('club')
+            ->pluck('workspace')
             ->filter()
             ->unique('id')
             ->values();
     }
 
-    /**
-     * The first club in which the user holds a management role, if any.
-     */
-    public function managedClub(): ?Club
+    public function managedWorkspace(): ?Workspace
     {
-        return $this->managedClubs()->first();
+        return $this->managedWorkspaces()->first();
     }
 
-    /**
-     * @return HasMany<CommitteeMembership, $this>
-     */
-    public function committeeMemberships()
+    public function projectMemberships(): HasMany
     {
-        return $this->hasMany(CommitteeMembership::class);
+        return $this->hasMany(ProjectMembership::class);
     }
 
-    /**
-     * @return HasMany<Task, $this>
-     */
     public function createdTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'created_by');
     }
 
-    /**
-     * @return HasMany<Task, $this>
-     */
     public function assignedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'assigned_to');
     }
 
-    /**
-     * @return HasMany<Task, $this>
-     */
     public function reviewedTasks(): HasMany
     {
         return $this->hasMany(Task::class, 'reviewed_by');
     }
 
-    /**
-     * @return HasMany<TaskComment, $this>
-     */
     public function taskComments(): HasMany
     {
         return $this->hasMany(TaskComment::class);
     }
 
-    /**
-     * @return HasMany<TaskActivity, $this>
-     */
     public function taskActivities(): HasMany
     {
         return $this->hasMany(TaskActivity::class);
     }
 
-    /**
-     * The user's approved membership in a given committee, if any.
-     */
-    public function committeeMembershipFor(Committee $committee): ?CommitteeMembership
+    public function projectMembershipFor(Project $project): ?ProjectMembership
     {
-        return $this->committeeMemberships()
-            ->where('committee_id', $committee->id)
+        return $this->projectMemberships()
+            ->where('project_id', $project->id)
             ->where('status', 'approved')
             ->with('roles')
             ->first();
     }
 
     /**
-     * The capabilities the user holds within a given committee. University staff
-     * and the parent club's leads (holders of ManageClub) implicitly hold every
-     * committee capability — they oversee all of a club's committees. Everyone
-     * else gets the union of their committee-role capabilities.
-     *
-     * @return Collection<int, CommitteeCapability>
+     * @return Collection<int, ProjectCapability>
      */
-    public function committeeCapabilitiesFor(Committee $committee): Collection
+    public function projectCapabilitiesFor(Project $project): Collection
     {
-        if ($this->isUniversityStaff() || $this->hasClubCapability(ClubCapability::ManageClub, $committee->club)) {
-            return collect(CommitteeCapability::all());
+        if ($this->isAdmin() || $this->hasWorkspaceCapability(WorkspaceCapability::ManageWorkspace, $project->workspace)) {
+            return collect(ProjectCapability::all());
         }
 
-        $membership = $this->committeeMembershipFor($committee);
+        $membership = $this->projectMembershipFor($project);
 
         if ($membership === null) {
             return collect();
         }
 
-        return $membership->committeeRoles()
-            ->flatMap(fn (CommitteeRole $role): array => $role->capabilities())
+        return $membership->projectRoles()
+            ->flatMap(fn (ProjectRole $role): array => $role->capabilities())
             ->unique()
             ->values();
     }
 
-    public function hasCommitteeCapability(CommitteeCapability $capability, Committee $committee): bool
+    public function hasProjectCapability(ProjectCapability $capability, Project $project): bool
     {
-        return $this->committeeCapabilitiesFor($committee)->contains($capability);
+        return $this->projectCapabilitiesFor($project)->contains($capability);
+    }
+
+    public function canManageProject(Project $project): bool
+    {
+        return $this->projectCapabilitiesFor($project)->isNotEmpty();
     }
 
     /**
-     * Whether the user may open a committee's management dashboard.
+     * @return Collection<int, Project>
      */
-    public function canManageCommittee(Committee $committee): bool
+    public function managedProjects(): Collection
     {
-        return $this->committeeCapabilitiesFor($committee)->isNotEmpty();
-    }
-
-    /**
-     * The committees in which the user holds at least one management role.
-     * Soft-deleted (archived) committees and those of archived clubs are excluded.
-     *
-     * @return Collection<int, Committee>
-     */
-    public function managedCommittees(): Collection
-    {
-        return $this->committeeMemberships()
+        return $this->projectMemberships()
             ->where('status', 'approved')
-            ->whereHas('roles', fn ($query) => $query->whereIn('role', CommitteeRole::managerRoleValues()))
-            ->whereHas('committee.club')
-            ->with('committee')
+            ->whereHas('roles', fn ($query) => $query->whereIn('role', ProjectRole::managerRoleValues()))
+            ->whereHas('project.workspace')
+            ->with('project')
             ->get()
-            ->pluck('committee')
+            ->pluck('project')
             ->filter()
             ->unique('id')
             ->values();

@@ -12,8 +12,8 @@
     import { Spinner } from '@/components/ui/spinner';
     import TeamHubAuthLayout from '@/layouts/auth/TeamHubAuthLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
-    import { show } from '@/routes/clubs';
-    import { store } from '@/routes/clubs/join';
+    import { show } from '@/routes/workspaces';
+    import { store } from '@/routes/workspaces/join';
     import type { ClubRef } from '@/types';
 
     type Defaults = {

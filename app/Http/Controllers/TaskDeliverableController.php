@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SubmitTaskDeliverableRequest;
-use App\Models\Club;
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
@@ -14,8 +14,8 @@ class TaskDeliverableController extends Controller
 {
     public function store(
         SubmitTaskDeliverableRequest $request,
-        Club $club,
-        Committee $committee,
+        Workspace $workspace,
+        Project $project,
         Task $task,
     ): RedirectResponse {
         /** @var User $user */
@@ -38,6 +38,6 @@ class TaskDeliverableController extends Controller
             'message' => __('tasks.deliverable_submitted'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 }

@@ -14,7 +14,7 @@
     import { globalSearch, openGlobalSearch } from '@/lib/globalSearch.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
-    import { clubs, home, resources, search, studentDashboard } from '@/routes';
+    import { home, dashboard, studentDashboard } from '@/routes';
 
     type SearchItem = {
         id: number;
@@ -58,11 +58,10 @@
 
     const quickLinks = $derived<QuickLink[]>([
         { title: t('nav.home'), href: toUrl(home()), icon: Home03Icon },
-        { title: t('nav.clubs'), href: toUrl(clubs()), icon: UserGroup03Icon },
         {
-            title: t('nav.resources'),
-            href: toUrl(resources()),
-            icon: BookDownloadIcon,
+            title: t('nav.dashboard'),
+            href: toUrl(dashboard()),
+            icon: DashboardBrowsingIcon,
         },
         ...(role === 'student'
             ? [
@@ -110,35 +109,8 @@
             return;
         }
 
-        loading = true;
-        const controller = new AbortController();
-
-        const timer = window.setTimeout(() => {
-            fetch(search.url({ query: { q: term } }), {
-                signal: controller.signal,
-                headers: { Accept: 'application/json' },
-            })
-                .then((response) => response.json())
-                .then((data: { groups: SearchGroups }) => {
-                    groups = data.groups ?? emptyGroups;
-                })
-                .catch((error: unknown) => {
-                    if (
-                        !(error instanceof DOMException) ||
-                        error.name !== 'AbortError'
-                    ) {
-                        groups = emptyGroups;
-                    }
-                })
-                .finally(() => {
-                    loading = false;
-                });
-        }, 250);
-
-        return () => {
-            window.clearTimeout(timer);
-            controller.abort();
-        };
+        loading = false;
+        groups = emptyGroups;
     });
 
     $effect(() => {

@@ -13,7 +13,7 @@
         <link rel="icon" type="image/svg+xml" href="/teamhub-favicon.svg">
         <link rel="apple-touch-icon" href="/teamhub-icon.svg">
         <link rel="manifest" href="/site.webmanifest">
-        <meta name="theme-color" content="{{ config('theme.brand', '#006471') }}">
+        <meta name="theme-color" content="{{ config('theme.brand', '#c8924a') }}">
 
         {{-- Saudi is the primary typeface; preload so it paints without waiting on the CDN. --}}
         <link rel="preload" href="/fonts/saudi/SaudiWeb-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -86,7 +86,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
 
         {{-- Default TeamHUB brand color, server-rendered before any workspace override. --}}
-        <style>:root{--brand: {{ config('theme.brand', '#006471') }};}</style>
+        <style>:root{--brand: {{ config('theme.brand', '#c8924a') }};}</style>
 
         {{-- SEO defaults. This SPA is not server-rendered, so crawlers see these
              document-level tags; per-page <title> is layered on by Inertia. --}}

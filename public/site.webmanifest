@@ -7,7 +7,7 @@
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#006471",
+    "theme_color": "#c8924a",
     "icons": [
         {
             "src": "/teamhub-icon.svg",

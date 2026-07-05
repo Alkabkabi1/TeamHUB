@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,15 +12,12 @@ use Illuminate\Validation\Rule;
 
 class StoreTaskRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        $committee = $this->route('committee');
+        $project = $this->route('project');
 
-        return $committee instanceof Committee
-            && ($this->user()?->can('create', [Task::class, $committee]) ?? false);
+        return $project instanceof Project
+            && ($this->user()?->can('create', [Task::class, $project]) ?? false);
     }
 
     /**
@@ -31,7 +28,7 @@ class StoreTaskRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'assigned_to' => ['nullable', 'integer', Rule::in($this->approvedCommitteeMemberIds())],
+            'assigned_to' => ['nullable', 'integer', Rule::in($this->approvedProjectMemberIds())],
             'priority' => ['nullable', 'string', Rule::in(TaskPriority::values())],
             'status' => ['nullable', 'string', Rule::in([TaskStatus::Todo->value, TaskStatus::InProgress->value])],
             'due_at' => ['nullable', 'date'],
@@ -55,15 +52,15 @@ class StoreTaskRequest extends FormRequest
     /**
      * @return array<int, int>
      */
-    private function approvedCommitteeMemberIds(): array
+    private function approvedProjectMemberIds(): array
     {
-        $committee = $this->route('committee');
+        $project = $this->route('project');
 
-        if (! $committee instanceof Committee) {
+        if (! $project instanceof Project) {
             return [];
         }
 
-        return $committee->memberships()
+        return $project->memberships()
             ->where('status', 'approved')
             ->pluck('user_id')
             ->map(fn (mixed $id): int => (int) $id)

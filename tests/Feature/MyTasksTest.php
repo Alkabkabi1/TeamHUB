@@ -1,39 +1,39 @@
 <?php
 
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function myTasksMemberContext(): array
 {
     $user = User::factory()->student()->create();
 
-    $workspaceA = Club::factory()->create(['status' => 'active']);
-    $workspaceB = Club::factory()->create(['status' => 'active']);
+    $workspaceA = Workspace::factory()->create(['status' => 'active']);
+    $workspaceB = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $workspaceA->id,
+        'workspace_id' => $workspaceA->id,
     ]);
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $workspaceB->id,
+        'workspace_id' => $workspaceB->id,
     ]);
 
-    $projectA = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project A']);
-    $projectB = Committee::factory()->create(['club_id' => $workspaceA->id, 'name' => 'Project B']);
-    $projectC = Committee::factory()->create(['club_id' => $workspaceB->id, 'name' => 'Project C']);
+    $projectA = Project::factory()->create(['workspace_id' => $workspaceA->id, 'name' => 'Project A']);
+    $projectB = Project::factory()->create(['workspace_id' => $workspaceA->id, 'name' => 'Project B']);
+    $projectC = Project::factory()->create(['workspace_id' => $workspaceB->id, 'name' => 'Project C']);
 
     foreach ([$projectA, $projectB, $projectC] as $project) {
-        $membership = CommitteeMembership::factory()->create([
+        $membership = ProjectMembership::factory()->create([
             'user_id' => $user->id,
-            'committee_id' => $project->id,
+            'project_id' => $project->id,
         ]);
-        $membership->syncCommitteeRoles([CommitteeRole::Member]);
+        $membership->syncProjectRoles([ProjectRole::Member]);
     }
 
     return [$user, $workspaceA, $workspaceB, $projectA, $projectB, $projectC];
@@ -43,7 +43,7 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
     [$user, $workspaceA, , $projectA, $projectB, $projectC] = myTasksMemberContext();
 
     Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Overdue task',
@@ -51,7 +51,7 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
         'status' => 'todo',
     ]);
     Task::factory()->create([
-        'committee_id' => $projectB->id,
+        'project_id' => $projectB->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Due today task',
@@ -59,7 +59,7 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
         'status' => 'in_progress',
     ]);
     Task::factory()->create([
-        'committee_id' => $projectC->id,
+        'project_id' => $projectC->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Upcoming task',
@@ -67,7 +67,7 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
         'status' => 'review',
     ]);
     Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'No due date task',
@@ -75,7 +75,7 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
         'status' => 'todo',
     ]);
     Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'title' => 'Completed task',
@@ -108,33 +108,33 @@ test('my tasks quick status changes obey authorization and return to the my task
     [$user, $workspaceA, , $projectA] = myTasksMemberContext();
     $otherUser = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $otherUser->id,
-        'club_id' => $workspaceA->id,
+        'workspace_id' => $workspaceA->id,
     ]);
 
-    $otherMembership = CommitteeMembership::factory()->create([
+    $otherMembership = ProjectMembership::factory()->create([
         'user_id' => $otherUser->id,
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
     ]);
-    $otherMembership->syncCommitteeRoles([CommitteeRole::Member]);
+    $otherMembership->syncProjectRoles([ProjectRole::Member]);
 
     $ownTask = Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $user->id,
         'status' => 'todo',
     ]);
 
     $otherTask = Task::factory()->create([
-        'committee_id' => $projectA->id,
+        'project_id' => $projectA->id,
         'created_by' => $user->id,
         'assigned_to' => $otherUser->id,
         'status' => 'todo',
     ]);
 
     $this->actingAs($user)
-        ->patch(route('committees.tasks.update', [$workspaceA, $projectA, $ownTask]), [
+        ->patch(route('projects.tasks.update', [$workspaceA, $projectA, $ownTask]), [
             'status' => 'in_progress',
             'return_to' => '/my-tasks',
         ])
@@ -143,7 +143,7 @@ test('my tasks quick status changes obey authorization and return to the my task
     expect($ownTask->fresh()->status->value)->toBe('in_progress');
 
     $this->actingAs($user)
-        ->patch(route('committees.tasks.update', [$workspaceA, $projectA, $otherTask]), [
+        ->patch(route('projects.tasks.update', [$workspaceA, $projectA, $otherTask]), [
             'status' => 'in_progress',
             'return_to' => '/my-tasks',
         ])

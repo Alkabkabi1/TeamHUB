@@ -1,76 +1,76 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\TaskComment;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function taskCommentLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $clubMembership = ClubMembership::factory()->approved()->create([
+    $workspaceMembership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $clubMembership->syncClubRoles([ClubRole::ClubLead]);
+    $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function approvedTaskCommentMember(Club $club, Committee $committee, array $roles = [CommitteeRole::Member]): User
+function approvedTaskCommentMember(Workspace $workspace, Project $project, array $roles = [ProjectRole::Member]): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles($roles);
+    $membership->syncProjectRoles($roles);
 
     return $user;
 }
 
 test('project members can add comments and comments appear in task activity', function () {
-    [$lead, $club, $committee] = taskCommentLeadAndCommittee();
-    $member = approvedTaskCommentMember($club, $committee);
+    [$lead, $workspace, $project] = taskCommentLeadAndCommittee();
+    $member = approvedTaskCommentMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
     ]);
 
     $this->actingAs($member)
-        ->post(route('committees.tasks.comments.store', [$club, $committee, $task]), [
+        ->post(route('projects.tasks.comments.store', [$workspace, $project, $task]), [
             'body' => 'I uploaded the first draft and would like feedback.',
         ])
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     expect(TaskComment::query()->where('task_id', $task->id)->count())->toBe(1)
         ->and(TaskActivity::query()->where('task_id', $task->id)->where('type', 'comment.added')->exists())->toBeTrue();
 });
 
 test('authors and project leads can delete task comments, but other members cannot', function () {
-    [$lead, $club, $committee] = taskCommentLeadAndCommittee();
-    $author = approvedTaskCommentMember($club, $committee);
-    $otherMember = approvedTaskCommentMember($club, $committee);
+    [$lead, $workspace, $project] = taskCommentLeadAndCommittee();
+    $author = approvedTaskCommentMember($workspace, $project);
+    $otherMember = approvedTaskCommentMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $author->id,
     ]);
@@ -78,12 +78,12 @@ test('authors and project leads can delete task comments, but other members cann
     $comment = $task->addComment($author, 'Draft delivered.');
 
     $this->actingAs($otherMember)
-        ->delete(route('committees.tasks.comments.destroy', [$club, $committee, $task, $comment]))
+        ->delete(route('projects.tasks.comments.destroy', [$workspace, $project, $task, $comment]))
         ->assertForbidden();
 
     $this->actingAs($lead)
-        ->delete(route('committees.tasks.comments.destroy', [$club, $committee, $task, $comment]))
-        ->assertRedirect(route('committees.tasks.show', [$club, $committee, $task]));
+        ->delete(route('projects.tasks.comments.destroy', [$workspace, $project, $task, $comment]))
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $this->assertDatabaseMissing('task_comments', ['id' => $comment->id]);
 });

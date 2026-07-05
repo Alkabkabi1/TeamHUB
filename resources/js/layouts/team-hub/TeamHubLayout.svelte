@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
     import AppHead from '@/components/AppHead.svelte';
-    import FloatingDock from '@/components/FloatingDock.svelte';
     import TeamHubSidebar from '@/components/team-hub/TeamHubSidebar.svelte';
     import { Toaster } from '@/components/ui/sonner';
     import { themeState } from '@/lib/theme.svelte';
@@ -48,5 +47,4 @@
     </div>
 </div>
 
-<FloatingDock />
 <Toaster />

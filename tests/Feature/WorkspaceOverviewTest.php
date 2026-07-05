@@ -1,48 +1,48 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\Post;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function workspaceLeadAndClub(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $lead = User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club];
+    return [$lead, $workspace];
 }
 
 test('workspace overview exposes project cards and recent activity', function () {
-    [$lead, $club] = workspaceLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Website Refresh']);
+    [$lead, $workspace] = workspaceLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Website Refresh']);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'title' => 'Ship landing page',
         'due_at' => now()->subDay(),
         'status' => 'in_progress',
     ]);
 
-    Post::factory()->create([
-        'club_id' => $club->id,
+    ProjectUpdate::factory()->create([
+        'workspace_id' => $workspace->id,
         'user_id' => $lead->id,
         'title' => 'Workspace kickoff update',
         'published_at' => now(),
     ]);
 
     $this->actingAs($lead)
-        ->get(route('clubs.manage', $club))
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Manage')
@@ -56,14 +56,14 @@ test('workspace overview exposes project cards and recent activity', function ()
 });
 
 test('workspace members page loads for club leads', function () {
-    [$lead, $club] = workspaceLeadAndClub();
+    [$lead, $workspace] = workspaceLeadAndClub();
 
     $this->actingAs($lead)
-        ->get(route('clubs.manage.members', $club))
+        ->get(route('workspaces.manage.members', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('clubs/Members')
-            ->where('club.id', $club->id)
+            ->where('club.id', $workspace->id)
             ->has('members')
             ->has('pendingApplications')
         );

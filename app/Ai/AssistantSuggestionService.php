@@ -2,7 +2,7 @@
 
 namespace App\Ai;
 
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -80,18 +80,18 @@ class AssistantSuggestionService
     /**
      * A real project name to anchor example prompts when one is available.
      */
-    protected function exampleProject(User $user): ?Committee
+    protected function exampleProject(User $user): ?Project
     {
-        if ($user->isUniversityStaff()) {
-            return Committee::query()->orderBy('name')->first();
+        if ($user->isAdmin()) {
+            return Project::query()->orderBy('name')->first();
         }
 
-        return $user->managedCommittees()->first()
-            ?? $user->committeeMemberships()
+        return $user->managedProjects()->first()
+            ?? $user->projectMemberships()
                 ->where('status', 'approved')
-                ->with('committee')
+                ->with('project')
                 ->get()
-                ->pluck('committee')
+                ->pluck('project')
                 ->filter()
                 ->first();
     }
@@ -102,8 +102,8 @@ class AssistantSuggestionService
      */
     protected function managesAnything(User $user): bool
     {
-        return $user->isUniversityStaff()
-            || $user->managedClubs()->isNotEmpty()
-            || $user->managedCommittees()->isNotEmpty();
+        return $user->isAdmin()
+            || $user->managedWorkspaces()->isNotEmpty()
+            || $user->managedProjects()->isNotEmpty();
     }
 }

@@ -281,8 +281,10 @@
                             {project.title}
                         </p>
                         <p class="text-xs" style="color: var(--th-text-muted)">
-                            {project.workspace} · {project.progress}% · {project.tasks_count}
-                            مهام
+                            {project.workspace} · {project.progress}% · {t(
+                                'hub.tasks_count',
+                                { count: project.tasks_count },
+                            )}
                         </p>
                     </div>
                     <div class="text-sm" style="color: var(--th-text-muted)">

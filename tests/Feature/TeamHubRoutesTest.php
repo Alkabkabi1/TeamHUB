@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Club;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
 
 test('demo entry is the home page when quick login is enabled', function () {
     config()->set('demo.quick_login', true);
@@ -26,29 +26,29 @@ test('admin can create a project even when no clubs are seeded', function () {
 
     $admin = User::factory()->universityStaff()->create(['email' => 'admin@teamhub.test']);
 
-    expect(Club::query()->count())->toBe(0);
+    expect(Workspace::query()->count())->toBe(0);
 
     $this->actingAs($admin)
-        ->post(route('hub.admin.projects.store'), [
+        ->post(route('dashboard.projects.store'), [
             'name' => 'مشروع تجريبي',
         ])
-        ->assertRedirect(route('hub.dashboard'));
+        ->assertRedirect(route('dashboard'));
 
-    expect(Club::query()->count())->toBeGreaterThan(0);
-    expect(Committee::query()->where('name', 'مشروع تجريبي')->exists())->toBeTrue();
+    expect(Workspace::query()->count())->toBeGreaterThan(0);
+    expect(Project::query()->where('name', 'مشروع تجريبي')->exists())->toBeTrue();
 });
 
 test('demo personas receive dedicated dashboard panels', function () {
     config()->set('demo.quick_login', true);
 
     User::factory()->universityStaff()->create(['email' => 'admin@teamhub.test']);
-    User::factory()->student()->create(['email' => 'project-leader@teamhub.test']);
+    User::factory()->student()->create(['email' => 'project-lead@teamhub.test']);
     User::factory()->student()->create(['email' => 'staff@teamhub.test']);
 
     $this->post(route('demo.login'), ['email' => 'admin@teamhub.test'])
-        ->assertRedirect(route('hub.dashboard', absolute: false));
+        ->assertRedirect(route('dashboard', absolute: false));
 
-    $this->get(route('hub.dashboard'))
+    $this->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('demoPersona', 'admin')
@@ -58,23 +58,23 @@ test('demo personas receive dedicated dashboard panels', function () {
 });
 
 test('hub dashboard returns real project and task props for a student', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $student = User::factory()->student()->create();
 
-    CommitteeMembership::factory()->create([
+    ProjectMembership::factory()->create([
         'user_id' => $student->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'assigned_to' => $student->id,
         'due_at' => now(),
     ]);
 
     $this->actingAs($student)
-        ->get(route('hub.dashboard'))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('team-hub/Dashboard')
@@ -82,76 +82,71 @@ test('hub dashboard returns real project and task props for a student', function
             ->where('dashboard.type', 'legacy')
             ->has('dashboard.projects', 1)
             ->has('dashboard.kpis', 4)
-            ->where('dashboard.roleContext.panel', 'student')
+            ->where('dashboard.roleContext.panel', 'member')
         );
 });
 
 test('hub projects supports search query', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $visible = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Alpha Project']);
-    $hidden = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Beta Hidden']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $visible = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Alpha Project']);
+    $hidden = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Beta Hidden']);
     $student = User::factory()->student()->create();
 
-    foreach ([$visible, $hidden] as $committee) {
-        CommitteeMembership::factory()->create([
+    foreach ([$visible, $hidden] as $project) {
+        ProjectMembership::factory()->create([
             'user_id' => $student->id,
-            'committee_id' => $committee->id,
+            'project_id' => $project->id,
         ]);
     }
 
     $this->actingAs($student)
-        ->get(route('hub.projects', ['q' => 'Alpha']))
+        ->get(route('projects', ['q' => 'Alpha']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('team-hub/Projects')
-            ->has('projects', 1)
-            ->where('projects.0.title', 'Alpha Project')
+            ->has('projects.data', 1)
+            ->where('projects.data.0.title', 'Alpha Project')
         );
 });
 
 test('hub tasks filters by status', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $student = User::factory()->student()->create();
 
-    CommitteeMembership::factory()->create([
+    ProjectMembership::factory()->create([
         'user_id' => $student->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
 
-    Task::factory()->create(['committee_id' => $committee->id, 'status' => 'todo']);
-    Task::factory()->create(['committee_id' => $committee->id, 'status' => 'done']);
+    Task::factory()->create(['project_id' => $project->id, 'status' => 'todo']);
+    Task::factory()->create(['project_id' => $project->id, 'status' => 'done']);
 
     $this->actingAs($student)
-        ->get(route('hub.tasks', ['status' => 'done']))
+        ->get(route('tasks', ['status' => 'done']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('team-hub/Tasks')
-            ->has('tasks', 1)
-            ->where('tasks.0.status', 'done')
+            ->has('tasks.data', 1)
+            ->where('tasks.data.0.status', 'done')
         );
 });
 
-test('preview team hub routes redirect to authenticated hub', function () {
-    $this->get('/preview/team-hub/dashboard')
-        ->assertRedirect('/hub/dashboard');
-});
-
-test('student home url points to hub dashboard', function () {
+test('student home url points to dashboard', function () {
     $student = User::factory()->student()->create();
 
-    expect($student->homeUrl())->toBe(route('hub.dashboard', absolute: false));
+    expect($student->homeUrl())->toBe(route('dashboard', absolute: false));
 });
 
-test('shared hub nav does not contain placeholder hash links', function () {
+test('shared app nav does not contain placeholder hash links', function () {
     $student = User::factory()->student()->create();
 
     $this->actingAs($student)
-        ->get(route('hub.dashboard'))
+        ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('hub.nav')
-            ->where('hub.nav', fn ($items) => collect($items)->every(
+            ->has('app.nav')
+            ->where('app.nav', fn ($items) => collect($items)->every(
                 fn (array $item) => $item['href'] !== '#'
             ))
         );

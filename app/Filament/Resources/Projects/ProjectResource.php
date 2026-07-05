@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Projects;
 
-use App\Enums\CommitteeStatus;
+use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
-use App\Models\Committee;
+use App\Models\Project;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -17,11 +17,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class ProjectResource extends Resource
 {
-    protected static ?string $model = Committee::class;
+    protected static ?string $model = Project::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -42,9 +41,7 @@ class ProjectResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->with('club')
-            ->whereHas('club', fn (Builder $query) => $query->where('university_id', Auth::user()?->university_id));
+        return parent::getEloquentQuery()->with('workspace');
     }
 
     public static function form(Schema $schema): Schema
@@ -58,9 +55,9 @@ class ProjectResource extends Resource
                 ->columnSpanFull(),
             TextInput::make('theme')
                 ->label('Brand color')
-                ->placeholder('#006471'),
+                ->placeholder('#c8924a'),
             Select::make('status')
-                ->options(array_combine(CommitteeStatus::values(), CommitteeStatus::values()))
+                ->options(array_combine(ProjectStatus::values(), ProjectStatus::values()))
                 ->required(),
         ]);
     }
@@ -72,7 +69,7 @@ class ProjectResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('club.name')
+                TextColumn::make('workspace.name')
                     ->label('Workspace')
                     ->searchable()
                     ->sortable(),
@@ -85,7 +82,7 @@ class ProjectResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(array_combine(CommitteeStatus::values(), CommitteeStatus::values())),
+                    ->options(array_combine(ProjectStatus::values(), ProjectStatus::values())),
             ]);
     }
 

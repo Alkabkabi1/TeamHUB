@@ -1,13 +1,13 @@
-export type ManagedClub = {
+export type ManagedWorkspace = {
     id: number;
     name: string;
     logo_url: string | null;
 };
 
-export type ManagedCommittee = {
+export type ManagedProject = {
     id: number;
     name: string;
-    club_id: number;
+    workspace_id: number;
 };
 
 export type User = {
@@ -16,10 +16,10 @@ export type User = {
     email: string;
     avatar?: string;
     role?: string;
-    is_club_supervisor?: boolean;
-    managed_clubs?: ManagedClub[];
-    is_committee_leader?: boolean;
-    managed_committees?: ManagedCommittee[];
+    is_workspace_lead?: boolean;
+    managed_workspaces?: ManagedWorkspace[];
+    is_project_lead?: boolean;
+    managed_projects?: ManagedProject[];
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

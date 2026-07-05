@@ -1,20 +1,20 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Models\ClubMembership;
+use App\Enums\WorkspaceRole;
+use App\Models\WorkspaceMembership;
 
 test('club membership factory creates approved member by default', function () {
-    $membership = ClubMembership::factory()->create();
+    $membership = WorkspaceMembership::factory()->create();
 
     expect($membership->status)->toBe('approved')
-        ->and($membership->hasClubRole(ClubRole::Member))->toBeTrue()
+        ->and($membership->hasWorkspaceRole(WorkspaceRole::Member))->toBeTrue()
         ->and($membership->joined_at)->not->toBeNull()
         ->and($membership->user_id)->not->toBeNull()
-        ->and($membership->club_id)->not->toBeNull();
+        ->and($membership->workspace_id)->not->toBeNull();
 });
 
 test('pending club membership factory state clears joined_at', function () {
-    $membership = ClubMembership::factory()->pending()->create();
+    $membership = WorkspaceMembership::factory()->pending()->create();
 
     expect($membership->status)->toBe('pending')
         ->and($membership->joined_at)->toBeNull()
@@ -22,13 +22,13 @@ test('pending club membership factory state clears joined_at', function () {
 });
 
 test('supervisor club membership factory state grants the club lead role', function () {
-    $membership = ClubMembership::factory()->supervisor()->create();
+    $membership = WorkspaceMembership::factory()->supervisor()->create();
 
-    expect($membership->hasClubRole(ClubRole::ClubLead))->toBeTrue();
+    expect($membership->hasWorkspaceRole(WorkspaceRole::WorkspaceLead))->toBeTrue();
 });
 
 test('rejected club membership factory state stores reason', function () {
-    $membership = ClubMembership::factory()->rejected('غير مؤهل')->create();
+    $membership = WorkspaceMembership::factory()->rejected('غير مؤهل')->create();
 
     expect($membership->status)->toBe('rejected')
         ->and($membership->rejection_reason)->toBe('غير مؤهل')

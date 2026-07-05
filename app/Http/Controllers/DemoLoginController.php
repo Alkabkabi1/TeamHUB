@@ -56,8 +56,8 @@ class DemoLoginController extends Controller
     private function provisionDemoUser(array $account): User
     {
         $role = $account['role'] === 'admin'
-            ? UserRole::UniversityStaff
-            : UserRole::Student;
+            ? UserRole::Admin
+            : UserRole::Member;
 
         return User::query()->create([
             'name' => __("auth.demo_roles.{$account['role']}"),

@@ -22,7 +22,7 @@ class GetAppRoutes extends AssistantTool
     {
         $pages = [
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'مساحات العمل', 'url' => route('clubs')],
+            ['label' => 'مساحات العمل', 'url' => route('workspaces')],
             ['label' => 'الدعم والتواصل', 'url' => route('support')],
         ];
 
@@ -35,17 +35,17 @@ class GetAppRoutes extends AssistantTool
             $pages[] = ['label' => 'مهامي', 'url' => route('my-tasks')];
             $pages[] = ['label' => 'الإشعارات', 'url' => route('notifications.index')];
 
-            foreach ($this->user->managedClubs()->take(3) as $club) {
+            foreach ($this->user->managedWorkspaces()->take(3) as $workspace) {
                 $pages[] = [
-                    'label' => "إدارة مساحة العمل: {$club->name}",
-                    'url' => route('clubs.manage', [$club], absolute: false),
+                    'label' => "إدارة مساحة العمل: {$workspace->name}",
+                    'url' => route('workspaces.manage', [$workspace], absolute: false),
                 ];
             }
 
-            foreach ($this->user->managedCommittees()->take(5) as $committee) {
+            foreach ($this->user->managedProjects()->take(5) as $project) {
                 $pages[] = [
-                    'label' => "إدارة المشروع: {$committee->name}",
-                    'url' => route('committees.manage', [$committee->club_id, $committee->id], absolute: false),
+                    'label' => "إدارة المشروع: {$project->name}",
+                    'url' => route('projects.manage', [$project->workspace_id, $project->id], absolute: false),
                 ];
             }
         }

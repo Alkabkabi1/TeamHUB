@@ -26,7 +26,7 @@ class FindTasks extends AssistantTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return $this->json(['error' => 'No workspace matched that name.']);
@@ -36,7 +36,7 @@ class FindTasks extends AssistantTool
         $project = null;
 
         if (! empty($request['project'])) {
-            $project = $this->resolveAccessibleCommittee($request['project'], $workspace);
+            $project = $this->resolveAccessibleProject($request['project'], $workspace);
 
             if ($project === null) {
                 return $this->json(['error' => 'No visible project matched that name.']);
@@ -50,10 +50,10 @@ class FindTasks extends AssistantTool
         $limit = min(max((int) ($request['limit'] ?? 15), 1), 30);
 
         $tasks = $this->visibleTaskQuery()
-            ->when($project !== null, fn ($q) => $q->where('committee_id', $project->id))
+            ->when($project !== null, fn ($q) => $q->where('project_id', $project->id))
             ->when(
                 $workspace !== null && $project === null,
-                fn ($q) => $q->whereHas('committee', fn ($committeeQuery) => $committeeQuery->where('club_id', $workspace->id)),
+                fn ($q) => $q->whereHas('project', fn ($projectQuery) => $projectQuery->where('workspace_id', $workspace->id)),
             )
             ->when(
                 $search !== '',

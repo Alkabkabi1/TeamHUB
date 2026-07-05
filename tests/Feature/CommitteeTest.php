@@ -1,12 +1,12 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -18,200 +18,209 @@ uses(RefreshDatabase::class);
  */
 function clubLeadAndClub(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $lead = User::factory()->student()->create();
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club];
+    return [$lead, $workspace];
 }
 
-test('the public committee listing and page render for anyone', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+test('the workspace project listing and page render for authenticated users', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    $user = User::factory()->student()->create();
 
-    $this->get(route('committees.index', $club))->assertOk();
-    $this->get(route('committees.show', [$club, $committee]))->assertOk();
+    $this->actingAs($user)
+        ->get(route('projects.index', $workspace))
+        ->assertOk();
+    $this->actingAs($user)
+        ->get(route('projects.show', [$workspace, $project]))
+        ->assertOk();
 });
 
 test('a committee from another club 404s under a mismatched club', function () {
-    $clubA = Club::factory()->create(['status' => 'active']);
-    $clubB = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $clubA->id]);
+    $workspaceA = Workspace::factory()->create(['status' => 'active']);
+    $workspaceB = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspaceA->id]);
 
-    $this->get(route('committees.show', [$clubB, $committee]))->assertNotFound();
+    $user = User::factory()->student()->create();
+
+    $this->actingAs($user)
+        ->get(route('projects.show', [$workspaceB, $project]))
+        ->assertNotFound();
 });
 
 test('a club lead can create a committee and becomes its lead', function () {
-    [$lead, $club] = clubLeadAndClub();
+    [$lead, $workspace] = clubLeadAndClub();
 
     $this->actingAs($lead)
-        ->post(route('committees.store', $club), ['name' => 'اللجنة العلمية'])
+        ->post(route('projects.store', $workspace), ['name' => 'اللجنة العلمية'])
         ->assertRedirect();
 
-    $committee = Committee::query()->where('club_id', $club->id)->firstOrFail();
+    $project = Project::query()->where('workspace_id', $workspace->id)->firstOrFail();
 
-    expect($committee->name)->toBe('اللجنة العلمية')
-        ->and($lead->fresh()->canManageCommittee($committee))->toBeTrue();
+    expect($project->name)->toBe('اللجنة العلمية')
+        ->and($lead->fresh()->canManageProject($project))->toBeTrue();
 });
 
 test('a plain student cannot create a committee', function () {
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
     $student = User::factory()->student()->create();
 
     $this->actingAs($student)
-        ->post(route('committees.store', $club), ['name' => 'لجنة'])
+        ->post(route('projects.store', $workspace), ['name' => 'لجنة'])
         ->assertForbidden();
 });
 
 test('the committee dashboard is forbidden to non-managers and visible to managers', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $outsider = User::factory()->student()->create();
 
     $this->actingAs($outsider)
-        ->get(route('committees.manage', [$club, $committee]))
+        ->get(route('projects.manage', [$workspace, $project]))
         ->assertForbidden();
 
     $this->actingAs($lead)
-        ->get(route('committees.manage', [$club, $committee]))
+        ->get(route('projects.manage', [$workspace, $project]))
         ->assertOk();
 });
 
 test('an approved club member can request to join a committee', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $student = User::factory()->student()->create();
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $student->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($student)
-        ->post(route('committees.join', [$club, $committee]))
+        ->post(route('projects.join', [$workspace, $project]))
         ->assertRedirect();
 
-    $this->assertDatabaseHas('committee_memberships', [
-        'committee_id' => $committee->id,
+    $this->assertDatabaseHas('project_memberships', [
+        'project_id' => $project->id,
         'user_id' => $student->id,
         'status' => 'pending',
     ]);
 });
 
 test('a non-club-member cannot request to join a committee', function () {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $student = User::factory()->student()->create();
 
     $this->actingAs($student)
-        ->post(route('committees.join', [$club, $committee]))
+        ->post(route('projects.join', [$workspace, $project]))
         ->assertForbidden();
 });
 
 test('a committee manager can approve a pending join request', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $applicant = User::factory()->student()->create();
-    $pending = CommitteeMembership::factory()->pending()->create([
+    $pending = ProjectMembership::factory()->pending()->create([
         'user_id' => $applicant->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
 
     $this->actingAs($lead)
-        ->post(route('committees.memberships.approve', [$club, $committee, $pending]))
+        ->post(route('projects.memberships.approve', [$workspace, $project, $pending]))
         ->assertRedirect();
 
     expect($pending->fresh()->status)->toBe('approved');
 });
 
 test('a committee-scoped news post is created with the committee id', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $this->actingAs($lead)
-        ->post(route('committees.news.store', [$club, $committee]), [
+        ->post(route('projects.updates.store', [$workspace, $project]), [
             'title' => 'خبر اللجنة',
             'body' => 'محتوى الخبر',
         ])
-        ->assertRedirect(route('committees.updates.index', [$club, $committee]));
+        ->assertRedirect(route('projects.updates.index', [$workspace, $project]));
 
-    $this->assertDatabaseHas('posts', [
-        'club_id' => $club->id,
-        'committee_id' => $committee->id,
+    $this->assertDatabaseHas('project_updates', [
+        'workspace_id' => $workspace->id,
+        'project_id' => $project->id,
         'title' => 'خبر اللجنة',
     ]);
 });
 
 test('the last committee lead cannot be removed', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     // The lead becomes the committee's sole CommitteeLead.
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $lead->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'status' => 'approved',
     ]);
-    $membership->syncCommitteeRoles([CommitteeRole::CommitteeLead, CommitteeRole::Member]);
+    $membership->syncProjectRoles([ProjectRole::ProjectLead, ProjectRole::Member]);
 
     $this->actingAs($lead)
-        ->delete(route('committees.members.destroy', [$club, $committee, $membership]))
+        ->delete(route('projects.members.destroy', [$workspace, $project, $membership]))
         ->assertRedirect();
 
-    $this->assertDatabaseHas('committee_memberships', ['id' => $membership->id]);
+    $this->assertDatabaseHas('project_memberships', ['id' => $membership->id]);
 });
 
 test('archiving a committee soft-deletes it', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
     $this->actingAs($lead)
-        ->delete(route('committees.destroy', [$club, $committee]))
-        ->assertRedirect(route('committees.index', $club));
+        ->delete(route('projects.destroy', [$workspace, $project]))
+        ->assertRedirect(route('projects.index', $workspace));
 
-    $this->assertSoftDeleted('committees', ['id' => $committee->id]);
+    $this->assertSoftDeleted('projects', ['id' => $project->id]);
 });
 
 test('a club lead can open committee settings with managed project switcher context', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committeeA = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Project Alpha']);
-    $committeeB = Committee::factory()->create(['club_id' => $club->id, 'name' => 'Project Beta']);
+    [$lead, $workspace] = clubLeadAndClub();
+    $projectA = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Project Alpha']);
+    $projectB = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Project Beta']);
 
     $this->actingAs($lead)
-        ->get(route('committees.edit', [$club, $committeeA]))
+        ->get(route('projects.edit', [$workspace, $projectA]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('committees/Form')
             ->where('mode', 'edit')
-            ->where('committee.id', $committeeA->id)
-            ->has('auth.user.managed_committees', 2)
+            ->where('committee.id', $projectA->id)
+            ->has('auth.user.managed_projects', 2)
         );
 });
 
 test('a club lead can update committee settings', function () {
-    [$lead, $club] = clubLeadAndClub();
-    $committee = Committee::factory()->create([
-        'club_id' => $club->id,
+    [$lead, $workspace] = clubLeadAndClub();
+    $project = Project::factory()->create([
+        'workspace_id' => $workspace->id,
         'name' => 'Legacy Project Name',
         'description' => 'Old description',
     ]);
 
     $this->actingAs($lead)
-        ->put(route('committees.update', [$club, $committee]), [
+        ->put(route('projects.update', [$workspace, $project]), [
             'name' => 'Validation Project Name',
             'description' => 'Updated project settings for readiness validation.',
             'status' => 'active',
         ])
-        ->assertRedirect(route('committees.manage', [$club, $committee]));
+        ->assertRedirect(route('projects.manage', [$workspace, $project]));
 
-    $committee->refresh();
+    $project->refresh();
 
-    expect($committee->name)->toBe('Validation Project Name')
-        ->and($committee->description)->toBe('Updated project settings for readiness validation.');
+    expect($project->name)->toBe('Validation Project Name')
+        ->and($project->description)->toBe('Updated project settings for readiness validation.');
 });

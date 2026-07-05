@@ -62,7 +62,7 @@
 
         try {
             const res = await fetch(
-                `/clubs/${club.id}/members/search?q=${encodeURIComponent(term.trim())}`,
+                `/workspaces/${club.id}/members/search?q=${encodeURIComponent(term.trim())}`,
                 { headers: { Accept: 'application/json' } },
             );
             const data = await res.json();
@@ -74,7 +74,7 @@
 
     function addMember(userId: number): void {
         router.post(
-            `/clubs/${club.id}/members`,
+            `/workspaces/${club.id}/members`,
             { user_id: userId, roles: [] },
             {
                 preserveScroll: true,
@@ -115,14 +115,14 @@
 
     function saveRoles(membershipId: number): void {
         router.put(
-            `/clubs/${club.id}/members/${membershipId}/roles`,
+            `/workspaces/${club.id}/members/${membershipId}/roles`,
             { roles: draftRoles },
             { preserveScroll: true, onSuccess: () => (editingId = null) },
         );
     }
 
     function removeMember(membershipId: number): void {
-        router.delete(`/clubs/${club.id}/members/${membershipId}`, {
+        router.delete(`/workspaces/${club.id}/members/${membershipId}`, {
             preserveScroll: true,
         });
     }

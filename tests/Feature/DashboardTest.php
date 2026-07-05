@@ -7,18 +7,16 @@ test('guests are redirected to the login page', function () {
     $response->assertRedirect(route('login'));
 });
 
-test('authenticated students are redirected from the generic dashboard to their dashboard', function () {
-    $user = User::factory()->create(['role' => 'student']);
+test('authenticated students can access the dashboard', function () {
+    $user = User::factory()->member()->create();
     $this->actingAs($user);
 
-    $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('hub.dashboard'));
+    $this->get(route('dashboard'))->assertOk();
 });
 
-test('authenticated university staff are redirected from the generic dashboard to the filament panel', function () {
-    $user = User::factory()->universityStaff()->create();
+test('authenticated admins can access the dashboard', function () {
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
-    $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('filament.admin.pages.dashboard'));
+    $this->get(route('dashboard'))->assertOk();
 });

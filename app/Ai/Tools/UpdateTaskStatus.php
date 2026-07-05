@@ -25,7 +25,7 @@ class UpdateTaskStatus extends WriteTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return ['error' => 'No workspace matched that name.'];
@@ -35,7 +35,7 @@ class UpdateTaskStatus extends WriteTool
         $project = null;
 
         if (! empty($request['project'])) {
-            $project = $this->resolveAccessibleCommittee($request['project'], $workspace);
+            $project = $this->resolveAccessibleProject($request['project'], $workspace);
 
             if ($project === null) {
                 return ['error' => 'No visible project matched that name.'];
@@ -144,7 +144,7 @@ class UpdateTaskStatus extends WriteTool
         }
 
         if (
-            ! $this->user->canManageCommittee($task->committee)
+            ! $this->user->canManageProject($task->project)
             && in_array($task->status, [TaskStatus::Review, TaskStatus::Done], true)
         ) {
             return ['error' => 'Assignees can only change tasks that are still in todo or in progress.'];
@@ -274,7 +274,7 @@ class UpdateTaskStatus extends WriteTool
         }
 
         if (
-            ! $this->user->canManageCommittee($task->committee)
+            ! $this->user->canManageProject($task->project)
             && in_array($task->status, [TaskStatus::Review, TaskStatus::Done], true)
         ) {
             return ['success' => false, 'message' => 'Assignees can only change tasks that are still in todo or in progress.'];

@@ -7,7 +7,7 @@
     import type { ClubBranding } from '@/types';
 
     /**
-     * Shared club theme editor (color + logo) posting to PUT /clubs/{id}/theme.
+     * Shared club theme editor (color + logo) posting to PUT /workspaces/{id}/theme.
      * Reused by the standalone ClubTheme page (with live preview) and inline in
      * the supervisor dashboard (compact, with a cancel button) — Figma 57:1721.
      */
@@ -24,7 +24,7 @@
     } = $props();
 
     const SWATCHES = [
-        '#006471',
+        '#c8924a',
         '#1a56db',
         '#7e3af2',
         '#e74694',
@@ -34,7 +34,7 @@
         '#1f2937',
     ];
 
-    const initialColor = club.theme ?? '#006471';
+    const initialColor = club.theme ?? '#c8924a';
 
     const form = useForm({
         name: club.name,
@@ -87,7 +87,7 @@
 
     function submit(e: SubmitEvent): void {
         e.preventDefault();
-        form.put(`/clubs/${club.id}/theme`, {
+        form.put(`/workspaces/${club.id}/theme`, {
             forceFormData: true,
             preserveScroll: true,
         });

@@ -9,7 +9,7 @@ test('a guest can sign in instantly as an allowlisted demo account', function ()
     $response = $this->post(route('demo.login'), ['email' => $staff->email]);
 
     $this->assertAuthenticatedAs($staff);
-    $response->assertRedirect(route('hub.dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
 
 test('the demo login refuses emails outside the allowlist', function () {

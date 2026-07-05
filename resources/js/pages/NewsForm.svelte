@@ -32,8 +32,8 @@
     // context (when present) drives the submit, cancel and back URLs.
     const basePath = $derived(
         committee
-            ? `/clubs/${club.id}/committees/${committee.id}`
-            : `/clubs/${club.id}`,
+            ? `/workspaces/${club.id}/projects/${committee.id}`
+            : `/workspaces/${club.id}`,
     );
     const managePath = $derived(`${basePath}/manage`);
     const contextName = $derived(committee?.name ?? club.name);
@@ -52,7 +52,7 @@
 
         if (isEdit && post) {
             form.transform((data) => ({ ...data, _method: 'put' })).post(
-                `${basePath}/news/${post.id}`,
+                `${basePath}/updates/${post.id}`,
                 {
                     forceFormData: true,
                     preserveScroll: true,

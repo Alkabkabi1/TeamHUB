@@ -1,57 +1,57 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 test('guest is redirected when downloading club reports', function () {
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
 
-    $this->get(route('clubs.reports.members', ['club' => $club]))
+    $this->get(route('workspaces.reports.members', ['workspace' => $workspace]))
         ->assertRedirect(route('login'));
 });
 
 test('student cannot download club reports', function () {
     $student = User::factory()->student()->create();
-    $club = Club::factory()->create();
+    $workspace = Workspace::factory()->create();
 
     $this->actingAs($student)
-        ->get(route('clubs.reports.members', ['club' => $club]))
+        ->get(route('workspaces.reports.members', ['workspace' => $workspace]))
         ->assertForbidden();
 });
 
 test('supervisor cannot download reports for another club', function () {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $supervisedClub = Club::factory()->create(['status' => 'active']);
-    $otherClub = Club::factory()->create(['status' => 'active']);
+    $supervisedClub = Workspace::factory()->create(['status' => 'active']);
+    $otherClub = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $supervisedClub->id,
+        'workspace_id' => $supervisedClub->id,
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.reports.members', ['club' => $otherClub]))
+        ->get(route('workspaces.reports.members', ['workspace' => $otherClub]))
         ->assertForbidden();
 });
 
 test('supervisor can download members pdf report for supervised club', function () {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $club = Club::factory()->create(['status' => 'active', 'name' => 'نادي الحاسبات']);
+    $workspace = Workspace::factory()->create(['status' => 'active', 'name' => 'نادي الحاسبات']);
     $member = User::factory()->student()->create(['name' => 'عضو تجريبي']);
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $response = $this->actingAs($supervisor)
-        ->get(route('clubs.reports.members', ['club' => $club, 'locale' => 'ar']));
+        ->get(route('workspaces.reports.members', ['workspace' => $workspace, 'locale' => 'ar']));
 
     $response->assertOk();
     expect($response->headers->get('content-type'))->toContain('pdf');
@@ -61,29 +61,29 @@ test('supervisor can download members pdf report for supervised club', function 
 
 test('supervisor can download english locale report', function () {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.reports.members', ['club' => $club, 'locale' => 'en']))
+        ->get(route('workspaces.reports.members', ['workspace' => $workspace, 'locale' => 'en']))
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');
 });
 
 test('invalid report locale returns validation error', function () {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $club = Club::factory()->create(['status' => 'active']);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
 
-    ClubMembership::factory()->supervisor()->approved()->create([
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $this->actingAs($supervisor)
-        ->get(route('clubs.reports.members', ['club' => $club, 'locale' => 'fr']))
+        ->get(route('workspaces.reports.members', ['workspace' => $workspace, 'locale' => 'fr']))
         ->assertInvalid(['locale']);
 });

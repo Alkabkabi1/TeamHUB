@@ -26,7 +26,7 @@ class ListMyTasks extends AssistantTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return $this->json(['error' => 'No workspace matched that name.']);
@@ -36,7 +36,7 @@ class ListMyTasks extends AssistantTool
         $project = null;
 
         if (! empty($request['project'])) {
-            $project = $this->resolveAccessibleCommittee($request['project'], $workspace);
+            $project = $this->resolveAccessibleProject($request['project'], $workspace);
 
             if ($project === null) {
                 return $this->json(['error' => 'No visible project matched that name.']);
@@ -50,8 +50,8 @@ class ListMyTasks extends AssistantTool
 
         $query = Task::query()
             ->assignedTo($this->user)
-            ->with(['committee:id,club_id,name', 'committee.club:id,name', 'assignee:id,name', 'creator:id,name'])
-            ->when($project !== null, fn ($q) => $q->where('committee_id', $project->id))
+            ->with(['project:id,workspace_id,name', 'project.workspace:id,name', 'assignee:id,name', 'creator:id,name'])
+            ->when($project !== null, fn ($q) => $q->where('project_id', $project->id))
             ->when($status !== '' && in_array($status, TaskStatus::values(), true), fn ($q) => $q->where('status', $status))
             ->when($priority !== '' && in_array($priority, TaskPriority::values(), true), fn ($q) => $q->where('priority', $priority))
             ->orderBy('due_at')
@@ -78,10 +78,10 @@ class ListMyTasks extends AssistantTool
         ];
 
         $byProject = $tasks
-            ->groupBy('committee_id')
+            ->groupBy('project_id')
             ->map(fn ($projectTasks) => [
-                'project' => $projectTasks->first()?->committee?->name ?? '',
-                'workspace' => $projectTasks->first()?->committee?->club?->name ?? '',
+                'project' => $projectTasks->first()?->project?->name ?? '',
+                'workspace' => $projectTasks->first()?->project?->workspace?->name ?? '',
                 'count' => $projectTasks->count(),
             ])
             ->values()

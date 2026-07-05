@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Club;
-use App\Models\Committee;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class TaskReviewController extends Controller
 {
-    public function approve(Request $request, Club $club, Committee $committee, Task $task): RedirectResponse
+    public function approve(Request $request, Workspace $workspace, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('approveDeliverable', $task);
 
@@ -30,10 +30,10 @@ class TaskReviewController extends Controller
             'message' => __('tasks.review_approved'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 
-    public function requestChanges(Request $request, Club $club, Committee $committee, Task $task): RedirectResponse
+    public function requestChanges(Request $request, Workspace $workspace, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('requestChanges', $task);
 
@@ -51,6 +51,6 @@ class TaskReviewController extends Controller
             'message' => __('tasks.review_changes_requested'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 }

@@ -7,7 +7,7 @@
     import HeroBanner from '@/components/HeroBanner.svelte';
     import SectionHeader from '@/components/SectionHeader.svelte';
     import { formatNumber, t } from '@/lib/i18n.svelte';
-    import { show as clubsShow } from '@/routes/clubs';
+    import { show as clubsShow } from '@/routes/workspaces';
     import type { ClubListItem } from '@/types';
 
     let {
@@ -86,7 +86,7 @@
                             </div>
                             {#if !club.is_member}
                                 <Link
-                                    href={`/clubs/${club.id}/join`}
+                                    href={`/workspaces/${club.id}/join`}
                                     class="relative z-10 flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand/50 px-2.5 pt-1.5 pb-1 text-[12px] text-white transition-colors hover:bg-brand/70"
                                 >
                                     {t('clubs.join')}

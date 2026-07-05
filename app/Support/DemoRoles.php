@@ -15,7 +15,7 @@ class DemoRoles
         return [
             ['email' => 'admin@teamhub.test', 'role' => 'admin'],
             ['email' => 'staff@teamhub.test', 'role' => 'staff'],
-            ['email' => 'project-leader@teamhub.test', 'role' => 'project_leader'],
+            ['email' => 'project-lead@teamhub.test', 'role' => 'project_leader'],
         ];
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Club;
-use App\Models\ClubMembership;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -23,15 +23,15 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('hub.dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
 
 test('club supervisor is redirected to club supervisor dashboard after login', function () {
     $supervisor = User::factory()->clubSupervisor()->create();
-    $club = Club::factory()->create();
-    ClubMembership::factory()->supervisor()->approved()->create([
+    $workspace = Workspace::factory()->create();
+    WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
     $response = $this->post(route('login.store'), [
@@ -40,10 +40,10 @@ test('club supervisor is redirected to club supervisor dashboard after login', f
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('hub.dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
 
-test('university staff is redirected to the filament panel after login', function () {
+test('university staff is redirected to the team hub dashboard after login', function () {
     $admin = User::factory()->universityStaff()->create();
 
     $response = $this->post(route('login.store'), [
@@ -52,7 +52,7 @@ test('university staff is redirected to the filament panel after login', functio
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('filament.admin.pages.dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {

@@ -1,5 +1,5 @@
 /* TeamHUB branded email theme — mirrors the app design system.
-   Brand teal #006471 (config theme.brand). CSS is inlined into the email,
+   Brand gold #c8924a (config theme.brand). CSS is inlined into the email,
    so values are literal here. Keep in sync with config/theme.php. */
 
 /* Base */
@@ -24,8 +24,8 @@ body *:not(html):not(style):not(br):not(tr):not(code) {
 
 body {
     -webkit-text-size-adjust: none;
-    background-color: #f1f5f5;
-    color: #3f4b4d;
+    background-color: #f6f7f9;
+    color: #1f2937;
     height: 100%;
     line-height: 1.4;
     margin: 0;
@@ -42,7 +42,7 @@ blockquote {
 }
 
 a {
-    color: #006471;
+    color: #c8924a;
 }
 
 a img {
@@ -96,7 +96,7 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f1f5f5;
+    background-color: #f6f7f9;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -111,10 +111,10 @@ img {
     width: 100%;
 }
 
-/* Header — teal brand band with the white TeamHUB mark */
+/* Header — brand band with the white TeamHUB mark */
 
 .header {
-    background-color: #006471;
+    background-color: #c8924a;
     padding: 28px 0;
     text-align: center;
 }
@@ -140,9 +140,9 @@ img {
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
     -premailer-width: 100%;
-    background-color: #f1f5f5;
-    border-bottom: 1px solid #f1f5f5;
-    border-top: 1px solid #f1f5f5;
+    background-color: #f6f7f9;
+    border-bottom: 1px solid #f6f7f9;
+    border-top: 1px solid #f6f7f9;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -220,7 +220,7 @@ img {
 }
 
 .table td {
-    color: #3f4b4d;
+    color: #1f2937;
     font-size: 15px;
     line-height: 18px;
     margin: 0;
@@ -256,11 +256,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #006471;
-    border-bottom: 8px solid #006471;
-    border-left: 18px solid #006471;
-    border-right: 18px solid #006471;
-    border-top: 8px solid #006471;
+    background-color: #c8924a;
+    border-bottom: 8px solid #c8924a;
+    border-left: 18px solid #c8924a;
+    border-right: 18px solid #c8924a;
+    border-top: 8px solid #c8924a;
 }
 
 .button-green,
@@ -284,18 +284,18 @@ img {
 /* Panels */
 
 .panel {
-    border-left: #006471 solid 4px;
+    border-left: #c8924a solid 4px;
     margin: 21px 0;
 }
 
 .panel-content {
     background-color: #f1f7f7;
-    color: #3f4b4d;
+    color: #1f2937;
     padding: 16px;
 }
 
 .panel-content p {
-    color: #3f4b4d;
+    color: #1f2937;
 }
 
 .panel-item {

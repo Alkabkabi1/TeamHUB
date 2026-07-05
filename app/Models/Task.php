@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
+use App\Enums\ProjectRole;
 use App\Enums\TaskActivityType;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Enums\WorkspaceRole;
 use App\Notifications\TaskAssignedNotification;
 use App\Notifications\TaskChangesRequestedNotification;
 use App\Notifications\TaskDeliverableApprovedNotification;
@@ -34,7 +34,7 @@ class Task extends Model implements HasMedia
     public const string DELIVERABLE_COLLECTION = 'deliverable';
 
     protected $fillable = [
-        'committee_id',
+        'project_id',
         'created_by',
         'assigned_to',
         'title',
@@ -69,11 +69,11 @@ class Task extends Model implements HasMedia
     }
 
     /**
-     * @return BelongsTo<Committee, $this>
+     * @return BelongsTo<Project, $this>
      */
-    public function committee(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(Committee::class);
+        return $this->belongsTo(Project::class);
     }
 
     /**
@@ -116,9 +116,9 @@ class Task extends Model implements HasMedia
         return $this->hasMany(TaskActivity::class);
     }
 
-    public function scopeForCommittee(Builder $query, Committee $committee): Builder
+    public function scopeForProject(Builder $query, Project $project): Builder
     {
-        return $query->where('committee_id', $committee->id);
+        return $query->where('project_id', $project->id);
     }
 
     public function scopeAssignedTo(Builder $query, User $user): Builder
@@ -155,6 +155,11 @@ class Task extends Model implements HasMedia
     {
         return $query->incomplete()
             ->whereNull('due_at');
+    }
+
+    public function scopeWithDashboardListRelations(Builder $query): Builder
+    {
+        return $query->with(['project:id,workspace_id,name', 'project.workspace:id,name', 'assignee:id,name']);
     }
 
     public function isAssignedTo(User $user): bool
@@ -298,26 +303,26 @@ class Task extends Model implements HasMedia
      */
     public function managerRecipients(): Collection
     {
-        $this->loadMissing('committee.club');
+        $this->loadMissing('project.workspace');
 
-        $committeeManagers = $this->committee->memberships()
+        $projectManagers = $this->project->memberships()
             ->where('status', 'approved')
-            ->whereHas('roles', fn ($query) => $query->whereIn('role', CommitteeRole::managerRoleValues()))
+            ->whereHas('roles', fn ($query) => $query->whereIn('role', ProjectRole::managerRoleValues()))
             ->with('user:id,name,email,locale')
             ->get()
             ->pluck('user')
             ->filter();
 
-        $clubManagers = $this->committee->club->memberships()
+        $workspaceManagers = $this->project->workspace->memberships()
             ->where('status', 'approved')
-            ->whereHas('roles', fn ($query) => $query->whereIn('role', ClubRole::managerRoleValues()))
+            ->whereHas('roles', fn ($query) => $query->whereIn('role', WorkspaceRole::managerRoleValues()))
             ->with('user:id,name,email,locale')
             ->get()
             ->pluck('user')
             ->filter();
 
-        return $committeeManagers
-            ->merge($clubManagers)
+        return $projectManagers
+            ->merge($workspaceManagers)
             ->unique('id')
             ->values();
     }

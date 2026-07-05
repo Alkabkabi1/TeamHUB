@@ -1,81 +1,81 @@
 <?php
 
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 
 function policyProjectLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
-function policyProjectMember(Club $club, Committee $committee, array $roles = [CommitteeRole::Member]): User
+function policyProjectMember(Workspace $workspace, Project $project, array $roles = [ProjectRole::Member]): User
 {
     $user = User::factory()->student()->create();
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles($roles);
+    $membership->syncProjectRoles($roles);
 
     return $user;
 }
 
 test('project leads can create, update, delete, and review tasks', function () {
-    [$lead, $club, $committee] = policyProjectLeadAndCommittee();
-    $member = policyProjectMember($club, $committee);
+    [$lead, $workspace, $project] = policyProjectLeadAndCommittee();
+    $member = policyProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
     ]);
 
-    expect($lead->can('viewAny', [Task::class, $committee]))->toBeTrue()
-        ->and($lead->can('create', [Task::class, $committee]))->toBeTrue()
+    expect($lead->can('viewAny', [Task::class, $project]))->toBeTrue()
+        ->and($lead->can('create', [Task::class, $project]))->toBeTrue()
         ->and($lead->can('update', $task))->toBeTrue()
         ->and($lead->can('delete', $task))->toBeTrue()
         ->and($lead->can('approveDeliverable', $task))->toBeTrue();
 });
 
 test('approved project members can view tasks and update only their own assigned task', function () {
-    [$lead, $club, $committee] = policyProjectLeadAndCommittee();
-    $member = policyProjectMember($club, $committee);
-    $otherMember = policyProjectMember($club, $committee);
+    [$lead, $workspace, $project] = policyProjectLeadAndCommittee();
+    $member = policyProjectMember($workspace, $project);
+    $otherMember = policyProjectMember($workspace, $project);
 
     $assignedTask = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
     ]);
     $otherTask = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $otherMember->id,
     ]);
 
-    expect($member->can('viewAny', [Task::class, $committee]))->toBeTrue()
+    expect($member->can('viewAny', [Task::class, $project]))->toBeTrue()
         ->and($member->can('view', $assignedTask))->toBeTrue()
         ->and($member->can('update', $assignedTask))->toBeTrue()
         ->and($member->can('submitDeliverable', $assignedTask))->toBeTrue()
@@ -84,15 +84,15 @@ test('approved project members can view tasks and update only their own assigned
 });
 
 test('outsiders cannot view or manage project tasks', function () {
-    [$lead, , $committee] = policyProjectLeadAndCommittee();
+    [$lead, , $project] = policyProjectLeadAndCommittee();
     $outsider = User::factory()->student()->create();
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
     ]);
 
-    expect($outsider->can('viewAny', [Task::class, $committee]))->toBeFalse()
+    expect($outsider->can('viewAny', [Task::class, $project]))->toBeFalse()
         ->and($outsider->can('view', $task))->toBeFalse()
         ->and($outsider->can('update', $task))->toBeFalse()
         ->and($outsider->can('delete', $task))->toBeFalse();

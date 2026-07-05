@@ -6,25 +6,25 @@ use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use App\Models\Club;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\TaskComment;
 use App\Models\User;
+use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TaskController extends Controller
 {
-    public function index(Club $club, Committee $committee): Response
+    public function index(Workspace $workspace, Project $project): Response
     {
-        $this->authorize('viewAny', [Task::class, $committee]);
+        $this->authorize('viewAny', [Task::class, $project]);
 
         $tasks = Task::query()
-            ->forCommittee($committee)
+            ->forProject($project)
             ->with(['assignee:id,name', 'creator:id,name'])
             ->orderByRaw("case status when 'review' then 0 when 'in_progress' then 1 when 'todo' then 2 else 3 end")
             ->orderBy('due_at')
@@ -34,27 +34,27 @@ class TaskController extends Controller
             ->values();
 
         return Inertia::render('committees/tasks/Index', [
-            'theme' => ['brand' => $committee->theme ?: ($club->theme ?: config('theme.brand'))],
-            'club' => $club->only(['id', 'name', 'theme', 'logo_url']),
+            'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
+            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
             'committee' => [
-                ...$committee->only(['id', 'name', 'theme', 'status']),
-                'logo_url' => $committee->logo_url,
+                ...$project->only(['id', 'name', 'theme', 'status']),
+                'logo_url' => $project->logo_url,
             ],
             'tasks' => $tasks,
-            'members' => $this->memberOptions($committee),
+            'members' => $this->memberOptions($project),
             'statusOptions' => $this->statusOptions(),
             'priorityOptions' => $this->priorityOptions(),
-            'canManageTasks' => auth()->user()?->canManageCommittee($committee) ?? false,
-            'manageUrl' => route('committees.manage', [$club, $committee], absolute: false),
+            'canManageTasks' => auth()->user()?->canManageProject($project) ?? false,
+            'manageUrl' => route('projects.manage', [$workspace, $project], absolute: false),
         ]);
     }
 
-    public function show(Club $club, Committee $committee, Task $task): Response
+    public function show(Workspace $workspace, Project $project, Task $task): Response
     {
         $this->authorize('view', $task);
 
         $task->loadMissing([
-            'committee.club:id,name',
+            'project.workspace:id,name',
             'assignee:id,name',
             'creator:id,name',
             'reviewer:id,name',
@@ -75,36 +75,36 @@ class TaskController extends Controller
         $user = auth()->user();
 
         return Inertia::render('committees/tasks/Show', [
-            'theme' => ['brand' => $committee->theme ?: ($club->theme ?: config('theme.brand'))],
-            'club' => $club->only(['id', 'name', 'theme', 'logo_url']),
+            'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
+            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
             'committee' => [
-                ...$committee->only(['id', 'name', 'theme', 'status']),
-                'logo_url' => $committee->logo_url,
+                ...$project->only(['id', 'name', 'theme', 'status']),
+                'logo_url' => $project->logo_url,
             ],
             'task' => $this->taskDetail($task),
-            'comments' => $comments->map(fn (TaskComment $comment): array => $this->commentSummary($comment, $club, $committee, $task, $user))->values(),
-            'activities' => $activities->map(fn (TaskActivity $activity): array => $this->activitySummary($activity, $club, $committee))->values(),
-            'members' => $this->memberOptions($committee),
+            'comments' => $comments->map(fn (TaskComment $comment): array => $this->commentSummary($comment, $workspace, $project, $task, $user))->values(),
+            'activities' => $activities->map(fn (TaskActivity $activity): array => $this->activitySummary($activity, $workspace, $project))->values(),
+            'members' => $this->memberOptions($project),
             'statusOptions' => $this->statusOptions(),
             'priorityOptions' => $this->priorityOptions(),
-            'canManageTasks' => $user->canManageCommittee($committee),
+            'canManageTasks' => $user->canManageProject($project),
             'canSubmitDeliverable' => $user->can('submitDeliverable', $task),
             'canApproveDeliverable' => $user->can('approveDeliverable', $task),
             'canUpdateProgress' => $user->can('update', $task),
             'canComment' => $user->can('view', $task),
-            'indexUrl' => route('committees.tasks.index', [$club, $committee], absolute: false),
-            'manageUrl' => route('committees.manage', [$club, $committee], absolute: false),
+            'indexUrl' => route('projects.tasks.index', [$workspace, $project], absolute: false),
+            'manageUrl' => route('projects.manage', [$workspace, $project], absolute: false),
         ]);
     }
 
-    public function store(StoreTaskRequest $request, Club $club, Committee $committee): RedirectResponse
+    public function store(StoreTaskRequest $request, Workspace $workspace, Project $project): RedirectResponse
     {
         /** @var User $user */
         $user = $request->user();
 
         $task = Task::create([
             ...$request->safe()->except(['assigned_to']),
-            'committee_id' => $committee->id,
+            'project_id' => $project->id,
             'created_by' => $user->id,
             'assigned_to' => $request->validated('assigned_to'),
             'status' => $request->validated('status') ?? TaskStatus::Todo->value,
@@ -122,15 +122,15 @@ class TaskController extends Controller
             'message' => __('tasks.created'),
         ]);
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 
-    public function update(UpdateTaskRequest $request, Club $club, Committee $committee, Task $task): RedirectResponse
+    public function update(UpdateTaskRequest $request, Workspace $workspace, Project $project, Task $task): RedirectResponse
     {
         /** @var User $user */
         $user = $request->user();
 
-        $canManage = $user->canManageCommittee($committee);
+        $canManage = $user->canManageProject($project);
         $task->loadMissing('assignee:id,name,email,locale');
         $originalStatus = $task->status;
         $originalAssignee = $task->assignee;
@@ -181,10 +181,10 @@ class TaskController extends Controller
             return redirect($request->validated('return_to'));
         }
 
-        return redirect()->route('committees.tasks.show', [$club, $committee, $task]);
+        return redirect()->route('projects.tasks.show', [$workspace, $project, $task]);
     }
 
-    public function destroy(Club $club, Committee $committee, Task $task): RedirectResponse
+    public function destroy(Workspace $workspace, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('delete', $task);
 
@@ -195,7 +195,7 @@ class TaskController extends Controller
             'message' => __('tasks.deleted'),
         ]);
 
-        return redirect()->route('committees.tasks.index', [$club, $committee]);
+        return redirect()->route('projects.tasks.index', [$workspace, $project]);
     }
 
     /**
@@ -223,15 +223,15 @@ class TaskController extends Controller
     /**
      * @return array<int, array{value: number, label: string}>
      */
-    private function memberOptions(Committee $committee): array
+    private function memberOptions(Project $project): array
     {
-        return CommitteeMembership::query()
-            ->where('committee_id', $committee->id)
+        return ProjectMembership::query()
+            ->where('project_id', $project->id)
             ->where('status', 'approved')
             ->with('user:id,name')
             ->get()
-            ->filter(fn (CommitteeMembership $membership): bool => $membership->user !== null)
-            ->map(fn (CommitteeMembership $membership): array => [
+            ->filter(fn (ProjectMembership $membership): bool => $membership->user !== null)
+            ->map(fn (ProjectMembership $membership): array => [
                 'value' => $membership->user_id,
                 'label' => $membership->user?->name ?? '',
             ])
@@ -290,22 +290,22 @@ class TaskController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function commentSummary(TaskComment $comment, Club $club, Committee $committee, Task $task, User $user): array
+    private function commentSummary(TaskComment $comment, Workspace $workspace, Project $project, Task $task, User $user): array
     {
         return [
             'id' => $comment->id,
             'body' => $comment->body,
             'author_name' => $comment->user?->name ?? __('tasks.activity.system'),
             'created_at' => $comment->created_at?->toIso8601String(),
-            'can_delete' => $comment->user_id === $user->id || $user->canManageCommittee($committee),
-            'delete_url' => route('committees.tasks.comments.destroy', [$club, $committee, $task, $comment], absolute: false),
+            'can_delete' => $comment->user_id === $user->id || $user->canManageProject($project),
+            'delete_url' => route('projects.tasks.comments.destroy', [$workspace, $project, $task, $comment], absolute: false),
         ];
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function activitySummary(TaskActivity $activity, Club $club, Committee $committee): array
+    private function activitySummary(TaskActivity $activity, Workspace $workspace, Project $project): array
     {
         return [
             'id' => $activity->id,
@@ -315,7 +315,7 @@ class TaskController extends Controller
             'task' => [
                 'id' => $activity->task_id,
                 'title' => $activity->task?->title ?? '',
-                'url' => route('committees.tasks.show', [$club, $committee, $activity->task_id], absolute: false),
+                'url' => route('projects.tasks.show', [$workspace, $project, $activity->task_id], absolute: false),
             ],
         ];
     }

@@ -31,7 +31,7 @@
      * Decorative blurred circles, positioned to match the Figma design.
      * Centers are expressed as a percentage of the viewport so they scale,
      * and `-translate-x/y-1/2` re-centers each circle on that point.
-     * Brand colour is #006471 (rgb 0 100 113); larger circles sit at 25%
+     * Brand colour is #c8924a (rgb 200 146 74); larger circles sit at 25%
      * opacity, smaller accent circles at 50%.
      *
      * @type {Array<{left: string; top: string; size: number; color: string; blur: number}>}
@@ -41,35 +41,35 @@
             left: '27.4%',
             top: '34.5%',
             size: 529,
-            color: 'rgba(0,100,113,0.25)',
+            color: 'rgba(200,146,74,0.25)',
             blur: 12,
         },
         {
             left: '94.8%',
             top: '7.3%',
             size: 200,
-            color: 'rgba(0,100,113,0.25)',
+            color: 'rgba(200,146,74,0.25)',
             blur: 8,
         },
         {
             left: '78.3%',
             top: '76.3%',
             size: 250,
-            color: 'rgba(0,100,113,0.5)',
+            color: 'rgba(200,146,74,0.5)',
             blur: 8,
         },
         {
             left: '17.1%',
             top: '70.7%',
             size: 100,
-            color: 'rgba(0,100,113,0.5)',
+            color: 'rgba(200,146,74,0.5)',
             blur: 5,
         },
         {
             left: '70.1%',
             top: '10.1%',
             size: 100,
-            color: 'rgba(0,100,113,0.5)',
+            color: 'rgba(200,146,74,0.5)',
             blur: 5,
         },
     ];

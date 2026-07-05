@@ -57,7 +57,7 @@
 
     function submit(event: SubmitEvent): void {
         event.preventDefault();
-        form.post(`/clubs/${club.id}/committees/${committee.id}/files`, {
+        form.post(`/workspaces/${club.id}/projects/${committee.id}/files`, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -71,7 +71,7 @@
 
     function removeFile(id: number): void {
         router.delete(
-            `/clubs/${club.id}/committees/${committee.id}/files/${id}`,
+            `/workspaces/${club.id}/projects/${committee.id}/files/${id}`,
             {
                 preserveScroll: true,
             },

@@ -7,15 +7,15 @@ use App\Ai\Tools\GetProjectSummary;
 use App\Ai\Tools\ListMyTasks;
 use App\Ai\Tools\UpdateTaskDetails;
 use App\Ai\Tools\UpdateTaskStatus;
-use App\Enums\ClubRole;
-use App\Enums\CommitteeRole;
-use App\Models\Club;
-use App\Models\ClubMembership;
-use App\Models\Committee;
-use App\Models\CommitteeMembership;
+use App\Enums\ProjectRole;
+use App\Enums\WorkspaceRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
 use App\Notifications\TaskAssignedNotification;
 use App\Notifications\TaskDeliverableApprovedNotification;
 use App\Notifications\TaskSubmittedForReviewNotification;
@@ -39,48 +39,48 @@ function decodeTaskTool(string $json): array
  */
 function assistantProjectLeadAndCommittee(): array
 {
-    $club = Club::factory()->create(['status' => 'active']);
-    $committee = Committee::factory()->create(['club_id' => $club->id]);
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $membership = ClubMembership::factory()->approved()->create([
+    $membership = WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
-    $membership->syncClubRoles([ClubRole::ClubLead]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    return [$lead, $club, $committee];
+    return [$lead, $workspace, $project];
 }
 
 function assistantProjectMember(
-    Club $club,
-    Committee $committee,
-    array $roles = [CommitteeRole::Member],
+    Workspace $workspace,
+    Project $project,
+    array $roles = [ProjectRole::Member],
     ?string $name = null,
 ): User {
     $user = User::factory()->student()->create(array_filter(['name' => $name]));
 
-    ClubMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $user->id,
-        'club_id' => $club->id,
+        'workspace_id' => $workspace->id,
     ]);
 
-    $membership = CommitteeMembership::factory()->create([
+    $membership = ProjectMembership::factory()->create([
         'user_id' => $user->id,
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
     ]);
-    $membership->syncCommitteeRoles($roles);
+    $membership->syncProjectRoles($roles);
 
     return $user;
 }
 
 test('list my tasks only returns the authenticated member tasks', function () {
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee);
-    $otherMember = assistantProjectMember($club, $committee);
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project);
+    $otherMember = assistantProjectMember($workspace, $project);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Overdue homepage copy',
@@ -89,7 +89,7 @@ test('list my tasks only returns the authenticated member tasks', function () {
     ]);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Upcoming review notes',
@@ -98,7 +98,7 @@ test('list my tasks only returns the authenticated member tasks', function () {
     ]);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $otherMember->id,
         'title' => 'Someone else task',
@@ -117,20 +117,20 @@ test('list my tasks only returns the authenticated member tasks', function () {
 });
 
 test('find tasks is scoped to projects the user can view', function () {
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee);
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project);
 
     Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'title' => 'Landing page polish',
     ]);
 
-    $hiddenClub = Club::factory()->create(['status' => 'active']);
-    $hiddenCommittee = Committee::factory()->create(['club_id' => $hiddenClub->id]);
+    $hiddenClub = Workspace::factory()->create(['status' => 'active']);
+    $hiddenCommittee = Project::factory()->create(['workspace_id' => $hiddenClub->id]);
 
     Task::factory()->create([
-        'committee_id' => $hiddenCommittee->id,
+        'project_id' => $hiddenCommittee->id,
         'created_by' => $lead->id,
         'title' => 'Landing page migration',
     ]);
@@ -144,11 +144,11 @@ test('find tasks is scoped to projects the user can view', function () {
 });
 
 test('project summary includes counts blockers and recent activity', function () {
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee);
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project);
 
     $overdue = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Fix overdue item',
@@ -158,7 +158,7 @@ test('project summary includes counts blockers and recent activity', function ()
     $overdue->recordCreated($lead);
 
     $review = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Review blocker item',
@@ -168,11 +168,11 @@ test('project summary includes counts blockers and recent activity', function ()
     $review->recordCreated($lead);
 
     $result = decodeTaskTool((new GetProjectSummary($member))->handle(new Request([
-        'project' => $committee->name,
-        'workspace' => $club->name,
+        'project' => $project->name,
+        'workspace' => $workspace->name,
     ])));
 
-    expect($result['project']['name'])->toBe($committee->name)
+    expect($result['project']['name'])->toBe($project->name)
         ->and($result['stats']['overdueCount'])->toBe(1)
         ->and($result['stats']['reviewCount'])->toBe(1)
         ->and(collect($result['blockers'])->pluck('title'))
@@ -181,12 +181,12 @@ test('project summary includes counts blockers and recent activity', function ()
 });
 
 test('a non-manager cannot create tasks through the assistant', function () {
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee);
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project);
 
     $result = decodeTaskTool((new CreateTask($member))->handle(new Request([
-        'project' => $committee->name,
-        'workspace' => $club->name,
+        'project' => $project->name,
+        'workspace' => $workspace->name,
         'title' => 'Blocked creation',
     ])));
 
@@ -196,15 +196,15 @@ test('a non-manager cannot create tasks through the assistant', function () {
 test('a manager can create a task through the confirmation flow', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee, name: 'Ahmed');
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project, name: 'Ahmed');
 
     $this->actingAs($lead);
     $tool = new CreateTask($lead);
 
     $result = decodeTaskTool($tool->handle(new Request([
-        'project' => $committee->name,
-        'workspace' => $club->name,
+        'project' => $project->name,
+        'workspace' => $workspace->name,
         'title' => 'Prepare sprint board',
         'assignee' => 'Ahmed',
         'priority' => 'high',
@@ -232,12 +232,12 @@ test('a manager can create a task through the confirmation flow', function () {
 test('a manager can reassign a task through the confirmation flow', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $from = assistantProjectMember($club, $committee, name: 'Maha');
-    $to = assistantProjectMember($club, $committee, name: 'Sara');
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $from = assistantProjectMember($workspace, $project, name: 'Maha');
+    $to = assistantProjectMember($workspace, $project, name: 'Sara');
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $from->id,
         'title' => 'Reassign design QA',
@@ -248,7 +248,7 @@ test('a manager can reassign a task through the confirmation flow', function () 
 
     $result = decodeTaskTool($tool->handle(new Request([
         'task' => $task->title,
-        'project' => $committee->name,
+        'project' => $project->name,
         'assignee' => 'Sara',
     ])));
 
@@ -264,10 +264,10 @@ test('a manager can reassign a task through the confirmation flow', function () 
 });
 
 test('a manager can update task details through the confirmation flow', function () {
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'title' => 'Old task title',
         'priority' => 'medium',
@@ -279,7 +279,7 @@ test('a manager can update task details through the confirmation flow', function
 
     $result = decodeTaskTool($tool->handle(new Request([
         'task' => $task->title,
-        'project' => $committee->name,
+        'project' => $project->name,
         'title' => 'Updated task title',
         'priority' => 'urgent',
         'clear_due_date' => 'true',
@@ -299,11 +299,11 @@ test('a manager can update task details through the confirmation flow', function
 test('task status updates preserve review activity and notifications', function () {
     Notification::fake();
 
-    [$lead, $club, $committee] = assistantProjectLeadAndCommittee();
-    $member = assistantProjectMember($club, $committee);
+    [$lead, $workspace, $project] = assistantProjectLeadAndCommittee();
+    $member = assistantProjectMember($workspace, $project);
 
     $task = Task::factory()->create([
-        'committee_id' => $committee->id,
+        'project_id' => $project->id,
         'created_by' => $lead->id,
         'assigned_to' => $member->id,
         'title' => 'Submitable task',
@@ -315,7 +315,7 @@ test('task status updates preserve review activity and notifications', function 
 
     $submit = decodeTaskTool($submitTool->handle(new Request([
         'task' => $task->title,
-        'project' => $committee->name,
+        'project' => $project->name,
         'status' => 'review',
         'deliverable_notes' => 'Ready for review in TeamHUB.',
     ])));
@@ -337,7 +337,7 @@ test('task status updates preserve review activity and notifications', function 
 
     $approve = decodeTaskTool($approveTool->handle(new Request([
         'task' => $task->title,
-        'project' => $committee->name,
+        'project' => $project->name,
         'status' => 'done',
         'review_notes' => 'Looks good.',
     ])));

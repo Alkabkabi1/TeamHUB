@@ -70,25 +70,25 @@ return [
     // Membership decision notifications (sent to the applicant)
     'notification' => [
         'approved' => [
-            'subject' => 'Your membership in :club has been approved',
+            'subject' => 'Your membership in :workspace has been approved',
             'greeting' => 'Congratulations, :name!',
-            'body' => 'Your request to join ":club" has been approved. You are now a member and can take part in the club\'s events and activities.',
+            'body' => 'Your request to join ":workspace" has been approved. You are now a member and can take part in the club\'s events and activities.',
             'action' => 'Visit the club',
             'footer' => 'Welcome to the TeamHUB community.',
         ],
         'rejected' => [
-            'subject' => 'Update on your membership request for :club',
+            'subject' => 'Update on your membership request for :workspace',
             'greeting' => 'Hello :name,',
-            'body' => 'We\'re sorry, but your request to join ":club" was not approved this time. You\'re welcome to explore other clubs or apply again later.',
+            'body' => 'We\'re sorry, but your request to join ":workspace" was not approved this time. You\'re welcome to explore other clubs or apply again later.',
             'action' => 'Browse clubs',
             'footer' => 'Thank you for your interest in TeamHUB.',
         ],
         'received' => [
-            'subject' => 'New membership application for :club',
+            'subject' => 'New membership application for :workspace',
             'greeting' => 'Hello :name,',
-            'body' => ':applicant has applied to join ":club". Please review their application when you have a moment.',
+            'body' => ':applicant has applied to join ":workspace". Please review their application when you have a moment.',
             'action' => 'Review application',
-            'footer' => 'You receive this because you manage members for :club.',
+            'footer' => 'You receive this because you manage members for :workspace.',
         ],
     ],
 ];

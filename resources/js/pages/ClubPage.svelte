@@ -103,7 +103,7 @@
         {#if canManage}
             <div class="flex justify-end">
                 <Link
-                    href={`/clubs/${club.id}/manage`}
+                    href={`/workspaces/${club.id}/manage`}
                     class="cursor-pointer rounded-full bg-brand px-6 py-2.5 text-[13px] text-white transition-colors hover:bg-brand-dark"
                 >
                     {t('club.manage')}
@@ -129,7 +129,7 @@
             <section class="flex flex-col gap-5">
                 <SectionHeader
                     title={t('committees.title')}
-                    href={`/clubs/${club.id}/committees`}
+                    href={`/workspaces/${club.id}/committees`}
                 />
                 <div
                     class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
@@ -141,7 +141,7 @@
                             members={t('app.members_count', {
                                 count: formatNumber(committee.members_count),
                             })}
-                            href={`/clubs/${club.id}/committees/${committee.id}`}
+                            href={`/workspaces/${club.id}/projects/${committee.id}`}
                             imageUrl={committee.image_url}
                         />
                     {/each}
@@ -197,7 +197,7 @@
                         {t('club.join_club_desc')}
                     </p>
                     <Link
-                        href={`/clubs/${club.id}/join`}
+                        href={`/workspaces/${club.id}/join`}
                         class="cursor-pointer rounded-[50px] bg-brand px-8 py-3 text-sm text-white transition-colors hover:bg-brand-dark"
                     >
                         {t('clubs.join')}

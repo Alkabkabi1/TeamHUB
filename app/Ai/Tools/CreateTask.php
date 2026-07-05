@@ -26,14 +26,14 @@ class CreateTask extends WriteTool
         $workspace = null;
 
         if (! empty($request['workspace'])) {
-            $workspace = $this->resolveClub($request['workspace']);
+            $workspace = $this->resolveWorkspace($request['workspace']);
 
             if ($workspace === null) {
                 return ['error' => 'No workspace matched that name.'];
             }
         }
 
-        $project = $this->resolveAccessibleCommittee($request['project'] ?? null, $workspace);
+        $project = $this->resolveAccessibleProject($request['project'] ?? null, $workspace);
 
         if ($project === null) {
             return ['error' => 'No visible project matched that name.'];
@@ -64,7 +64,7 @@ class CreateTask extends WriteTool
         $assignee = null;
 
         if (! empty($request['assignee'])) {
-            $assignee = $this->resolveCommitteeMember($request['assignee'], $project);
+            $assignee = $this->resolveProjectMember($request['assignee'], $project);
 
             if ($assignee === null) {
                 return ['error' => 'No approved project member matched that assignee.'];
@@ -104,7 +104,7 @@ class CreateTask extends WriteTool
             'summary' => "Create task \"{$title}\" in {$project->name}",
             'changes' => $changes,
             'params' => [
-                'committee_id' => $project->id,
+                'project_id' => $project->id,
                 'created_by' => $this->user->id,
                 'title' => $title,
                 'description' => $description,
@@ -118,14 +118,14 @@ class CreateTask extends WriteTool
 
     public function execute(array $params): array
     {
-        $project = $this->resolveAccessibleCommittee((string) $params['committee_id']);
+        $project = $this->resolveAccessibleProject((string) $params['project_id']);
 
         if ($project === null || ! $this->user?->can('create', [Task::class, $project])) {
             return ['success' => false, 'message' => 'You are not allowed to create tasks in this project.'];
         }
 
         $task = Task::create([
-            'committee_id' => $project->id,
+            'project_id' => $project->id,
             'created_by' => $this->user->id,
             'title' => $params['title'],
             'description' => $params['description'],
