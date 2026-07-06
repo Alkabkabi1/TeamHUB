@@ -11,7 +11,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Spinner } from '@/components/ui/spinner';
-    import TeamHubAuthLayout from '@/layouts/auth/TeamHubAuthLayout.svelte';
+    import AppAuthLayout from '@/layouts/auth/AppAuthLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { login } from '@/routes';
     import { store } from '@/routes/register';
@@ -19,7 +19,7 @@
 
 <AppHead title={t('auth.register_title')} />
 
-<TeamHubAuthLayout title={t('auth.register_title')}>
+<AppAuthLayout title={t('auth.register_title')}>
     <Form
         {...store.form()}
         resetOnSuccess={['password', 'password_confirmation']}
@@ -107,4 +107,4 @@
             </p>
         {/snippet}
     </Form>
-</TeamHubAuthLayout>
+</AppAuthLayout>

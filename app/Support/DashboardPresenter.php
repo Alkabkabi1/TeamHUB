@@ -64,7 +64,7 @@ class DashboardPresenter
             ->map(function (Project $project): array {
                 return $this->projectPresenter->adminListItem(
                     $project,
-                    $this->committeeLeader($project),
+                    $this->projectLeader($project),
                     $this->progressPercent($project),
                     (int) $project->tasks_count,
                 );
@@ -231,7 +231,7 @@ class DashboardPresenter
         ];
     }
 
-    private function committeeLeader(Project $project): ?User
+    private function projectLeader(Project $project): ?User
     {
         /** @var ProjectMembership|null $membership */
         $membership = $project->memberships

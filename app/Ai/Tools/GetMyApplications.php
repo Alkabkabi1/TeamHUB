@@ -15,8 +15,8 @@ class GetMyApplications extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List the current user\'s club join applications with their status (pending, approved, or '
-            .'rejected). Use this for "was my join request accepted?" or "which clubs did I apply to?".';
+        return 'List the current user\'s workspace membership applications with their status (pending, approved, or '
+            .'rejected). Use this for "was my join request accepted?" or "which workspaces did I apply to?".';
     }
 
     public function handle(Request $request): Stringable|string

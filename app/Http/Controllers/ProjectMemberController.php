@@ -66,7 +66,7 @@ class ProjectMemberController extends Controller
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', Rule::in($this->roleValues())],
         ], [
-            'user_id.exists' => __('project.members.validation.not_club_member'),
+            'user_id.exists' => __('project.members.validation.not_workspace_member'),
         ]);
 
         $roles = $this->resolveRoles($validated['roles'] ?? []);

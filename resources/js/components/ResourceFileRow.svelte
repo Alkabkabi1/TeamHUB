@@ -11,14 +11,14 @@
     type Props = {
         title: string;
         description?: string | null;
-        club?: string | null;
+        workspace?: string | null;
         downloadUrl?: string | null;
     };
 
     let {
         title,
         description = '',
-        club = null,
+        workspace = null,
         downloadUrl = null,
     }: Props = $props();
 </script>
@@ -36,11 +36,11 @@
         <div class="flex min-w-0 flex-col items-start gap-1.5 text-start">
             <div class="flex min-w-0 max-w-full items-center gap-2">
                 <h3 class="truncate text-sm text-black">{title}</h3>
-                {#if club}
+                {#if workspace}
                     <span
                         class="inline-flex shrink-0 items-center rounded-full bg-brand/25 px-2.5 py-0.5 text-[10px] text-brand"
                     >
-                        {club}
+                        {workspace}
                     </span>
                 {/if}
             </div>

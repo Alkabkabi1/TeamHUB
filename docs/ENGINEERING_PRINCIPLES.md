@@ -1,6 +1,6 @@
 # TeamHUB — Engineering Principles
 
-**Phase:** 0 (product definition — guidance for Phases 1–10)  
+**Status:** Phase 3.5 complete — guidance applied through domain, UI, and runtime migration.  
 **Applies to:** All contributors and AI-assisted implementation (Cursor)
 
 ---

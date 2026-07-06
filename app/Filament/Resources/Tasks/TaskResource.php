@@ -79,7 +79,7 @@ class TaskResource extends Resource
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('committee.name')
+                TextColumn::make('project.name')
                     ->label('Project')
                     ->searchable()
                     ->sortable(),

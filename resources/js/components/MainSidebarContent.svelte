@@ -9,10 +9,10 @@
         UserCircleIcon,
     } from '@hugeicons/core-free-icons';
     import { page, router } from '@inertiajs/svelte';
-    import ClubManageNavItem from '@/components/ClubManageNavItem.svelte';
-    import CommitteeManageNavItem from '@/components/CommitteeManageNavItem.svelte';
+    import ProjectManageNavItem from '@/components/ProjectManageNavItem.svelte';
     import SidebarNavItem from '@/components/SidebarNavItem.svelte';
     import SparkleIcon from '@/components/SparkleIcon.svelte';
+    import WorkspaceManageNavItem from '@/components/WorkspaceManageNavItem.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
     import {
@@ -31,7 +31,7 @@
     const auth = $derived(page.props.auth);
     const role = $derived(auth?.user?.role as string);
     const isAuthenticated = $derived(!!auth?.user);
-    // Club supervision is a per-club relationship, not a global role.
+    // Workspace supervision is a per-workspace relationship, not a global role.
     const isWorkspaceLead = $derived(!!auth?.user?.is_workspace_lead);
     const isProjectLead = $derived(!!auth?.user?.is_project_lead);
     const unreadNotificationsCount = $derived(
@@ -58,38 +58,38 @@
             title: t('nav.my_work'),
             href: studentDashboard(),
             icon: UserCircleIcon,
-            roles: ['student'],
+            roles: ['member'],
         },
         {
             title: t('nav.my_tasks'),
             href: '/my-tasks',
             icon: DashboardBrowsingIcon,
-            roles: ['student'],
+            roles: ['member'],
         },
         {
             title: t('nav.notifications'),
             href: '/notifications',
             icon: Notification01Icon,
             badge: unreadNotificationsCount,
-            roles: ['student', 'university_staff'],
+            roles: ['student', 'admin'],
         },
         ...(isWorkspaceLead
             ? [
                   {
-                      title: t('nav.club_supervisor_dashboard'),
+                      title: t('nav.workspace_lead_dashboard'),
                       href: '',
                       icon: DashboardBrowsingIcon,
-                      kind: 'club-manage' as const,
+                      kind: 'workspace-manage' as const,
                   },
               ]
             : []),
         ...(isProjectLead
             ? [
                   {
-                      title: t('nav.committee_leader_dashboard'),
+                      title: t('nav.project_lead_dashboard'),
                       href: '',
                       icon: DashboardBrowsingIcon,
-                      kind: 'committee-manage' as const,
+                      kind: 'project-manage' as const,
                   },
               ]
             : []),
@@ -97,7 +97,7 @@
             title: t('nav.admin_dashboard'),
             href: '/admin',
             icon: DashboardBrowsingIcon,
-            roles: ['university_staff'],
+            roles: ['admin'],
             isExternal: true,
         },
     ]);
@@ -121,7 +121,7 @@
               }
             : demoQuickLogin
               ? {
-                    title: t('hub.entry_title'),
+                    title: t('dashboard.entry_title'),
                     href: home(),
                     icon: Login03Icon,
                 }
@@ -169,10 +169,10 @@
         <ul class="flex flex-col gap-2">
             {#each filteredMainNavItems as item (item.kind ?? toUrl(item.href))}
                 <li>
-                    {#if item.kind === 'club-manage'}
-                        <ClubManageNavItem {onNavigate} />
-                    {:else if item.kind === 'committee-manage'}
-                        <CommitteeManageNavItem {onNavigate} />
+                    {#if item.kind === 'workspace-manage'}
+                        <WorkspaceManageNavItem {onNavigate} />
+                    {:else if item.kind === 'project-manage'}
+                        <ProjectManageNavItem {onNavigate} />
                     {:else}
                         <SidebarNavItem {item} {onNavigate} />
                     {/if}

@@ -20,6 +20,6 @@ class DemoEntryController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return Inertia::render('team-hub/Entry');
+        return Inertia::render('app/Entry');
     }
 }

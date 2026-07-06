@@ -38,7 +38,7 @@ class WorkspaceReportController extends Controller
         app()->setLocale($locale);
 
         $data = $dataResolver($locale);
-        $filename = "{$reportKey}-club-{$workspace->id}-{$locale}.pdf";
+        $filename = "{$reportKey}-workspace-{$workspace->id}-{$locale}.pdf";
 
         $html = ArabicText::shapeHtml(view("reports.{$reportKey}.{$locale}", $data)->render());
 

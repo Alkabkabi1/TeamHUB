@@ -15,7 +15,7 @@ class GetMyProjects extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List the committees (sub-groups within clubs) the current user belongs to, with their role in each.';
+        return 'List the projects the current user belongs to, with their role in each.';
     }
 
     public function handle(Request $request): Stringable|string

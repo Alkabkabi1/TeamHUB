@@ -2,15 +2,15 @@
     import { page } from '@inertiajs/svelte';
     import ManageShell from '@/components/ManageShell.svelte';
     import { t } from '@/lib/i18n.svelte';
+    import type { WorkspaceRef } from '@/types/domain';
 
     type ManagedWorkspace = { id: number; name: string };
-    type ClubRef = { id: number; name: string };
 
     let {
-        club,
+        workspace,
         active = 'overview',
     }: {
-        club: ClubRef;
+        workspace: WorkspaceRef;
         active?: 'overview' | 'members' | 'settings';
     } = $props();
 
@@ -22,17 +22,17 @@
         {
             id: 'overview',
             label: t('app.overview'),
-            href: `/workspaces/${club.id}/manage`,
+            href: `/workspaces/${workspace.id}/manage`,
         },
         {
             id: 'members',
             label: t('app.manage_members'),
-            href: `/workspaces/${club.id}/manage/members`,
+            href: `/workspaces/${workspace.id}/manage/members`,
         },
         {
             id: 'settings',
             label: t('app.manage_settings'),
-            href: `/workspaces/${club.id}/theme/edit`,
+            href: `/workspaces/${workspace.id}/theme/edit`,
         },
     ]);
 
@@ -46,7 +46,7 @@
 </script>
 
 <ManageShell
-    title={club.name}
+    title={workspace.name}
     subtitle={t('app.workspace')}
     {tabs}
     {active}

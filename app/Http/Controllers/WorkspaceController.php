@@ -81,9 +81,9 @@ class WorkspaceController extends Controller
                 ->exists()
         );
 
-        return Inertia::render('ClubPage', [
+        return Inertia::render('WorkspacePage', [
             'theme' => ['brand' => $workspace->theme ?: config('theme.brand')],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url', 'status']),
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url', 'status']),
             'canManage' => $request->user()?->canManageWorkspace($workspace) ?? false,
             'isMember' => $isMember,
             'stats' => [
@@ -92,7 +92,7 @@ class WorkspaceController extends Controller
                 'open_tasks_count' => $openTasksCount,
             ],
             'recentUpdates' => $recentUpdates,
-            'committees' => $projects,
+            'projects' => $projects,
         ]);
     }
 }

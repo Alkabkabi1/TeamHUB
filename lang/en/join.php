@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Join application',
-    'submitted' => 'Your application was submitted successfully. A club supervisor will review it.',
+    'submitted' => 'Your application was submitted successfully. A workspace lead will review it.',
     'full_name' => 'Full name',
     'university_email' => 'Email',
     'phone' => 'Phone number',
@@ -14,7 +14,7 @@ return [
     'motivation' => 'Why do you want to join?',
     'contribution' => 'How will you contribute?',
     'submit' => 'Submit application',
-    'join_club' => 'Join club',
+    'join_workspace' => 'Join workspace',
     'placeholder' => [
         'full_name' => 'e.g. Ahmed Mohammed Ahmed',
         'university_email' => 'name@example.com',
@@ -24,8 +24,8 @@ return [
         'skills' => 'e.g. Graphic design, public speaking',
         'weekly_hours' => 'e.g. 4',
         'tools' => 'e.g. Photoshop, Canva, Office, Notion',
-        'motivation' => 'Tell us why this club fits you',
-        'contribution' => 'What value will you add to the club?',
+        'motivation' => 'Tell us why this workspace fits you',
+        'contribution' => 'What value will you add to the workspace?',
     ],
     'validation' => [
         'full_name' => [
@@ -60,27 +60,26 @@ return [
         'contribution' => [
             'required' => 'Please describe your contribution.',
         ],
-        'club' => [
-            'inactive' => 'This club is not accepting applications right now.',
-            'already_member' => 'You are already a member of this club.',
-            'pending_application' => 'You already have a pending application for this club.',
+        'workspace' => [
+            'inactive' => 'This workspace is not accepting applications right now.',
+            'already_member' => 'You are already a member of this workspace.',
+            'pending_application' => 'You already have a pending application for this workspace.',
         ],
     ],
 
-    // Membership decision notifications (sent to the applicant)
     'notification' => [
         'approved' => [
             'subject' => 'Your membership in :workspace has been approved',
             'greeting' => 'Congratulations, :name!',
-            'body' => 'Your request to join ":workspace" has been approved. You are now a member and can take part in the club\'s events and activities.',
-            'action' => 'Visit the club',
+            'body' => 'Your request to join ":workspace" has been approved. You are now a member and can take part in its activities.',
+            'action' => 'Visit the workspace',
             'footer' => 'Welcome to the TeamHUB community.',
         ],
         'rejected' => [
             'subject' => 'Update on your membership request for :workspace',
             'greeting' => 'Hello :name,',
-            'body' => 'We\'re sorry, but your request to join ":workspace" was not approved this time. You\'re welcome to explore other clubs or apply again later.',
-            'action' => 'Browse clubs',
+            'body' => 'We\'re sorry, but your request to join ":workspace" was not approved this time. You\'re welcome to explore other workspaces or apply again later.',
+            'action' => 'Browse workspaces',
             'footer' => 'Thank you for your interest in TeamHUB.',
         ],
         'received' => [

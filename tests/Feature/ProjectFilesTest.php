@@ -56,7 +56,7 @@ test('approved project members can view the project files page', function () {
         ->get(route('projects.files.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/Files')
+            ->component('projects/Files')
             ->has('files', 1)
             ->where('files.0.title', 'Design brief')
         );

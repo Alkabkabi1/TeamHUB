@@ -87,7 +87,7 @@
                 {href}
                 class="cursor-pointer rounded-[50px] bg-brand px-5 py-2 text-xs text-white transition-colors hover:bg-brand-dark"
             >
-                {detailsLabel ?? t('club.details')}
+                {detailsLabel ?? t('workspace.details')}
             </Link>
         </div>
     {/if}

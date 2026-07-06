@@ -6,7 +6,7 @@
         variant = 'app',
     }: {
         status: 'todo' | 'in_progress' | 'review' | 'done';
-        variant?: 'app' | 'hub';
+        variant?: 'app' | 'shell';
     } = $props();
 
     const appStyles = {
@@ -16,7 +16,7 @@
         done: 'bg-emerald-100 text-emerald-700',
     } as const;
 
-    const hubStyles: Record<typeof status, { bg: string; color: string }> = {
+    const shellStyles: Record<typeof status, { bg: string; color: string }> = {
         todo: {
             bg: 'color-mix(in srgb, var(--th-text-muted) 14%, transparent)',
             color: 'var(--th-text-muted)',
@@ -36,10 +36,10 @@
     };
 </script>
 
-{#if variant === 'hub'}
+{#if variant === 'shell'}
     <span
         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-        style="background: {hubStyles[status].bg}; color: {hubStyles[status]
+        style="background: {shellStyles[status].bg}; color: {shellStyles[status]
             .color}"
     >
         {t(`tasks.statuses.${status}`)}

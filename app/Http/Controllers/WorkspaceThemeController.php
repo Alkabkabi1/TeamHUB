@@ -18,10 +18,10 @@ class WorkspaceThemeController extends Controller
     {
         $this->authorize(WorkspaceCapability::ManageWorkspace->value, $workspace);
 
-        return Inertia::render('ClubTheme', [
+        return Inertia::render('WorkspaceTheme', [
             // Override the shared university brand with this club's color when set.
             'theme' => ['brand' => $workspace->theme ?: config('theme.brand')],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
             'logoUrl' => $workspace->logo_url,
         ]);
     }

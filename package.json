@@ -44,7 +44,6 @@
         "clsx": "^2.1.1",
         "dompurify": "^3.4.7",
         "embla-carousel-svelte": "^8.6.0",
-        "html5-qrcode": "^2.3.8",
         "laravel-vite-plugin": "^3.0.0",
         "layerchart": "^2.0.1",
         "marked": "^18.0.4",

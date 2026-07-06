@@ -18,6 +18,11 @@ class AppNav
                 'icon' => 'home',
             ],
             [
+                'href' => route('home', absolute: false),
+                'label' => __('dashboard.nav.workspaces'),
+                'icon' => 'workspaces',
+            ],
+            [
                 'href' => route('projects', absolute: false),
                 'label' => __('dashboard.nav.projects'),
                 'icon' => 'projects',
@@ -29,43 +34,6 @@ class AppNav
             ],
         ];
 
-        if ($user->isMember()) {
-            $items[] = [
-                'href' => route('my-tasks', absolute: false),
-                'label' => __('dashboard.nav.my_tasks'),
-                'icon' => 'deliverable',
-            ];
-        }
-
-        $managedWorkspace = $user->managedWorkspace();
-        if ($managedWorkspace !== null) {
-            $items[] = [
-                'href' => route('workspaces.manage.members', $managedWorkspace, absolute: false),
-                'label' => __('dashboard.nav.team'),
-                'icon' => 'team',
-            ];
-        }
-
-        $managedProject = $user->managedProjects()->first();
-        if ($managedProject !== null) {
-            $items[] = [
-                'href' => route('projects.files.index', [$managedProject->workspace_id, $managedProject], absolute: false),
-                'label' => __('dashboard.nav.files'),
-                'icon' => 'files',
-            ];
-            $items[] = [
-                'href' => route('projects.reports.members', [$managedProject->workspace_id, $managedProject], absolute: false),
-                'label' => __('dashboard.nav.reports'),
-                'icon' => 'reports',
-            ];
-        } elseif ($managedWorkspace !== null) {
-            $items[] = [
-                'href' => route('workspaces.reports.members', $managedWorkspace, absolute: false),
-                'label' => __('dashboard.nav.reports'),
-                'icon' => 'reports',
-            ];
-        }
-
         $unread = $user->unreadNotifications()->count();
         $items[] = [
             'href' => route('notifications.index', absolute: false),
@@ -74,13 +42,11 @@ class AppNav
             'badge' => $unread > 0 ? $unread : null,
         ];
 
-        if ($user->isAdmin()) {
-            $items[] = [
-                'href' => route('filament.admin.pages.dashboard', absolute: false),
-                'label' => __('dashboard.nav.admin'),
-                'icon' => 'reports',
-            ];
-        }
+        $items[] = [
+            'href' => route('profile.edit', absolute: false),
+            'label' => __('dashboard.nav.settings'),
+            'icon' => 'settings',
+        ];
 
         return $items;
     }

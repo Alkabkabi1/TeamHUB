@@ -4,7 +4,7 @@ return [
     // Public feed / article pages
     'title' => 'الأخبار',
     'hero_title' => 'آخر الأخبار',
-    'hero_subtitle' => 'تابع آخر التحديثات والإعلانات من الأندية.',
+    'hero_subtitle' => 'تابع آخر التحديثات والإعلانات من مساحات العمل.',
     'search_placeholder' => 'ابحث في الأخبار',
     'search_aria' => 'ابحث في الأخبار',
     'sort_options' => [
@@ -16,7 +16,7 @@ return [
     'read_more' => 'اقرأ المزيد',
     'back_to_news' => 'العودة إلى الأخبار',
     'by_author' => 'بقلم :name',
-    'related' => 'المزيد من هذا النادي',
+    'related' => 'المزيد من مساحة العمل هذه',
 
     // Form labels
     'form' => [
@@ -58,10 +58,10 @@ return [
 
     // Notification
     'notification' => [
-        'subject' => 'خبر جديد من :club — :title',
+        'subject' => 'خبر جديد من :workspace — :title',
         'greeting' => 'مرحباً!',
-        'body' => 'تم نشر خبر جديد بعنوان ":title" من ناديك ":club".',
+        'body' => 'تم نشر خبر جديد بعنوان ":title" في مساحة العمل ":workspace".',
         'action' => 'قراءة الخبر',
-        'footer' => 'تصلك هذه الرسالة لأنك عضو في :club.',
+        'footer' => 'تصلك هذه الرسالة لأنك عضو في :workspace.',
     ],
 ];

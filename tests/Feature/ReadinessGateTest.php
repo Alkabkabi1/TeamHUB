@@ -63,8 +63,8 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         ->get(route('projects.manage', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/Manage')
-            ->where('committee.id', $project->id)
+            ->component('projects/Manage')
+            ->where('project.id', $project->id)
         );
 
     $this->actingAs($lead)
@@ -84,7 +84,7 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Show')
+            ->component('projects/tasks/Show')
             ->where('task.id', $task->id)
             ->where('canComment', true)
             ->has('comments', 0)
@@ -163,7 +163,7 @@ test('the core teamhub workflow stays consistent from task assignment to approva
         ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Show')
+            ->component('projects/tasks/Show')
             ->where('task.status', 'done')
             ->has('comments', 2)
             ->has('activities', 7)

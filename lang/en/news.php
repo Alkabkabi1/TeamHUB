@@ -4,7 +4,7 @@ return [
     // Public feed / article pages
     'title' => 'News',
     'hero_title' => 'Latest news',
-    'hero_subtitle' => 'Follow the latest updates and announcements from the clubs.',
+    'hero_subtitle' => 'Follow the latest updates and announcements from workspaces.',
     'search_placeholder' => 'Search news',
     'search_aria' => 'Search news',
     'sort_options' => [
@@ -16,7 +16,7 @@ return [
     'read_more' => 'Read more',
     'back_to_news' => 'Back to news',
     'by_author' => 'By :name',
-    'related' => 'More from this club',
+    'related' => 'More from this workspace',
 
     // Form labels
     'form' => [
@@ -58,10 +58,10 @@ return [
 
     // Notification
     'notification' => [
-        'subject' => 'New post from :club — :title',
+        'subject' => 'New post from :workspace — :title',
         'greeting' => 'Hello!',
-        'body' => 'A new post titled ":title" has been published by your club ":club".',
+        'body' => 'A new post titled ":title" has been published in your workspace ":workspace".',
         'action' => 'Read the post',
-        'footer' => 'You receive this because you are a member of :club.',
+        'footer' => 'You receive this because you are a member of :workspace.',
     ],
 ];

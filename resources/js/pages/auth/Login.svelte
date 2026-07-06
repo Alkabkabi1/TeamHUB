@@ -18,7 +18,7 @@
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
     import { Spinner } from '@/components/ui/spinner';
-    import TeamHubAuthLayout from '@/layouts/auth/TeamHubAuthLayout.svelte';
+    import AppAuthLayout from '@/layouts/auth/AppAuthLayout.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { register } from '@/routes';
     import { login as demoLogin } from '@/routes/demo';
@@ -54,7 +54,7 @@
 
 <AppHead title={t('auth.login_title')} />
 
-<TeamHubAuthLayout title={t('auth.login_title')}>
+<AppAuthLayout title={t('auth.login_title')}>
     {#if status}
         <div class="w-full text-center text-sm font-medium text-green-600">
             {status}
@@ -213,4 +213,4 @@
             {/if}
         </div>
     {/if}
-</TeamHubAuthLayout>
+</AppAuthLayout>

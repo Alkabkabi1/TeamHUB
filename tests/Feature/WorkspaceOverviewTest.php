@@ -45,7 +45,7 @@ test('workspace overview exposes project cards and recent activity', function ()
         ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('clubs/Manage')
+            ->component('workspaces/Manage')
             ->where('workspaceStats.projects_count', 1)
             ->where('workspaceStats.tasks_count', 1)
             ->where('workspaceStats.overdue_tasks_count', 1)
@@ -62,8 +62,8 @@ test('workspace members page loads for club leads', function () {
         ->get(route('workspaces.manage.members', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('clubs/Members')
-            ->where('club.id', $workspace->id)
+            ->component('workspaces/Members')
+            ->where('workspace.id', $workspace->id)
             ->has('members')
             ->has('pendingApplications')
         );

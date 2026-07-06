@@ -39,8 +39,8 @@
         priority_label: string;
         due_at: string | null;
         has_deliverable: boolean;
-        club: { id: number; name: string } | null;
-        committee: { id: number; name: string } | null;
+        workspace: { id: number; name: string } | null;
+        project: { id: number; name: string } | null;
         detail_url: string;
         project_url: string;
         update_url: string;
@@ -51,8 +51,8 @@
     type UpdateItem = {
         id: number;
         title: string;
-        committee_name: string;
-        club_name: string;
+        project_name: string;
+        workspace_name: string;
         published_at: string | null;
         url: string;
     };
@@ -265,8 +265,8 @@
                                                 <p
                                                     class="text-xs text-[#7e7e7e] dark:text-[#94a3b8]"
                                                 >
-                                                    {task.club?.name} / {task
-                                                        .committee?.name}
+                                                    {task.workspace?.name} / {task
+                                                        .project?.name}
                                                 </p>
                                                 <div
                                                     class="flex flex-wrap items-center gap-2"
@@ -347,7 +347,7 @@
                                 <p
                                     class="mt-1 text-xs text-[#7e7e7e] dark:text-[#94a3b8]"
                                 >
-                                    {update.club_name} / {update.committee_name}
+                                    {update.workspace_name} / {update.project_name}
                                 </p>
                                 {#if update.published_at}
                                     <p

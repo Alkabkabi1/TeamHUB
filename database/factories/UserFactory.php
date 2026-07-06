@@ -69,7 +69,7 @@ class UserFactory extends Factory
         return $this->member();
     }
 
-    public function clubSupervisor(): static
+    public function workspaceSupervisor(): static
     {
         return $this->member();
     }

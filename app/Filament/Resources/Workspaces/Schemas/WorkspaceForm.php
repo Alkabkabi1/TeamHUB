@@ -17,19 +17,19 @@ class WorkspaceForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label(__('admin.clubs.form.name'))
+                    ->label(__('admin.workspaces.form.name'))
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
                 Select::make('status')
-                    ->label(__('admin.clubs.form.status'))
+                    ->label(__('admin.workspaces.form.status'))
                     ->options(WorkspaceStatus::class)
                     ->default(WorkspaceStatus::Active->value)
                     ->required(),
                 ColorPicker::make('theme')
-                    ->label(__('admin.clubs.form.theme')),
+                    ->label(__('admin.workspaces.form.theme')),
                 SpatieMediaLibraryFileUpload::make('logo')
-                    ->label(__('admin.clubs.form.logo'))
+                    ->label(__('admin.workspaces.form.logo'))
                     ->collection(Workspace::LOGO_COLLECTION)
                     ->image()
                     ->avatar()

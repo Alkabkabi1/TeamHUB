@@ -1,6 +1,6 @@
 <script lang="ts">
     /**
-     * Full-width site footer. Rendered once by MainLayout so it appears on every
+     * Full-width site footer. Rendered once by GuestLayout so it appears on every
      * page (matches the Figma footer that spans the full width below the sidebar).
      */
     import { Link } from '@inertiajs/svelte';

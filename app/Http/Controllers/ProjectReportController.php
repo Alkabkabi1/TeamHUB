@@ -39,7 +39,7 @@ class ProjectReportController extends Controller
         app()->setLocale($locale);
 
         $data = $dataResolver($locale);
-        $filename = "{$reportKey}-committee-{$project->id}-{$locale}.pdf";
+        $filename = "{$reportKey}-project-{$project->id}-{$locale}.pdf";
 
         $html = ArabicText::shapeHtml(view("reports.{$reportKey}.{$locale}", $data)->render());
 

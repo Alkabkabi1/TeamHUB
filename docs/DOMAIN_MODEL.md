@@ -1,7 +1,7 @@
 # TeamHUB — Domain Model
 
-**Status:** Phase 0 (target architecture)  
-**Note:** The running codebase may still use legacy names (`Club`, `Committee`, `club_id`, etc.) until Phase 1 migration. This document describes the **target domain** after re-engineering.
+**Status:** Phase 3.5 complete — repository cleaned; runtime uses canonical Workspace / Project / Task vocabulary throughout.  
+**Note:** Historical database migrations may still reference legacy table/column names (`clubs`, `committees`, `club_id`, etc.) from the domain re-engineering migration.
 
 ---
 

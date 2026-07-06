@@ -83,7 +83,7 @@ class WorkspaceMemberReportService
      *     status: string
      * }>
      */
-    public function clubMembersForManagement(Workspace $workspace, ?string $locale = null): Collection
+    public function workspaceMembersForManagement(Workspace $workspace, ?string $locale = null): Collection
     {
         $locale = $locale ?? app()->getLocale();
 
@@ -126,7 +126,7 @@ class WorkspaceMemberReportService
      *     membersCount: int
      * }
      */
-    public function clubStats(Workspace $workspace, int $membersCount): array
+    public function workspaceStats(Workspace $workspace, int $membersCount): array
     {
         return [
             'totalHours' => 0.0,

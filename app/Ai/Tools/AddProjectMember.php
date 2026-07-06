@@ -19,7 +19,7 @@ class AddProjectMember extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Add an approved club member directly to a committee. Requires ManageMembers capability for the committee.';
+        return 'Add an approved workspace member directly to a project. Requires ManageMembers capability for the project.';
     }
 
     public function schema(JsonSchema $schema): array
@@ -29,7 +29,7 @@ class AddProjectMember extends WriteTool
                 ->description('Project name or ID.')
                 ->required(),
             'workspace' => $schema->string()
-                ->description('Optional: parent club name or ID.'),
+                ->description('Optional: parent workspace name or ID.'),
             'user' => $schema->string()
                 ->description('The user name or numeric ID to add.')
                 ->required(),

@@ -26,4 +26,6 @@ return [
     'light' => 'Light',
     'dark' => 'Dark',
     'system' => 'System',
+    'theme_dark' => 'Dark mode',
+    'theme_light' => 'Light mode',
 ];

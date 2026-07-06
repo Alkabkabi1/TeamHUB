@@ -37,10 +37,10 @@ class TaskDetailController extends Controller
         /** @var Workspace $workspace */
         $workspace = $project->workspace;
 
-        return Inertia::render('team-hub/TaskShow', [
+        return Inertia::render('app/TaskShow', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],

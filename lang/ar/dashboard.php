@@ -2,11 +2,13 @@
 
 return [
     'nav' => [
-        'home' => 'الرئيسية',
+        'home' => 'لوحة التحكم',
+        'workspaces' => 'مساحات العمل',
         'projects' => 'المشاريع',
         'tasks' => 'المهام',
         'my_tasks' => 'مهامي',
         'notifications' => 'الإشعارات',
+        'settings' => 'الإعدادات',
         'team' => 'فريقي',
         'calendar' => 'التقويم',
         'files' => 'الملفات',

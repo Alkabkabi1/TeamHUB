@@ -18,7 +18,7 @@ class AddWorkspaceMember extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Add a user directly as an approved club member. Requires ManageMembers capability.';
+        return 'Add a user directly as an approved workspace member. Requires ManageMembers capability.';
     }
 
     public function schema(JsonSchema $schema): array

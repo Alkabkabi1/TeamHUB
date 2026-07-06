@@ -29,12 +29,12 @@ class NewPostNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject(__('news.notification.subject', [
                 'title' => $this->post->title,
-                'club' => $workspace->name,
+                'workspace' => $workspace->name,
             ]))
             ->greeting(__('news.notification.greeting'))
             ->line(__('news.notification.body', [
                 'title' => $this->post->title,
-                'club' => $workspace->name,
+                'workspace' => $workspace->name,
             ]))
             ->action(
                 __('news.notification.action'),
@@ -42,7 +42,7 @@ class NewPostNotification extends Notification implements ShouldQueue
                     ? route('projects.show', [$workspace, $this->post->project_id])
                     : route('workspaces.show', $workspace),
             )
-            ->line(__('news.notification.footer', ['club' => $workspace->name]));
+            ->line(__('news.notification.footer', ['workspace' => $workspace->name]));
     }
 
     /**

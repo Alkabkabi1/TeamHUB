@@ -14,8 +14,8 @@ class GetProjectInfo extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get details about a specific committee (a sub-group within a club) by name, optionally within '
-            .'a named club, including its latest news.';
+        return 'Get details about a specific project within a workspace by name, optionally scoped by '
+            .'workspace, including its latest updates.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -24,7 +24,7 @@ class GetProjectInfo extends AssistantTool
         $project = $this->resolveProject($request['project'] ?? null, $workspace);
 
         if ($project === null) {
-            return $this->json(['error' => 'No committee matched that name.']);
+            return $this->json(['error' => 'No project matched that name.']);
         }
 
         $project->loadMissing('workspace:id,name');
@@ -58,7 +58,7 @@ class GetProjectInfo extends AssistantTool
                 ->description('The project name (or numeric id) to look up.')
                 ->required(),
             'workspace' => $schema->string()
-                ->description('Optional parent club name to disambiguate the committee.'),
+                ->description('Optional parent workspace name to disambiguate the project.'),
         ];
     }
 }

@@ -224,7 +224,7 @@ test('hub task show page renders for assigned staff', function () {
         ->get(route('tasks.show', $task))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('team-hub/TaskShow')
+            ->component('app/TaskShow')
             ->where('task.title', 'Hub task detail')
             ->where('canSubmitDeliverable', true)
         );

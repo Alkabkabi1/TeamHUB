@@ -16,8 +16,8 @@ class RequestProjectMembership extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Submit a join request for the current user (student) to a committee. '
-            .'The user must already be an approved member of the parent club.';
+        return 'Submit a join request for the current user to a project. '
+            .'The user must already be an approved member of the parent workspace.';
     }
 
     protected function preview(Request $request): array
@@ -83,7 +83,7 @@ class RequestProjectMembership extends WriteTool
                 ->description('The project name or numeric ID to join.')
                 ->required(),
             'workspace' => $schema->string()
-                ->description('Optional: the parent club name or ID to scope the lookup.'),
+                ->description('Optional: the parent workspace name or ID to scope the lookup.'),
         ];
     }
 }

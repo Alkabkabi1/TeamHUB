@@ -19,16 +19,16 @@ class ApproveWorkspaceMembershipRequest extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Approve a pending club join application. Requires ManageMembers capability for the club.';
+        return 'Approve a pending workspace membership application. Requires ManageMembers capability for the workspace.';
     }
 
     public function schema(JsonSchema $schema): array
     {
         return [
             'application_id' => $schema->integer()
-                ->description('The numeric ID of the WorkspaceMembershipRequest to approve. Optional if you instead pass applicant + club.'),
+                ->description('The numeric ID of the WorkspaceMembershipRequest to approve. Optional if you instead pass applicant + workspace.'),
             'applicant' => $schema->string()
-                ->description('The applicant\'s name, used to find their pending application within "club". Use this when you do not have a numeric application id.'),
+                ->description('The applicant\'s name, used to find their pending application within the workspace. Use this when you do not have a numeric application id.'),
             'workspace' => $schema->string()
                 ->description('The workspace name (or numeric id) the application belongs to. Required when resolving by applicant name.'),
         ];

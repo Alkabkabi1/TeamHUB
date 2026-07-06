@@ -24,11 +24,11 @@ class ProjectController extends Controller
     use SyncsImageUploads;
 
     /** @var list<string> */
-    private const COMMITTEE_SORTS = ['members', 'newest', 'name'];
+    private const PROJECT_SORTS = ['members', 'newest', 'name'];
 
     public function index(Request $request, Workspace $workspace): Response
     {
-        ['search' => $search, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::COMMITTEE_SORTS, 'members');
+        ['search' => $search, 'sort' => $sort] = $filters = $this->catalogFilters($request, self::PROJECT_SORTS, 'members');
 
         $projects = $workspace->projects()
             ->withCount([
@@ -45,17 +45,17 @@ class ProjectController extends Controller
             ->map(fn (Project $project) => $this->toCardArray($project))
             ->values();
 
-        return Inertia::render('committees/Index', [
+        return Inertia::render('projects/Index', [
             'theme' => ['brand' => $workspace->theme ?: config('theme.brand')],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committees' => $projects,
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'projects' => $projects,
             'canManage' => $request->user()?->can('update', $workspace) ?? false,
             'filters' => [
                 'search' => $filters['search'],
                 'sort' => $filters['sort'],
             ],
             'filterOptions' => [
-                'sorts' => $this->sortOptions(self::COMMITTEE_SORTS, 'project.sort_options'),
+                'sorts' => $this->sortOptions(self::PROJECT_SORTS, 'project.sort_options'),
             ],
         ]);
     }
@@ -92,10 +92,10 @@ class ProjectController extends Controller
         /** @var User|null $user */
         $user = $request->user();
 
-        return Inertia::render('CommitteePage', [
+        return Inertia::render('ProjectPage', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'description', 'theme', 'logo_url', 'status']),
                 'image_url' => $project->coverImageUrl(),
             ],
@@ -115,9 +115,9 @@ class ProjectController extends Controller
     {
         $this->authorize('create', [Project::class, $this->draftFor($workspace)]);
 
-        return Inertia::render('committees/Form', [
+        return Inertia::render('projects/Form', [
             'theme' => ['brand' => $workspace->theme ?: config('theme.brand')],
-            'club' => $workspace->only(['id', 'name']),
+            'workspace' => $workspace->only(['id', 'name']),
             'statusOptions' => $this->statusOptions(),
             'mode' => 'create',
         ]);
@@ -150,10 +150,10 @@ class ProjectController extends Controller
     {
         $this->authorize('update', $project);
 
-        return Inertia::render('committees/Form', [
+        return Inertia::render('projects/Form', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name']),
+            'project' => [
                 ...$project->only(['id', 'name', 'description', 'status']),
                 'image_url' => $project->logo_url,
             ],

@@ -71,7 +71,7 @@ test('task detail page renders comments, activities, and collaboration flags', f
         ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Show')
+            ->component('projects/tasks/Show')
             ->where('theme.brand', '#445566')
             ->where('task.title', 'Validate the collaboration surface')
             ->where('canComment', true)

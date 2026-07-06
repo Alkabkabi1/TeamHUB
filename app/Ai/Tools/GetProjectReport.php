@@ -12,8 +12,8 @@ class GetProjectReport extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get a report for a committee you manage: "stats" or "members". '
-            .'Only available to committee managers with the view-committee-reports capability.';
+        return 'Get a report for a project you manage: "stats" or "members". '
+            .'Only available to project leads with the view-project-reports capability.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -22,11 +22,11 @@ class GetProjectReport extends AssistantTool
         $project = $this->resolveProject($request['project'] ?? null, $workspace);
 
         if ($project === null) {
-            return $this->json(['error' => 'No committee matched that name.']);
+            return $this->json(['error' => 'No project matched that name.']);
         }
 
         if (! $this->user->can(ProjectCapability::ViewReports->value, $project)) {
-            return $this->json(['error' => 'You are not permitted to view reports for this committee.']);
+            return $this->json(['error' => 'You are not permitted to view reports for this project.']);
         }
 
         $type = (string) ($request['type'] ?? 'stats');
@@ -35,9 +35,9 @@ class GetProjectReport extends AssistantTool
 
         $report = match ($type) {
             'members' => $service->membersReport($project, $locale, $this->user->name),
-            default => $service->committeeStats(
+            default => $service->projectStats(
                 $project,
-                $service->committeeMembersForManagement($project, $locale)->count(),
+                $service->projectMembersForManagement($project, $locale)->count(),
             ),
         };
 
@@ -51,7 +51,7 @@ class GetProjectReport extends AssistantTool
                 ->description('The project name (or numeric id) to report on.')
                 ->required(),
             'workspace' => $schema->string()
-                ->description('Optional parent club name to disambiguate the committee.'),
+                ->description('Optional parent workspace name to disambiguate the project.'),
             'type' => $schema->string()
                 ->enum(['stats', 'members'])
                 ->description('Which report to return (default "stats").'),

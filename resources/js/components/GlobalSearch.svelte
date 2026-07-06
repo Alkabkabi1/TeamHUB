@@ -24,7 +24,7 @@
     };
 
     type SearchGroups = {
-        clubs: SearchItem[];
+        workspaces: SearchItem[];
         updates: SearchItem[];
         resources: SearchItem[];
     };
@@ -32,7 +32,7 @@
     type Direction = 'rtl' | 'ltr' | 'auto';
 
     const emptyGroups: SearchGroups = {
-        clubs: [],
+        workspaces: [],
         updates: [],
         resources: [],
     };
@@ -49,7 +49,7 @@
 
     const term = $derived(query.trim());
     const hasResults = $derived(
-        groups.clubs.length > 0 ||
+        groups.workspaces.length > 0 ||
             groups.updates.length > 0 ||
             groups.resources.length > 0,
     );
@@ -72,7 +72,7 @@
                   },
               ]
             : []),
-        ...(role === 'university_staff'
+        ...(role === 'admin'
             ? [
                   {
                       title: t('nav.admin_dashboard'),
@@ -85,8 +85,8 @@
 
     const resultGroups = $derived([
         {
-            key: 'clubs',
-            heading: t('app.search_group_clubs'),
+            key: 'workspaces',
+            heading: t('app.search_group_workspaces'),
             icon: UserGroup03Icon,
         },
         {

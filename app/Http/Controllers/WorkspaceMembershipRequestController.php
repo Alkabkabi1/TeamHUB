@@ -30,8 +30,8 @@ class WorkspaceMembershipRequestController extends Controller
 
         abort_unless($user->isMember(), 403);
 
-        return Inertia::render('ClubJoinForm', [
-            'club' => $workspace->only(['id', 'name']),
+        return Inertia::render('WorkspaceMembershipRequestForm', [
+            'workspace' => $workspace->only(['id', 'name']),
             'defaults' => [
                 'full_name' => $user?->name ?? '',
             ],

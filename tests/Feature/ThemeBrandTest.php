@@ -36,7 +36,7 @@ test('club page overrides the brand color with the club theme', function () {
     $this->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('ClubPage')
+            ->component('WorkspacePage')
             ->where('theme.brand', '#123456')
         );
 });
@@ -66,16 +66,16 @@ test('task pages inherit the project brand theme when present', function () {
     $task = Task::factory()->create([
         'project_id' => $project->id,
     ]);
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     $this->actingAs($supervisor)
         ->get(route('projects.tasks.show', [$workspace, $project, $task]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Show')
+            ->component('projects/tasks/Show')
             ->where('theme.brand', '#654321')
-            ->where('club.theme', '#123456')
-            ->where('committee.theme', '#654321')
+            ->where('workspace.theme', '#123456')
+            ->where('project.theme', '#654321')
         );
 });
 
@@ -91,15 +91,15 @@ test('task pages fall back to the workspace brand when the project has no theme'
     $task = Task::factory()->create([
         'project_id' => $project->id,
     ]);
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     $this->actingAs($supervisor)
         ->get(route('projects.tasks.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Index')
+            ->component('projects/tasks/Index')
             ->where('theme.brand', '#123456')
-            ->where('club.theme', '#123456')
-            ->where('committee.theme', null)
+            ->where('workspace.theme', '#123456')
+            ->where('project.theme', null)
         );
 });

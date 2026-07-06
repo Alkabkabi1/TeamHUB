@@ -16,8 +16,8 @@ class GetWorkspacePendingApplications extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List the pending join applications awaiting review for a club you manage (applicant name, '
-            .'email, major, submission date). Only available to club managers with the manage-members capability.';
+        return 'List the pending join applications awaiting review for a workspace you manage (applicant name, '
+            .'email, major, submission date). Only available to workspace leads with the manage-members capability.';
     }
 
     public function handle(Request $request): Stringable|string

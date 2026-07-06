@@ -60,7 +60,7 @@ test('project overview exposes task stats and recent updates props', function ()
         ->get(route('projects.manage', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/Manage')
+            ->component('projects/Manage')
             ->where('taskStats.todo', 1)
             ->where('taskStats.review', 1)
             ->where('taskStats.overdue', 1)

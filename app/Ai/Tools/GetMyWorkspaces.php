@@ -15,8 +15,8 @@ class GetMyWorkspaces extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List the clubs the current user is a member of, along with their role in each. '
-            .'Use this for "which clubs am I in?".';
+        return 'List the workspaces the current user is a member of, along with their role in each. '
+            .'Use this for "which workspaces am I in?".';
     }
 
     public function handle(Request $request): Stringable|string

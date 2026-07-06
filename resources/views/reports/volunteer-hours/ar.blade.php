@@ -5,7 +5,7 @@
 @section('content')
     <h1>{{ __('reports.volunteer_hours_title') }}</h1>
     <div class="meta">
-        <p><strong>{{ __('reports.club') }}:</strong> {{ $clubName }}</p>
+        <p><strong>{{ __('reports.workspace') }}:</strong> {{ $workspaceName }}</p>
         @if ($supervisorName)
             <p><strong>{{ __('reports.supervisor') }}:</strong> {{ $supervisorName }}</p>
         @endif

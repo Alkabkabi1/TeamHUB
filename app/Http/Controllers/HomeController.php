@@ -61,7 +61,7 @@ class HomeController extends Controller
 
         return Inertia::render('Welcome', [
             'canRegister' => Features::enabled(Features::registration()),
-            'clubs' => $workspaces,
+            'workspaces' => $workspaces,
             'filters' => [
                 'search' => $search,
                 'status' => $statusInput ?? '',

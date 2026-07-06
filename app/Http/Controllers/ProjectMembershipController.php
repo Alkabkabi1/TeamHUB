@@ -20,7 +20,7 @@ class ProjectMembershipController extends Controller
         $user = $request->user();
 
         abort_unless($user->isMember(), 403);
-        abort_unless($user->workspaceMembershipFor($workspace) !== null, 403, __('project.members.must_be_club_member'));
+        abort_unless($user->workspaceMembershipFor($workspace) !== null, 403, __('project.members.must_be_workspace_member'));
 
         $existing = ProjectMembership::query()
             ->where('project_id', $project->id)

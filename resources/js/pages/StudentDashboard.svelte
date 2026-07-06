@@ -193,10 +193,10 @@
                         {t('dashboard_student.view_my_tasks')}
                     </Link>
                     <Link
-                        href="/clubs"
+                        href="/workspaces"
                         class="rounded-full border border-white/30 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                     >
-                        {t('nav.clubs')}
+                        {t('nav.workspaces')}
                     </Link>
                 </div>
             </div>

@@ -11,7 +11,7 @@ test('demo entry is the home page when quick login is enabled', function () {
 
     $this->get(route('home'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('team-hub/Entry'));
+        ->assertInertia(fn ($page) => $page->component('app/Entry'));
 });
 
 test('login route redirects to role entry when quick login is enabled', function () {
@@ -77,7 +77,7 @@ test('hub dashboard returns real project and task props for a student', function
         ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('team-hub/Dashboard')
+            ->component('app/Dashboard')
             ->where('demoPersona', null)
             ->where('dashboard.type', 'legacy')
             ->has('dashboard.projects', 1)
@@ -103,7 +103,7 @@ test('hub projects supports search query', function () {
         ->get(route('projects', ['q' => 'Alpha']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('team-hub/Projects')
+            ->component('app/Projects')
             ->has('projects.data', 1)
             ->where('projects.data.0.title', 'Alpha Project')
         );
@@ -126,7 +126,7 @@ test('hub tasks filters by status', function () {
         ->get(route('tasks', ['status' => 'done']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('team-hub/Tasks')
+            ->component('app/Tasks')
             ->has('tasks.data', 1)
             ->where('tasks.data.0.status', 'done')
         );

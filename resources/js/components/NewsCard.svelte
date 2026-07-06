@@ -15,7 +15,7 @@
         title: string;
         excerpt?: string | null;
         publishedAt?: string | null;
-        club?: string | null;
+        workspace?: string | null;
         imageUrl?: string | null;
         href?: string;
         actionLabel?: string;
@@ -33,7 +33,7 @@
         title,
         excerpt = '',
         publishedAt = '',
-        club = null,
+        workspace = null,
         imageUrl = null,
         href,
         actionLabel,
@@ -66,8 +66,8 @@
             class="flex items-center justify-between gap-2 text-[11px] text-[#7e7e7e]"
         >
             <span>{publishedAt ?? ''}</span>
-            {#if club}
-                <span class="truncate ps-2">{club}</span>
+            {#if workspace}
+                <span class="truncate ps-2">{workspace}</span>
             {/if}
         </div>
     </div>
@@ -107,8 +107,8 @@
             class="mt-3 flex items-center justify-between text-[12px] text-[#7e7e7e]"
         >
             <span>{publishedAt ?? ''}</span>
-            {#if club}
-                <span class="truncate ps-2">{club}</span>
+            {#if workspace}
+                <span class="truncate ps-2">{workspace}</span>
             {/if}
         </div>
 
@@ -126,14 +126,16 @@
                     download
                     class="mt-4 block rounded-[50px] bg-brand py-2.5 text-center text-xs text-white transition-colors hover:bg-brand-dark"
                 >
-                    {actionLabel ?? t('club.read_more')}
+                    {actionLabel ?? t('workspace.read_more')}
                 </a>
             {:else}
                 <span
                     aria-disabled="true"
                     class="mt-4 block rounded-[50px] bg-[#7e7e7e]/20 py-2.5 text-center text-xs text-[#7e7e7e]"
                 >
-                    {unavailableLabel ?? actionLabel ?? t('club.read_more')}
+                    {unavailableLabel ??
+                        actionLabel ??
+                        t('workspace.read_more')}
                 </span>
             {/if}
         {:else if href}
@@ -141,13 +143,13 @@
                 {href}
                 class="mt-4 block cursor-pointer rounded-[50px] bg-brand py-2.5 text-center text-xs text-white transition-colors hover:bg-brand-dark"
             >
-                {actionLabel ?? t('club.read_more')}
+                {actionLabel ?? t('workspace.read_more')}
             </Link>
         {:else}
             <span
                 class="mt-4 block rounded-[50px] bg-brand py-2.5 text-center text-xs text-white"
             >
-                {actionLabel ?? t('club.read_more')}
+                {actionLabel ?? t('workspace.read_more')}
             </span>
         {/if}
     </article>

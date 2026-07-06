@@ -27,7 +27,7 @@ test('users can authenticate using the login screen', function () {
 });
 
 test('club supervisor is redirected to club supervisor dashboard after login', function () {
-    $supervisor = User::factory()->clubSupervisor()->create();
+    $supervisor = User::factory()->workspaceSupervisor()->create();
     $workspace = Workspace::factory()->create();
     WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,

@@ -62,9 +62,9 @@ expect()->extend('toBeOne', function () {
 /**
  * Create an approved supervisor membership for the given workspace and return the supervisor.
  */
-function supervisorForClub(Workspace $workspace): User
+function supervisorForWorkspace(Workspace $workspace): User
 {
-    $supervisor = User::factory()->clubSupervisor()->create();
+    $supervisor = User::factory()->workspaceSupervisor()->create();
 
     WorkspaceMembership::factory()->supervisor()->approved()->create([
         'user_id' => $supervisor->id,

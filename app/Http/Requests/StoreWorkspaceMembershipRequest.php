@@ -56,11 +56,11 @@ class StoreWorkspaceMembershipRequest extends FormRequest
             $user = $this->user();
 
             if ($workspace->status !== WorkspaceStatus::Active) {
-                $validator->errors()->add('club', __('join.validation.club.inactive'));
+                $validator->errors()->add('workspace', __('join.validation.workspace.inactive'));
             }
 
             if (WorkspaceMembership::query()->where('user_id', $user?->id)->where('workspace_id', $workspace->id)->exists()) {
-                $validator->errors()->add('club', __('join.validation.club.already_member'));
+                $validator->errors()->add('workspace', __('join.validation.workspace.already_member'));
             }
 
             if (WorkspaceMembershipRequest::query()
@@ -68,7 +68,7 @@ class StoreWorkspaceMembershipRequest extends FormRequest
                 ->where('workspace_id', $workspace->id)
                 ->where('status', 'pending')
                 ->exists()) {
-                $validator->errors()->add('club', __('join.validation.club.pending_application'));
+                $validator->errors()->add('workspace', __('join.validation.workspace.pending_application'));
             }
         });
     }

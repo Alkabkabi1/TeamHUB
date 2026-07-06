@@ -26,4 +26,6 @@ return [
     'light' => 'فاتح',
     'dark' => 'داكن',
     'system' => 'النظام',
+    'theme_dark' => 'الوضع الداكن',
+    'theme_light' => 'الوضع الفاتح',
 ];

@@ -81,8 +81,8 @@ test('approved project members can view the project task list', function () {
         ->get(route('projects.tasks.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/tasks/Index')
-            ->where('committee.id', $project->id)
+            ->component('projects/tasks/Index')
+            ->where('project.id', $project->id)
             ->has('tasks', 1)
         );
 });

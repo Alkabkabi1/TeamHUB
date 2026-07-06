@@ -5,7 +5,7 @@
     import ImageUploader from '@/components/ImageUploader.svelte';
     import InputError from '@/components/InputError.svelte';
     import { t } from '@/lib/i18n.svelte';
-    import type { ClubRef, MediaImage } from '@/types';
+    import type { WorkspaceRef, MediaImage } from '@/types';
 
     type NewsPost = {
         id: number;
@@ -15,28 +15,26 @@
     };
 
     let {
-        club,
-        committee = null,
+        workspace,
+        project = null,
         post = null,
         mode = 'create',
     }: {
-        club: ClubRef;
-        committee?: ClubRef | null;
+        workspace: WorkspaceRef;
+        project?: WorkspaceRef | null;
         post?: NewsPost | null;
         mode?: 'create' | 'edit';
     } = $props();
 
     const isEdit = $derived(mode === 'edit');
 
-    // News may belong to a club or to a committee within it; the committee
-    // context (when present) drives the submit, cancel and back URLs.
     const basePath = $derived(
-        committee
-            ? `/workspaces/${club.id}/projects/${committee.id}`
-            : `/workspaces/${club.id}`,
+        project
+            ? `/workspaces/${workspace.id}/projects/${project.id}`
+            : `/workspaces/${workspace.id}`,
     );
     const managePath = $derived(`${basePath}/manage`);
-    const contextName = $derived(committee?.name ?? club.name);
+    const contextName = $derived(project?.name ?? workspace.name);
 
     const form = useForm({
         title: post?.title ?? '',

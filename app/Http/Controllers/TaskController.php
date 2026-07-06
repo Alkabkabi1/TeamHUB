@@ -33,10 +33,10 @@ class TaskController extends Controller
             ->map(fn (Task $task): array => $this->taskSummary($task))
             ->values();
 
-        return Inertia::render('committees/tasks/Index', [
+        return Inertia::render('projects/tasks/Index', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],
@@ -74,10 +74,10 @@ class TaskController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        return Inertia::render('committees/tasks/Show', [
+        return Inertia::render('projects/tasks/Show', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],

@@ -19,7 +19,7 @@ test('home page renders the Welcome component with clubs and filters', function 
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Welcome')
-            ->has('clubs', 3)
+            ->has('workspaces', 3)
             ->has('filters.search')
             ->where('filters.search', '')
             ->has('filters.status')
@@ -34,8 +34,8 @@ test('home page filters clubs by search query in name', function () {
     $this->get(route('home', ['search' => 'حاسبات']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs', 1)
-            ->where('clubs.0.name', 'مساحة الحاسبات')
+            ->has('workspaces', 1)
+            ->where('workspaces.0.name', 'مساحة الحاسبات')
             ->where('filters.search', 'حاسبات')
         );
 });
@@ -52,10 +52,10 @@ test('home page orders clubs by members_count descending', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->where('clubs.0.id', $popular->id)
-            ->where('clubs.0.members_count', 3)
-            ->where('clubs.1.id', $small->id)
-            ->where('clubs.1.members_count', 0)
+            ->where('workspaces.0.id', $popular->id)
+            ->where('workspaces.0.members_count', 3)
+            ->where('workspaces.1.id', $small->id)
+            ->where('workspaces.1.members_count', 0)
         );
 });
 
@@ -63,7 +63,7 @@ test('home page returns empty clubs when database is empty', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs', 0)
+            ->has('workspaces', 0)
         );
 });
 
@@ -73,7 +73,7 @@ test('home page caps results to 8 clubs when no search', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs', 8)
+            ->has('workspaces', 8)
         );
 });
 
@@ -84,7 +84,7 @@ test('home page widens caps when a search term is supplied', function () {
 
     $this->get(route('home', ['search' => 'مساحة']))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->has('clubs', 12));
+        ->assertInertia(fn ($page) => $page->has('workspaces', 12));
 });
 
 test('home page exposes members_count on each row', function () {
@@ -93,7 +93,7 @@ test('home page exposes members_count on each row', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs.0.members_count')
+            ->has('workspaces.0.members_count')
         );
 });
 
@@ -104,8 +104,8 @@ test('home page lists only active clubs by default', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs', 1)
-            ->where('clubs.0.name', 'ظاهر')
+            ->has('workspaces', 1)
+            ->where('workspaces.0.name', 'ظاهر')
         );
 });
 
@@ -115,8 +115,8 @@ test('home page allows viewing inactive clubs when status filter is set', functi
     $this->get(route('home', ['status' => 'inactive']))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->has('clubs', 1)
-            ->where('clubs.0.name', 'مخفي')
+            ->has('workspaces', 1)
+            ->where('workspaces.0.name', 'مخفي')
             ->where('filters.status', 'inactive')
         );
 });

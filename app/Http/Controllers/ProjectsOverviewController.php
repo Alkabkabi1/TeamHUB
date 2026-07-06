@@ -34,7 +34,7 @@ class ProjectsOverviewController extends Controller
             ->withQueryString()
             ->through(fn ($project) => $this->hub->presentProject($project));
 
-        return Inertia::render('team-hub/Projects', [
+        return Inertia::render('app/Projects', [
             'projects' => $projects,
             'search' => $search,
             'workspaceId' => $workspaceId,

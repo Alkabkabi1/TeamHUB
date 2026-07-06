@@ -64,7 +64,7 @@ class MembershipsRelationManager extends RelationManager
                     ->options(MembershipStatus::class)
                     ->default(MembershipStatus::Approved->value)
                     ->required(),
-                CheckboxList::make('club_roles')
+                CheckboxList::make('workspace_roles')
                     ->label(__('admin.members.roles'))
                     ->options(self::roleOptions())
                     ->default([WorkspaceRole::Member->value])
@@ -116,7 +116,7 @@ class MembershipsRelationManager extends RelationManager
                             'joined_at' => now(),
                         ]);
 
-                        $membership->syncWorkspaceRoles(self::resolveRoles($data['club_roles'] ?? []));
+                        $membership->syncWorkspaceRoles(self::resolveRoles($data['workspace_roles'] ?? []));
 
                         return $membership;
                     }),
@@ -126,11 +126,11 @@ class MembershipsRelationManager extends RelationManager
                     ->modalHeading(__('members.edit_member'))
                     ->fillForm(fn (WorkspaceMembership $record): array => [
                         'status' => $record->status,
-                        'club_roles' => $record->workspaceRoles()->map(fn (WorkspaceRole $role): string => $role->value)->all(),
+                        'workspace_roles' => $record->workspaceRoles()->map(fn (WorkspaceRole $role): string => $role->value)->all(),
                     ])
                     ->action(function (WorkspaceMembership $record, array $data): void {
                         $record->update(['status' => $data['status']]);
-                        $record->syncWorkspaceRoles(self::resolveRoles($data['club_roles'] ?? []));
+                        $record->syncWorkspaceRoles(self::resolveRoles($data['workspace_roles'] ?? []));
                     }),
             ])
             ->toolbarActions([

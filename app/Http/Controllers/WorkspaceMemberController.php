@@ -17,7 +17,7 @@ use Inertia\Inertia;
 class WorkspaceMemberController extends Controller
 {
     /**
-     * Search registered users that can be added to the club, excluding those
+     * Search registered users that can be added to the workspace, excluding those
      * who already have a membership. Used by the "add member" picker.
      */
     public function search(Request $request, Workspace $workspace): JsonResponse
@@ -53,8 +53,8 @@ class WorkspaceMemberController extends Controller
     }
 
     /**
-     * Add an existing user to the club as an approved member. Manager roles may
-     * only be granted at creation by someone who can also manage the club
+     * Add an existing user to the workspace as an approved member. Manager roles may
+     * only be granted at creation by someone who can also manage the workspace
      * (ClubLead), preventing a membership manager from minting managers.
      */
     public function store(Request $request, Workspace $workspace): RedirectResponse
@@ -92,8 +92,8 @@ class WorkspaceMemberController extends Controller
     }
 
     /**
-     * Replace a membership's roles. Restricted to club leads (manage-club),
-     * who may promote/demote members within their own club.
+     * Replace a membership's roles. Restricted to workspace leads (manage-workspace),
+     * who may promote/demote members within their own workspace.
      */
     public function updateRoles(Request $request, Workspace $workspace, WorkspaceMembership $membership): RedirectResponse
     {
@@ -108,7 +108,7 @@ class WorkspaceMemberController extends Controller
 
         $roles = $this->withMember($this->resolveRoles($validated['roles']));
 
-        // Protect the club's last lead: a club must always keep one ClubLead.
+        // Protect the workspace's last lead: a workspace must always keep one WorkspaceLead.
         if ($this->wouldRemoveLastLead($workspace, $membership, $roles)) {
             Inertia::flash('toast', ['type' => 'error', 'message' => __('members.last_lead')]);
 
@@ -123,7 +123,7 @@ class WorkspaceMemberController extends Controller
     }
 
     /**
-     * Remove a member from the club.
+     * Remove a member from the workspace.
      */
     public function destroy(Request $request, Workspace $workspace, WorkspaceMembership $membership): RedirectResponse
     {
@@ -131,7 +131,7 @@ class WorkspaceMemberController extends Controller
 
         abort_unless($membership->workspace_id === $workspace->id, 404);
 
-        // Removing the last lead would leave the club leaderless.
+        // Removing the last lead would leave the workspace leaderless.
         if ($this->wouldRemoveLastLead($workspace, $membership, [])) {
             Inertia::flash('toast', ['type' => 'error', 'message' => __('members.last_lead')]);
 
@@ -146,7 +146,7 @@ class WorkspaceMemberController extends Controller
     }
 
     /**
-     * Whether applying $newRoles to $membership would leave the club with no
+     * Whether applying $newRoles to $membership would leave the workspace with no
      * ClubLead at all.
      *
      * @param  array<int, WorkspaceRole>  $newRoles

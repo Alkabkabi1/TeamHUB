@@ -43,7 +43,7 @@ test('the role entry screen exposes the three demo roles', function () {
 
     $this->get(route('home'))
         ->assertInertia(fn ($page) => $page
-            ->component('team-hub/Entry')
+            ->component('app/Entry')
             ->has('demo.accounts', 3)
             ->where('demo.accounts.0.email', 'admin@teamhub.test')
             ->where('demo.accounts.0.role', 'admin')

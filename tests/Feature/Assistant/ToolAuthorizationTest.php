@@ -39,7 +39,7 @@ test('a plain student cannot read a club member roster', function () {
 
 test('a club supervisor can read their club member roster', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     $result = decodeTool((new GetWorkspaceMembers($supervisor))->handle(new Request(['workspace' => $workspace->name])));
 
@@ -60,7 +60,7 @@ test('a plain student cannot read a club report', function () {
 
 test('a club supervisor can read their club stats report', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     $result = decodeTool((new GetWorkspaceReport($supervisor))->handle(new Request(['workspace' => $workspace->name, 'type' => 'stats'])));
 
@@ -127,7 +127,7 @@ test('a plain student cannot list a club\'s pending applications', function () {
 
 test('a club supervisor can list pending applications', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     WorkspaceMembershipRequest::factory()->pending()->create(['workspace_id' => $workspace->id]);
 
@@ -139,7 +139,7 @@ test('a club supervisor can list pending applications', function () {
 
 test('the pending applications listing surfaces each application id', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
 
     $application = WorkspaceMembershipRequest::factory()->pending()->create(['workspace_id' => $workspace->id]);
 
@@ -150,7 +150,7 @@ test('the pending applications listing surfaces each application id', function (
 
 test('ApproveWorkspaceMembershipRequest resolves a pending application by applicant name', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
     $applicant = User::factory()->student()->create(['name' => 'هند البقمي']);
 
     $application = WorkspaceMembershipRequest::factory()->pending()->create([
@@ -176,7 +176,7 @@ test('ApproveWorkspaceMembershipRequest resolves a pending application by applic
 
 test('RejectWorkspaceMembershipRequest resolves a pending application by applicant name', function () {
     $workspace = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
     $applicant = User::factory()->student()->create(['name' => 'سلطان الرشيدي']);
 
     $application = WorkspaceMembershipRequest::factory()->pending()->create([
@@ -202,7 +202,7 @@ test('RejectWorkspaceMembershipRequest resolves a pending application by applica
 test('resolving by applicant name is scoped to the named club', function () {
     $workspace = Workspace::factory()->create();
     $otherClub = Workspace::factory()->create();
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
     $applicant = User::factory()->student()->create(['name' => 'خالد المالكي']);
 
     // A pending application for the SAME applicant, but in a different club.
@@ -247,7 +247,7 @@ test('students get task read tools and personal status updates but not managemen
 
 test('project managers receive task mutation tools', function () {
     $workspace = Workspace::factory()->create();
-    $manager = supervisorForClub($workspace);
+    $manager = supervisorForWorkspace($workspace);
 
     $tools = collect((new Assistant($manager))->tools())
         ->map(fn ($tool) => class_basename($tool));

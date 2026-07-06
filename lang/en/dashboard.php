@@ -2,11 +2,13 @@
 
 return [
     'nav' => [
-        'home' => 'Home',
+        'home' => 'Dashboard',
+        'workspaces' => 'Workspaces',
         'projects' => 'Projects',
         'tasks' => 'Tasks',
         'my_tasks' => 'My tasks',
         'notifications' => 'Notifications',
+        'settings' => 'Settings',
         'team' => 'My team',
         'calendar' => 'Calendar',
         'files' => 'Files',

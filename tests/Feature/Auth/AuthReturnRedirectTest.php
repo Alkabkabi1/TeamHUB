@@ -5,17 +5,17 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 test('login captures the public page a guest came from and flashes a notice', function () {
-    $response = $this->withHeader('referer', url('/clubs/3'))->get(route('login'));
+    $response = $this->withHeader('referer', url('/workspaces/3'))->get(route('login'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page->hasFlash('toast.message', __('auth.login_required')));
-    expect(session('url.intended'))->toBe('/clubs/3');
+    expect(session('url.intended'))->toBe('/workspaces/3');
 });
 
 test('login returns the user to the page they came from after authenticating', function () {
     $user = User::factory()->student()->create();
 
-    $this->withHeader('referer', url('/clubs/3'))->get(route('login'));
+    $this->withHeader('referer', url('/workspaces/3'))->get(route('login'));
 
     $response = $this->post(route('login.store'), [
         'email' => $user->email,
@@ -23,7 +23,7 @@ test('login returns the user to the page they came from after authenticating', f
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/clubs/3');
+    $response->assertRedirect('/workspaces/3');
 });
 
 test('login ignores an off-site return target', function () {
@@ -35,20 +35,20 @@ test('login ignores an off-site return target', function () {
 });
 
 test('login does not override the intended url set by the auth middleware', function () {
-    $this->withSession(['url.intended' => '/clubs/3'])
-        ->withHeader('referer', url('/clubs/5'))
+    $this->withSession(['url.intended' => '/workspaces/3'])
+        ->withHeader('referer', url('/workspaces/5'))
         ->get(route('login'))
         ->assertOk();
 
-    expect(session('url.intended'))->toBe('/clubs/3');
+    expect(session('url.intended'))->toBe('/workspaces/3');
 });
 
 test('registration returns the user to the page they came from', function () {
     $this->skipUnlessFortifyHas(Features::registration());
 
-    $this->withHeader('referer', url('/clubs/3'))->get(route('register'));
+    $this->withHeader('referer', url('/workspaces/3'))->get(route('register'));
 
-    expect(session('url.intended'))->toBe('/clubs/3');
+    expect(session('url.intended'))->toBe('/workspaces/3');
 
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
@@ -58,14 +58,14 @@ test('registration returns the user to the page they came from', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/clubs/3');
+    $response->assertRedirect('/workspaces/3');
 });
 
 test('logging out clears a stale intended url', function () {
     $user = User::factory()->student()->create();
 
     $this->actingAs($user)
-        ->withSession(['url.intended' => '/clubs/3'])
+        ->withSession(['url.intended' => '/workspaces/3'])
         ->post(route('logout'));
 
     expect(session('url.intended'))->toBeNull();
@@ -78,7 +78,7 @@ test('login after logout does not recapture the referer page', function () {
     // logged-out page still sitting in the referer header.
     $this->actingAs($user)->post(route('logout'));
 
-    $this->withHeader('referer', url('/clubs/3'))
+    $this->withHeader('referer', url('/workspaces/3'))
         ->get(route('login'))
         ->assertOk();
 

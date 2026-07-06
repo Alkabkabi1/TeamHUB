@@ -22,7 +22,7 @@ class AssignProjectLeaderAction
 
         if (! $isApprovedWorkspaceMember && ! $leader->isAdmin()) {
             throw ValidationException::withMessages([
-                'leader_id' => [__('project.members.validation.not_club_member')],
+                'leader_id' => [__('project.members.validation.not_workspace_member')],
             ]);
         }
 

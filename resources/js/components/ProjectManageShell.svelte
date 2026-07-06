@@ -2,23 +2,17 @@
     import { Link, page } from '@inertiajs/svelte';
     import ManageShell from '@/components/ManageShell.svelte';
     import { t } from '@/lib/i18n.svelte';
+    import type { ProjectRef, WorkspaceRef } from '@/types/domain';
 
-    type ClubRef = { id: number; name: string };
-    type CommitteeRef = {
-        id: number;
-        name: string;
-        logo_url?: string | null;
-        status?: string;
-    };
     type ManagedProject = { id: number; name: string; workspace_id: number };
 
     let {
-        club,
-        committee,
+        workspace,
+        project,
         active = 'overview',
     }: {
-        club: ClubRef;
-        committee: CommitteeRef;
+        workspace: WorkspaceRef;
+        project: ProjectRef;
         active?: 'overview' | 'tasks' | 'files' | 'updates' | 'settings';
     } = $props();
 
@@ -30,22 +24,22 @@
         {
             id: 'overview',
             label: t('app.overview'),
-            href: `/workspaces/${club.id}/projects/${committee.id}/manage`,
+            href: `/workspaces/${workspace.id}/projects/${project.id}/manage`,
         },
         {
             id: 'tasks',
             label: t('tasks.title'),
-            href: `/workspaces/${club.id}/projects/${committee.id}/tasks`,
+            href: `/workspaces/${workspace.id}/projects/${project.id}/tasks`,
         },
         {
             id: 'files',
             label: t('app.files'),
-            href: `/workspaces/${club.id}/projects/${committee.id}/files`,
+            href: `/workspaces/${workspace.id}/projects/${project.id}/files`,
         },
         {
             id: 'updates',
             label: t('app.updates'),
-            href: `/workspaces/${club.id}/projects/${committee.id}/updates`,
+            href: `/workspaces/${workspace.id}/projects/${project.id}/updates`,
         },
     ]);
 
@@ -59,8 +53,11 @@
 </script>
 
 <ManageShell
-    title={committee.name}
-    breadcrumb={{ label: club.name, href: `/workspaces/${club.id}/manage` }}
+    title={project.name}
+    breadcrumb={{
+        label: workspace.name,
+        href: `/workspaces/${workspace.id}/manage`,
+    }}
     {tabs}
     {active}
     switcherLabel={t('app.project')}
@@ -68,7 +65,7 @@
 >
     {#snippet headerActions()}
         <Link
-            href={`/workspaces/${club.id}/projects/${committee.id}/edit`}
+            href={`/workspaces/${workspace.id}/projects/${project.id}/edit`}
             class={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 active === 'settings'
                     ? 'bg-brand text-white'

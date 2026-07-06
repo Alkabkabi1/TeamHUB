@@ -12,7 +12,7 @@ test('approving a join application notifies the applicant', function () {
     Notification::fake();
 
     $workspace = Workspace::factory()->create(['status' => 'active']);
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
     $student = User::factory()->student()->create();
 
     $application = WorkspaceMembershipRequest::factory()->pending()->create([
@@ -32,7 +32,7 @@ test('rejecting a join application notifies the applicant', function () {
     Notification::fake();
 
     $workspace = Workspace::factory()->create(['status' => 'active']);
-    $supervisor = supervisorForClub($workspace);
+    $supervisor = supervisorForWorkspace($workspace);
     $student = User::factory()->student()->create();
 
     $application = WorkspaceMembershipRequest::factory()->pending()->create([
@@ -71,7 +71,7 @@ test('submitting a join application notifies the club reviewers', function () {
     Notification::fake();
 
     $workspace = Workspace::factory()->create(['status' => 'active']);
-    $reviewer = supervisorForClub($workspace);
+    $reviewer = supervisorForWorkspace($workspace);
     $applicant = User::factory()->student()->create([
         'name' => 'وئام راشد',
         'email' => 'applicant@teamhub.test',

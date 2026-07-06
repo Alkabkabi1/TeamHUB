@@ -69,7 +69,7 @@ class MyTasksController extends Controller
                     'id' => $post->id,
                     'title' => $post->title,
                     'project_name' => $post->project?->name ?? '',
-                    'club_name' => $post->workspace?->name ?? '',
+                    'workspace_name' => $post->workspace?->name ?? '',
                     'published_at' => $post->published_at?->toIso8601String(),
                     'url' => route('projects.updates.index', [$post->workspace_id, $post->project_id], absolute: false),
                 ])
@@ -121,8 +121,8 @@ class MyTasksController extends Controller
             'has_deliverable' => $task->getFirstMedia(Task::DELIVERABLE_COLLECTION) !== null
                 || filled($task->deliverable_url)
                 || filled($task->deliverable_notes),
-            'club' => $task->project?->workspace?->only(['id', 'name']),
-            'committee' => $task->project?->only(['id', 'name']),
+            'workspace' => $task->project?->workspace?->only(['id', 'name']),
+            'project' => $task->project?->only(['id', 'name']),
             'detail_url' => route('projects.tasks.show', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
             'project_url' => route('projects.tasks.index', [$task->project?->workspace_id, $task->project_id], absolute: false),
             'update_url' => route('projects.tasks.update', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),

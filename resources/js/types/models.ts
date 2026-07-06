@@ -4,38 +4,38 @@
  * These were previously redefined inline in each page; centralizing them keeps
  * the shapes consistent and gives a single place to evolve the backend contract.
  *
- * The `Club` shapes form a hierarchy from the smallest reference to the full
+ * The Workspace shapes form a hierarchy from the smallest reference to the full
  * list item, so a page can import the narrowest type that matches its props.
  */
 
-/** Minimal club reference — just enough to link to or label a club. */
-export type ClubRef = {
+/** Minimal workspace reference — just enough to link to or label a workspace. */
+export type WorkspaceRef = {
     id: number;
     name: string;
 };
 
-/** Club reference plus branding fields (used by theme/branding screens). */
-export type ClubBranding = ClubRef & {
+/** Workspace reference plus branding fields (used by theme/branding screens). */
+export type WorkspaceBranding = WorkspaceRef & {
     theme: string | null;
-    /** Public URL for the club logo (from the media library), or null. */
+    /** Public URL for the workspace logo (from the media library), or null. */
     logo_url: string | null;
 };
 
-/** A club with its catalog metadata (category/college/status). */
-export type Club = ClubBranding & {
+/** A workspace with its catalog metadata (category/college/status). */
+export type Workspace = WorkspaceBranding & {
     category: string | null;
     college: string | null;
     status: string;
 };
 
-/** A tag attached to a club (catalog taxonomy). */
+/** A tag attached to a workspace (catalog taxonomy). */
 export type TagSummary = {
     id: number;
     name: string;
 };
 
-/** A club as shown in listing grids, including its member count and tags. */
-export type ClubListItem = Club & {
+/** A workspace as shown in listing grids, including its member count and tags. */
+export type WorkspaceListItem = Workspace & {
     members_count: number;
     tags?: TagSummary[];
     is_member?: boolean;
@@ -66,7 +66,7 @@ export type EventSummary = {
     title: string;
     description: string | null;
     starts_at: string;
-    club: ClubRef;
+    workspace: WorkspaceRef;
     /** Cover image URL (first gallery image), or null. */
     image_url: string | null;
 };
@@ -84,7 +84,7 @@ export type CatalogEvent = {
     registrations_count: number;
     /** Cover image URL (first gallery image), or null. */
     image_url: string | null;
-    club: ClubRef & {
+    workspace: WorkspaceRef & {
         category: string | null;
         college: string | null;
     };

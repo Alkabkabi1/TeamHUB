@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'members_title' => 'تقرير أعضاء النادي',
+    'members_title' => 'تقرير أعضاء مساحة العمل',
     'volunteer_hours_title' => 'تقرير ساعات التطوع',
     'attendance_title' => 'تقرير حضور الفعاليات',
     'generated_on' => 'تاريخ الإنشاء',
-    'supervisor' => 'المشرف',
-    'club' => 'النادي',
+    'supervisor' => 'قائد مساحة العمل',
+    'workspace' => 'مساحة العمل',
     'total_hours' => 'إجمالي الساعات',
     'total_attendees' => 'إجمالي الحضور',
     'col_name' => 'الاسم',

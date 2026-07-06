@@ -16,8 +16,8 @@ class GetWorkspaceMembers extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List the approved members of a club you manage (name, roles, join date, volunteer hours). '
-            .'Only available to club managers with the manage-members capability.';
+        return 'List the approved members of a workspace you manage (name, roles, join date, volunteer hours). '
+            .'Only available to workspace leads with the manage-members capability.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -32,7 +32,7 @@ class GetWorkspaceMembers extends AssistantTool
             return $this->json(['error' => 'You are not permitted to view the members of this workspace.']);
         }
 
-        $members = app(WorkspaceMemberReportService::class)->clubMembersForManagement($workspace);
+        $members = app(WorkspaceMemberReportService::class)->workspaceMembersForManagement($workspace);
 
         return $this->json([
             'workspace' => $workspace->name,

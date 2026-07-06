@@ -15,8 +15,8 @@ class FindWorkspaces extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List or browse active clubs, optionally filtered by keyword, college, or category. '
-            .'Use this for "what clubs are available?" or "clubs in the engineering college".';
+        return 'List or browse active workspaces, optionally filtered by keyword, college, or category. '
+            .'Use this for "what workspaces are available?" or "workspaces in the engineering college".';
     }
 
     public function handle(Request $request): Stringable|string
@@ -56,13 +56,13 @@ class FindWorkspaces extends AssistantTool
     {
         return [
             'search' => $schema->string()
-                ->description('Optional keyword matched against club name, category, or college.'),
+                ->description('Optional keyword matched against workspace name, category, or college.'),
             'college' => $schema->string()
                 ->description('Optional college name to filter by.'),
             'category' => $schema->string()
                 ->description('Optional category to filter by (e.g. تقني، ثقافي، تطوعي).'),
             'limit' => $schema->integer()->min(1)->max(50)
-                ->description('Maximum number of clubs to return (default 20).'),
+                ->description('Maximum number of workspaces to return (default 20).'),
         ];
     }
 }

@@ -24,7 +24,7 @@ Every feature in TeamHUB must answer this question:
 
 TeamHUB is a **standalone, Arabic-first platform for team and project work**.
 
-It is **not** a university club system, **not** a Ruwad fork in product terms, and **not** a legacy adaptation with renamed labels. The codebase may still carry pre-re-engineering names (`Club`, `Committee`, etc.) until later phases; the **product identity** defined here is the target state.
+It is **not** a university club system, **not** a Ruwad fork in product terms, and **not** a legacy adaptation with renamed labels. Phases 1–3.5 completed the domain, UI, and runtime migration to the target vocabulary below.
 
 ### One-line pitch
 

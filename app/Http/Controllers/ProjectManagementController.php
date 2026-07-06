@@ -30,7 +30,7 @@ class ProjectManagementController extends Controller
 
         abort_unless($user->canManageProject($project), 403);
 
-        return Inertia::render('committees/Manage', $this->managementPayload($workspace, $project, $user));
+        return Inertia::render('projects/Manage', $this->managementPayload($workspace, $project, $user));
     }
 
     public function files(Workspace $workspace, Project $project): Response
@@ -40,10 +40,10 @@ class ProjectManagementController extends Controller
 
         $this->authorizeProjectView($user, $project);
 
-        return Inertia::render('committees/Files', [
+        return Inertia::render('projects/Files', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],
@@ -73,10 +73,10 @@ class ProjectManagementController extends Controller
 
         $this->authorizeProjectView($user, $project);
 
-        return Inertia::render('committees/Updates', [
+        return Inertia::render('projects/Updates', [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],
@@ -107,7 +107,7 @@ class ProjectManagementController extends Controller
             ->values()
             ->all();
 
-        $members = $this->reports->committeeMembersForManagement($project);
+        $members = $this->reports->projectMembersForManagement($project);
 
         $taskStats = [
             'todo' => Task::query()->where('project_id', $project->id)->where('status', 'todo')->count(),
@@ -124,8 +124,8 @@ class ProjectManagementController extends Controller
 
         return [
             'theme' => ['brand' => $project->theme ?: ($workspace->theme ?: config('theme.brand'))],
-            'club' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
-            'committee' => [
+            'workspace' => $workspace->only(['id', 'name', 'theme', 'logo_url']),
+            'project' => [
                 ...$project->only(['id', 'name', 'theme', 'status']),
                 'logo_url' => $project->logo_url,
             ],
@@ -138,7 +138,7 @@ class ProjectManagementController extends Controller
                     'isManager' => $role->isManager(),
                 ])
                 ->values(),
-            'stats' => $this->reports->committeeStats($project, $members->count()),
+            'stats' => $this->reports->projectStats($project, $members->count()),
             'taskStats' => $taskStats,
             'overviewMembers' => $members->take(8)->values(),
             'recentUpdates' => ProjectUpdate::query()

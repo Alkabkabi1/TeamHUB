@@ -26,8 +26,8 @@ class ProjectUpdateController extends Controller
         $this->authorize(ProjectCapability::ManageUpdates->value, $project);
 
         return Inertia::render('NewsForm', [
-            'club' => $workspace->only(['id', 'name']),
-            'committee' => $project->only(['id', 'name']),
+            'workspace' => $workspace->only(['id', 'name']),
+            'project' => $project->only(['id', 'name']),
             'mode' => 'create',
         ]);
     }
@@ -66,8 +66,8 @@ class ProjectUpdateController extends Controller
         $post->load('media');
 
         return Inertia::render('NewsForm', [
-            'club' => $workspace->only(['id', 'name']),
-            'committee' => $project->only(['id', 'name']),
+            'workspace' => $workspace->only(['id', 'name']),
+            'project' => $project->only(['id', 'name']),
             'post' => [
                 'id' => $post->id,
                 'title' => $post->title,

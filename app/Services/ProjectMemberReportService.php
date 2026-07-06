@@ -31,7 +31,7 @@ class ProjectMemberReportService
     /**
      * @return Collection<int, array<string, mixed>>
      */
-    public function committeeMembersForManagement(Project $project, ?string $locale = null): Collection
+    public function projectMembersForManagement(Project $project, ?string $locale = null): Collection
     {
         $locale = $locale ?? app()->getLocale();
 
@@ -66,7 +66,7 @@ class ProjectMemberReportService
     /**
      * @return array{totalHours: float, pendingApplicationsCount: int, upcomingEventsCount: int, membersCount: int}
      */
-    public function committeeStats(Project $project, int $membersCount): array
+    public function projectStats(Project $project, int $membersCount): array
     {
         return [
             'totalHours' => 0.0,
@@ -84,7 +84,7 @@ class ProjectMemberReportService
      */
     public function membersReport(Project $project, string $locale, ?string $supervisorName = null): array
     {
-        $members = $this->committeeMembersForManagement($project, $locale);
+        $members = $this->projectMembersForManagement($project, $locale);
 
         return array_merge($this->reportMeta($project, $locale, $supervisorName), [
             'members' => $members,

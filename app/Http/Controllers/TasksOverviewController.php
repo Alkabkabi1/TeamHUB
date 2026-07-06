@@ -43,7 +43,7 @@ class TasksOverviewController extends Controller
             ->withQueryString()
             ->through(fn ($task) => $this->hub->presentTask($task));
 
-        return Inertia::render('team-hub/Tasks', [
+        return Inertia::render('app/Tasks', [
             'tasks' => $tasks,
             'search' => $search,
             'status' => $statusFilter ?? 'all',

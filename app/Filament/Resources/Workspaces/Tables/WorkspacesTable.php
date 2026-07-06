@@ -22,23 +22,23 @@ class WorkspacesTable
         return $table
             ->columns([
                 SpatieMediaLibraryImageColumn::make('logo')
-                    ->label(__('admin.clubs.columns.logo'))
+                    ->label(__('admin.workspaces.columns.logo'))
                     ->collection(Workspace::LOGO_COLLECTION)
                     ->circular(),
                 TextColumn::make('name')
-                    ->label(__('admin.clubs.columns.name'))
+                    ->label(__('admin.workspaces.columns.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->label(__('admin.clubs.columns.status'))
+                    ->label(__('admin.workspaces.columns.status'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('memberships_count')
                     ->counts('memberships')
-                    ->label(__('admin.clubs.columns.members'))
+                    ->label(__('admin.workspaces.columns.members'))
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label(__('admin.clubs.columns.created_at'))
+                    ->label(__('admin.workspaces.columns.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

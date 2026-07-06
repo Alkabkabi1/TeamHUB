@@ -12,7 +12,7 @@ test('student factory assigns the student tier', function () {
 
 test('club supervisor factory is globally a student', function () {
     // Club supervision is a club-scoped relationship, not a global tier.
-    $user = User::factory()->clubSupervisor()->create();
+    $user = User::factory()->workspaceSupervisor()->create();
 
     expect($user->role)->toBe(UserRole::Member)
         ->and($user->isMember())->toBeTrue();

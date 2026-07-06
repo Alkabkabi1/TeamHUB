@@ -14,7 +14,7 @@ class GetWorkspaceInfo extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get details about a specific club by name or id, including its latest news. '
+        return 'Get details about a specific workspace by name or id, including its latest updates. '
             .'Use this when the user asks about a particular workspace.';
     }
 

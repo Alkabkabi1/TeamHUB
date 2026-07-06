@@ -17,7 +17,7 @@ class RemoveWorkspaceMember extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Remove a member from a club. Requires ManageMembers capability. Cannot remove the last club lead.';
+        return 'Remove a member from a workspace. Requires ManageMembers capability. Cannot remove the last workspace lead.';
     }
 
     public function schema(JsonSchema $schema): array

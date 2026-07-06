@@ -40,7 +40,7 @@ class DashboardController extends Controller
             ->get()
             ->map(fn ($task) => $this->hub->presentTask($task));
 
-        return Inertia::render('team-hub/Dashboard', [
+        return Inertia::render('app/Dashboard', [
             'demoPersona' => $persona,
             'greeting' => $this->presenter->greeting($user, $persona),
             'todayLabel' => now()->locale(app()->getLocale())->translatedFormat('l، j F Y'),

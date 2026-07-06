@@ -3,7 +3,7 @@
 > Arabic-first teamwork platform for small organizations — workspaces, projects, tasks, deliverables, and files in one place.
 
 **Repository:** [github.com/Alkabkabi1/TeamHUB](https://github.com/Alkabkabi1/TeamHUB)  
-**Status:** Phase 1 (domain re-engineering) **approved** — see [docs/PHASE_1_CLOSURE.md](./docs/PHASE_1_CLOSURE.md)  
+**Status:** Phases 1–3 **complete** — domain, UI, and runtime contracts canonical. See [docs/DOMAIN_MODEL.md](./docs/DOMAIN_MODEL.md).  
 **License:** MIT — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE)  
 **Planning doc:** [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 
@@ -110,30 +110,17 @@ npm run dev
 
 ### Domain vocabulary
 
-Backend and database use canonical names. UI filenames still carry legacy labels until Phase 2:
+The product uses **Workspace → Project → Task** everywhere: models, routes, Inertia payloads, permissions, and UI filenames.
 
-| Canonical (live) | Legacy UI residue (Phase 2) |
-|------------------|-------------------------------|
-| `Workspace` | `ClubPage`, `ClubTheme`, … |
-| `Project` | `CommitteePage`, … |
-| `WorkspaceMembership` | — |
-| `ProjectMembership` | — |
-| `ProjectUpdate` | — |
-| `ProjectFile` | — |
+| Layer | Canonical term |
+|-------|----------------|
+| Organization | `Workspace` |
+| Team within org | `Project` |
+| Work item | `Task` |
+| Org membership | `WorkspaceMembership` |
+| Team membership | `ProjectMembership` |
 
-### Design preview (TeamHUB UI)
-
-Static preview pages for testing the design system (no auth required):
-
-| Page | URL |
-|------|-----|
-| Hub index | `/preview/team-hub` |
-| Dashboard | `/preview/team-hub/dashboard` |
-| Tasks | `/preview/team-hub/tasks` |
-| Projects | `/preview/team-hub/projects` |
-| Deliverable workflow | `/preview/team-hub/deliverable` |
-
-Use the theme toggle in the sidebar to switch light/dark mode. Preview pages are isolated from the legacy app chrome.
+Historical database migrations may still reference legacy table names (`clubs`, `committees`) from the re-engineering migration — see [DOMAIN_MODEL.md](./docs/DOMAIN_MODEL.md).
 
 ---
 
@@ -158,10 +145,13 @@ tests/               Pest feature & unit tests
 | Phase | Focus | Status |
 |-------|-------|--------|
 | **0** | Product vision, domain model, engineering principles | Done |
-| **1** | Domain re-engineering (Workspace → Project → Task) | **Done** — [closure report](./docs/PHASE_1_CLOSURE.md) |
+| **1** | Domain re-engineering (Workspace → Project → Task) | Done — [closure report](./docs/PHASE_1_CLOSURE.md) |
 | **1.5** | P0 hardening (AI, Inertia contract, demo accounts) | Done |
-| **2** | UI / surface rename (`ClubPage` → `WorkspacePage`, etc.) | Next |
-| **3+** | Deploy, pilot, polish | Planned |
+| **2** | UI / surface rename (`ClubPage` → `WorkspacePage`, etc.) | Done |
+| **3** | Runtime contract canonicalization | Done |
+| **3.5** | Repository cleanup & dead code removal | Done |
+| **4** | Production readiness audit | Done |
+| **5+** | Deploy, pilot, polish | Planned |
 
 Legacy pivot checklist: [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 

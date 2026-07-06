@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'members_title' => 'Club members report',
+    'members_title' => 'Workspace members report',
     'volunteer_hours_title' => 'Volunteer hours report',
     'attendance_title' => 'Event attendance report',
     'generated_on' => 'Generated on',
-    'supervisor' => 'Supervisor',
-    'club' => 'Club',
+    'supervisor' => 'Workspace lead',
+    'workspace' => 'Workspace',
     'total_hours' => 'Total hours',
     'total_attendees' => 'Total attendees',
     'col_name' => 'Name',

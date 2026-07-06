@@ -14,7 +14,7 @@ class FindProjectFiles extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'List or search club resources — downloadable files and media — by keyword, club, or type '
+        return 'List or search project files — downloadable files and media — by keyword, workspace, or type '
             .'("download" or "media"). Use this when the user asks about materials, files, or media.';
     }
 
@@ -54,7 +54,7 @@ class FindProjectFiles extends AssistantTool
             'search' => $schema->string()
                 ->description('Optional keyword matched against resource title or description.'),
             'workspace' => $schema->string()
-                ->description('Optional club name to list only that club\'s resources.'),
+                ->description('Optional workspace name to list only that workspace\'s resources.'),
             'type' => $schema->string()
                 ->enum([ProjectFile::TYPE_DOWNLOAD, ProjectFile::TYPE_MEDIA])
                 ->description('Optional filter: "download" for files, "media" for media items.'),

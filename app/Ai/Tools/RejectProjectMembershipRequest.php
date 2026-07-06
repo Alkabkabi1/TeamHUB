@@ -16,7 +16,7 @@ class RejectProjectMembershipRequest extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Reject a pending committee join request. Requires ManageMembers capability.';
+        return 'Reject a pending project membership request. Requires ManageMembers capability.';
     }
 
     public function schema(JsonSchema $schema): array

@@ -36,7 +36,7 @@ test('project updates page lists committee news posts', function () {
         ->get(route('projects.updates.index', [$workspace, $project]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('committees/Updates')
+            ->component('projects/Updates')
             ->has('updates', 1)
             ->where('updates.0.title', 'Milestone recap')
         );

@@ -22,7 +22,7 @@ class RequestWorkspaceMembership extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Submit a join application for the current user (student) to a club.';
+        return 'Submit a join application for the current user to a workspace.';
     }
 
     protected function preview(Request $request): array

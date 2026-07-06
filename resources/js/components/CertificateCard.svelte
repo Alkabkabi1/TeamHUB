@@ -13,13 +13,13 @@
 
     type Props = {
         title: string;
-        clubName: string;
+        workspaceName: string;
         issuedAt: string;
         certificateNo: string;
         downloadHref: string;
     };
 
-    let { title, clubName, issuedAt, certificateNo, downloadHref }: Props =
+    let { title, workspaceName, issuedAt, certificateNo, downloadHref }: Props =
         $props();
 </script>
 
@@ -37,7 +37,7 @@
     </div>
     <p class="text-center text-[12px] font-medium text-black">{title}</p>
     <div class="flex items-center justify-between text-[12px] text-[#7e7e7e]">
-        <span>{clubName}</span>
+        <span>{workspaceName}</span>
         <span>{issuedAt}</span>
     </div>
     <p class="text-center text-[12px] text-[#aaa]" dir="ltr">{certificateNo}</p>

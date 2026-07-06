@@ -17,7 +17,7 @@ class RemoveProjectMember extends WriteTool
 {
     public function description(): Stringable|string
     {
-        return 'Remove a member from a committee. Requires ManageMembers capability. Cannot remove the last committee lead.';
+        return 'Remove a member from a project. Requires ManageMembers capability. Cannot remove the last project lead.';
     }
 
     public function schema(JsonSchema $schema): array

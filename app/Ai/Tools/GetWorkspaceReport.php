@@ -12,8 +12,8 @@ class GetWorkspaceReport extends AssistantTool
 {
     public function description(): Stringable|string
     {
-        return 'Get a report for a club you manage: "stats" (totals) or "members". '
-            .'Only available to club managers with the view-reports capability.';
+        return 'Get a report for a workspace you manage: "stats" (totals) or "members". '
+            .'Only available to workspace leads with the view-reports capability.';
     }
 
     public function handle(Request $request): Stringable|string
@@ -34,9 +34,9 @@ class GetWorkspaceReport extends AssistantTool
 
         $report = match ($type) {
             'members' => $service->membersReport($workspace, $locale, $this->user),
-            default => $service->clubStats(
+            default => $service->workspaceStats(
                 $workspace,
-                $service->clubMembersForManagement($workspace, $locale)->count(),
+                $service->workspaceMembersForManagement($workspace, $locale)->count(),
             ),
         };
 

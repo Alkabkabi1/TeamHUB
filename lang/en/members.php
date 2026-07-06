@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'added' => 'Member added to the club.',
-    'removed' => 'Member removed from the club.',
+    'added' => 'Member added to the workspace.',
+    'removed' => 'Member removed from the workspace.',
     'roles_updated' => 'Member roles updated.',
-    'last_lead' => 'The club must always keep at least one Club Lead.',
+    'last_lead' => 'The workspace must always keep at least one workspace lead.',
 
     // Dashboard member management UI
     'section_title' => 'Member management',
@@ -32,7 +32,7 @@ return [
     'reject' => 'Reject',
     'no_results' => 'No matching users found.',
     'no_members' => 'No members yet.',
-    'empty_hint' => 'Add the club\'s first member to get started.',
+    'empty_hint' => 'Add the workspace\'s first member to get started.',
     'no_pending' => 'No pending requests.',
-    'confirm_remove' => 'Remove this member from the club?',
+    'confirm_remove' => 'Remove this member from the workspace?',
 ];

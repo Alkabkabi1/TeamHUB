@@ -97,10 +97,10 @@ test('a member with tasks in three projects sees one unified my tasks view', fun
             ->has('dueTodayTasks', 1)
             ->has('upcomingTasks', 1)
             ->has('noDueDateTasks', 1)
-            ->where('overdueTasks.0.committee.name', 'Project A')
-            ->where('dueTodayTasks.0.committee.name', 'Project B')
-            ->where('upcomingTasks.0.committee.name', 'Project C')
-            ->where('noDueDateTasks.0.club.id', $workspaceA->id)
+            ->where('overdueTasks.0.project.name', 'Project A')
+            ->where('dueTodayTasks.0.project.name', 'Project B')
+            ->where('upcomingTasks.0.project.name', 'Project C')
+            ->where('noDueDateTasks.0.workspace.id', $workspaceA->id)
         );
 });
 

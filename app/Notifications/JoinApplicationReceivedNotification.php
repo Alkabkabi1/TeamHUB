@@ -27,14 +27,14 @@ class JoinApplicationReceivedNotification extends Notification implements Should
         $workspace = $this->application->workspace;
 
         return (new MailMessage)
-            ->subject(__('join.notification.received.subject', ['club' => $workspace->name]))
+            ->subject(__('join.notification.received.subject', ['workspace' => $workspace->name]))
             ->greeting(__('join.notification.received.greeting', ['name' => $notifiable->name]))
             ->line(__('join.notification.received.body', [
                 'applicant' => $this->application->full_name,
-                'club' => $workspace->name,
+                'workspace' => $workspace->name,
             ]))
             ->action(__('join.notification.received.action'), route('workspaces.manage', $workspace))
-            ->line(__('join.notification.received.footer', ['club' => $workspace->name]));
+            ->line(__('join.notification.received.footer', ['workspace' => $workspace->name]));
     }
 
     /**

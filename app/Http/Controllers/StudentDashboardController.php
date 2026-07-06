@@ -120,7 +120,7 @@ class StudentDashboardController extends Controller
                 'dueTodayCount' => $dueTodayTasks->count(),
                 'overdueCount' => $overdueTasks->count(),
             ],
-            'clubs' => $workspaces,
+            'workspaces' => $workspaces,
             'workspaces' => $workspaces,
             'projects' => $projects,
             'profile' => [

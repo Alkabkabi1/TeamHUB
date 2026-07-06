@@ -27,7 +27,7 @@ class WorkspaceManagementController extends Controller
 
         abort_unless($user->canManageWorkspace($workspace), 403);
 
-        return Inertia::render('clubs/Manage', $this->managementPayload($workspace, $user));
+        return Inertia::render('workspaces/Manage', $this->managementPayload($workspace, $user));
     }
 
     public function members(Workspace $workspace): Response
@@ -39,9 +39,9 @@ class WorkspaceManagementController extends Controller
 
         $payload = $this->managementPayload($workspace, $user);
 
-        return Inertia::render('clubs/Members', [
+        return Inertia::render('workspaces/Members', [
             'theme' => $payload['theme'],
-            'club' => $payload['club'],
+            'workspace' => $payload['workspace'],
             'capabilities' => $payload['capabilities'],
             'canManageRoles' => $payload['canManageRoles'],
             'roleOptions' => $payload['roleOptions'],
@@ -59,7 +59,7 @@ class WorkspaceManagementController extends Controller
             ? WorkspaceCapability::values()
             : $user->workspaceCapabilitiesFor($workspace)->map(fn (WorkspaceCapability $capability): string => $capability->value)->values()->all();
 
-        $members = $this->reports->clubMembersForManagement($workspace);
+        $members = $this->reports->workspaceMembersForManagement($workspace);
         $projectIds = $workspace->projects()->pluck('id');
 
         $workspaceTaskQuery = Task::query()->whereIn('project_id', $projectIds);
@@ -127,7 +127,7 @@ class WorkspaceManagementController extends Controller
 
         return [
             'theme' => ['brand' => $workspace->theme ?: config('theme.brand')],
-            'club' => [
+            'workspace' => [
                 'id' => $workspace->id,
                 'name' => $workspace->name,
                 'theme' => $workspace->theme,
