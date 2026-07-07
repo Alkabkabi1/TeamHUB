@@ -1,0 +1,2263 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Dashboard/AssignProjectLeaderAction.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/AssistantSuggestionService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Ai/Tools/AddProjectMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/AddProjectMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Ai/Tools/AddWorkspaceMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveProjectMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ProjectMembership\>\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveProjectMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Ai/Tools/ApproveWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Ai/Tools/AssignTask.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Ai/Tools/AssistantTool.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/CreateTask.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$format\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectFile\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/FindProjectFiles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Project\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/FindProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindTasks.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindTasks.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$college\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/FindWorkspaces.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Workspace\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/FindWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetAppRoutes.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetAppRoutes.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetAppRoutes.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$reviewed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{workspace\: mixed, status\: mixed, submittedAt\: mixed, reviewedAt\: mixed\}, Closure\(App\\Models\\WorkspaceMembershipRequest\)\: array\{workspace\: mixed, status\: mixed, submittedAt\: mixed, reviewedAt\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/GetMyApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$joined_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{project\: mixed, projectId\: mixed, workspace\: mixed, roles\: array\<int, string\>, joinedAt\: mixed\}, Closure\(App\\Models\\ProjectMembership\)\: array\{project\: mixed, projectId\: mixed, workspace\: mixed, roles\: array\<int, string\>, joinedAt\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\ProjectMembership\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/GetMyProjects.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$joined_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{workspace\: mixed, workspaceId\: mixed, roles\: array\<int, string\>, joinedAt\: mixed\}, Closure\(App\\Models\\WorkspaceMembership\)\: array\{workspace\: mixed, workspaceId\: mixed, roles\: array\<int, string\>, joinedAt\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\WorkspaceMembership\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/GetMyWorkspaces.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetProjectInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectReport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Ai/Tools/GetProjectSummary.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceInfo.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceInfo.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceMembers.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$level\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$major\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$university_email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\WorkspaceMembershipRequest\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Ai/Tools/GetWorkspacePendingApplications.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/GetWorkspaceReport.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/ListMyTasks.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/ListMyTasks.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Task\>\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Ai/Tools/ListMyTasks.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Ai/Tools/ListMyTasks.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RejectProjectMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ProjectMembership\>\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectProjectMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembershipRequest\>\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Ai/Tools/RejectWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RemoveProjectMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\ProjectMembership\>\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RemoveProjectMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RemoveWorkspaceMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\WorkspaceMembership\>\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RemoveWorkspaceMember.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RequestProjectMembership.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Project\>\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RequestProjectMembership.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RequestProjectMembership.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Ai/Tools/RequestWorkspaceMembership.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\Workspace\>\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Ai/Tools/RequestWorkspaceMembership.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Ai/Tools/UpdateTaskDetails.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Ai/Tools/UpdateTaskDetails.php
+
+		-
+			message: '#^Cannot call method translatedFormat\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Ai/Tools/UpdateTaskDetails.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\TaskStatus\:\:Review, App\\Enums\\TaskStatus\:\:Done\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 2
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Parameter \#2 \$from of method App\\Models\\Task\:\:recordStatusChange\(\) expects App\\Enums\\TaskStatus, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Parameter \#3 \$to of method App\\Models\\Task\:\:recordStatusChange\(\) expects App\\Enums\\TaskStatus, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 4
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between string and App\\Enums\\TaskStatus\:\:Review will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 2
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\TaskStatus\:\:Review will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: app/Ai/Tools/UpdateTaskStatus.php
+
+		-
+			message: '#^Method App\\Ai\\Tools\\WriteTool\:\:handle\(\) never returns Stringable so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Ai/Tools/WriteTool.php
+
+		-
+			message: '#^Trait App\\Concerns\\AuthorizesWorkspaceOrProject is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: app/Concerns/AuthorizesWorkspaceOrProject.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/SendTestMails.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/SendTestMails.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/SendTestMails.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Console/Commands/SendTestMails.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$university_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/Tasks/TaskResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$email_verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/Users/Pages/CreateUser.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$university_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/Workspaces/Pages/CreateWorkspace.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Filament/Resources/Workspaces/RelationManagers/MembershipsRelationManager.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:memberships\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Filament/Resources/Workspaces/RelationManagers/MembershipsRelationManager.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$is_member\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/HomeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\TaskStatus\:\:Todo, App\\Enums\\TaskStatus\:\:InProgress\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\TaskStatus\:\:InProgress will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\TaskStatus\:\:Todo will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/MyTasksController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$body\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/ProjectController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$file_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectFileController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectFileController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectFileController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$access\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$file_path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$format\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectFile\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$requested_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$body\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectFile\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 3
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>email" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectMemberController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectMembershipController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$body\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectUpdateController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectUpdateController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectUpdateController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectUpdateController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$joined_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''workspaces'' \(''workspaces'', ''workspaces''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Cannot access property \$timestamp on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$application of method App\\Http\\Controllers\\StudentDashboardController\:\:profileSubtitle\(\) expects App\\Models\\WorkspaceMembershipRequest\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: mixed, name\: mixed, memberSince\: mixed, projectCount\: int\<0, max\>\}, Closure\(App\\Models\\WorkspaceMembership\)\: array\{id\: mixed, name\: mixed, memberSince\: mixed, projectCount\: int\<0, max\>\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: mixed, name\: mixed, workspaceId\: mixed, workspaceName\: mixed, joinedAt\: mixed\}, Closure\(App\\Models\\ProjectMembership\)\: array\{id\: mixed, name\: mixed, workspaceId\: mixed, workspaceName\: mixed, joinedAt\: mixed\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\ProjectMembership\)\: bool given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(App\\Models\\WorkspaceMembership\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Parameter \#1 \$groupBy of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:groupBy\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: \(int\|string\|Stringable\|UnitEnum\)\)\|list\<Closure\|string\>\|string, Closure\(App\\Models\\ProjectMembership\)\: mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 6
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>timestamp" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/StudentDashboardController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Call to function abort_if\(\) with false and 403 will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\TaskStatus\:\:Review, App\\Enums\\TaskStatus\:\:Done\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectMembership\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Parameter \#2 \$from of method App\\Models\\Task\:\:recordStatusChange\(\) expects App\\Enums\\TaskStatus, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Parameter \#3 \$to of method App\\Models\\Task\:\:recordStatusChange\(\) expects App\\Enums\\TaskStatus, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Property App\\Models\\Task\:\:\$status \(string\) does not accept App\\Enums\\TaskStatus\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/TaskController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/TaskDetailController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/TaskDetailController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$body\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Project\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$overdue_tasks_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Project\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectUpdate\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Task\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\WorkspaceMembershipRequest\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:sortByDesc\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>timestamp" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/WorkspaceManagementController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/WorkspaceMemberController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceMembershipRequestController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/WorkspaceMembershipRequestController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/WorkspaceMembershipRequestController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/WorkspaceMembershipRequestController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/WorkspaceThemeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/WorkspaceThemeController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Project\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Workspace\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Workspace\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Middleware/HandleInertiaRequests.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Requests/StoreWorkspaceMembershipRequest.php
+
+		-
+			message: '#^Method App\\Models\\Project\:\:logoUrl\(\) should return Illuminate\\Database\\Eloquent\\Casts\\Attribute\<string\|null, never\> but returns Illuminate\\Database\\Eloquent\\Casts\\Attribute\<non\-falsy\-string\|null, never\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Project.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:incomplete\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/Models/Task.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:ChangesRequested is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:CommentAdded is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:DeliverableApproved is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:DeliverableSubmitted is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:TaskAssigned is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:TaskCreated is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:TaskStatusChanged is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Offset ''comment_excerpt'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Offset ''from_status'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Offset ''to_status'' does not exist on array\{\}\|string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Models/TaskActivity.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:projectMembershipFor\(\) should return App\\Models\\ProjectMembership\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:workspaceMembershipFor\(\) should return App\\Models\\WorkspaceMembership\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\Workspace\:\:logoUrl\(\) should return Illuminate\\Database\\Eloquent\\Casts\\Attribute\<string\|null, never\> but returns Illuminate\\Database\\Eloquent\\Casts\\Attribute\<non\-falsy\-string\|null, never\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Workspace.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/JoinApplicationReceivedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/JoinApplicationReceivedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembershipRequest\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/JoinApplicationReceivedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/MembershipApprovedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/MembershipRejectedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/NewPostNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/NewPostNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectUpdate\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Notifications/NewPostNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Notifications/NewPostNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskAssignedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskAssignedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskAssignedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskChangesRequestedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskChangesRequestedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskDeliverableApprovedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskDeliverableApprovedNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskSubmittedForReviewNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskSubmittedForReviewNotification.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Notifications/TaskSubmittedForReviewNotification.php
+
+		-
+			message: '#^Method Laravel\\Fortify\\Contracts\\LogoutResponse@anonymous/app/Providers/AppServiceProvider\.php\:38\:\:toResponse\(\) never returns Illuminate\\Http\\Response so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: app/Providers/AppServiceProvider.php
+
+		-
+			message: '#^Method App\\Providers\\FortifyServiceProvider\:\:demoAccounts\(\) should return Illuminate\\Support\\Collection\<int, array\{email\: string, name\: string, role\: string\}\> but returns Illuminate\\Support\\Collection\<int, array\{email\: string, name\: string, role\: string, label\: string\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Providers/FortifyServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$joined_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Method App\\Services\\ProjectMemberReportService\:\:projectMembersForManagement\(\) should return Illuminate\\Support\\Collection\<int, array\<string, mixed\>\> but returns Illuminate\\Support\\Collection\<int, array\{membershipId\: int, userId\: mixed, name\: string, email\: string, major\: '''', joinDate\: mixed, volunteerHours\: 0\.0, roles\: array\<int, string\>, \.\.\.\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectMembership\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/ProjectMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$joined_at\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceMemberReportService\:\:membersForWorkspace\(\) should return Illuminate\\Support\\Collection\<int, array\{name\: string, email\: string, major\: string, joinDate\: string, volunteerHours\: float, status\: string\}\> but returns Illuminate\\Support\\Collection\<int, array\{name\: string, email\: string, major\: string, joinDate\: mixed, volunteerHours\: 0\.0, status\: \(array\|string\)\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Method App\\Services\\WorkspaceMemberReportService\:\:workspaceMembersForManagement\(\) should return Illuminate\\Support\\Collection\<int, array\{membershipId\: int, userId\: int, name\: string, email\: string, major\: string, joinDate\: string, volunteerHours\: float, roles\: array\<int, string\>, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<int, array\{membershipId\: int, userId\: mixed, name\: string, email\: string, major\: string, joinDate\: mixed, volunteerHours\: 0\.0, roles\: array\<int, string\>, \.\.\.\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\WorkspaceMembership\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Services/WorkspaceMemberReportService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:ChangesRequested is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:CommentAdded is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:DeliverableApproved is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:DeliverableSubmitted is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Match arm comparison between string and App\\Enums\\TaskActivityType\:\:TaskAssigned is always false\.$#'
+			identifier: match.alwaysFalse
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Workspace\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>title" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Support/DashboardData.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\ProjectMembership\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 2
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Project\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:filter\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: app/Support/DashboardPresenter.php
+
+		-
+			message: '#^Method App\\Support\\DemoAccounts\:\:forSwitcher\(\) should return Illuminate\\Support\\Collection\<int, array\{email\: string, name\: string, role\: string, label\: string\}\> but returns Illuminate\\Support\\Collection\<int, array\{email\: string, role\: string, label\: \(array\|string\), name\: mixed\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Support/DemoAccounts.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Support/DemoWalkthroughBootstrap.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WorkspaceMembership\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/DemoWalkthroughBootstrap.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/DemoWorkspace.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,App\\Models\\Workspace\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Support/DemoWorkspace.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 8
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Support/ProjectPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Task\:\:\$project_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\TaskStatus\:\:Todo, App\\Enums\\TaskStatus\:\:InProgress\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 6
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot call method isToday\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot call method label\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot call method locale\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 5
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 3
+			path: app/Support/TaskPresenter.php
+
+		-
+			message: '#^Class Spatie\\MediaLibraryPro\\Models\\TemporaryUpload not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: config/media-library.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Project\:\:\$workspace_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/ProjectFileFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ProjectMembership\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/ProjectMembershipFactory.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/factories/ProjectUpdateFactory.php
+
+		-
+			message: '#^Call to static method fromLegacy\(\) on an unknown class App\\Enums\\ClubRole\.$#'
+			identifier: class.notFound
+			count: 1
+			path: database/migrations/2026_05_28_211457_backfill_club_membership_roles.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/seeders/ProjectFilesSeeder.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$theme\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/seeders/ProjectFilesSeeder.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: database/seeders/ProjectUpdatesSeeder.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Workspace\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: database/seeders/WorkspaceMembershipsSeeder.php
+
+		-
+			message: '#^Left side of && is always false\.$#'
+			identifier: booleanAnd.leftAlwaysFalse
+			count: 1
+			path: database/seeders/WorkspacesSeeder.php

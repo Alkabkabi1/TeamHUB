@@ -1,0 +1,23 @@
+# TeamHUB Queue Worker — systemd unit (example)
+#
+# Install: sudo cp deploy/examples/teamhub-queue.service /etc/systemd/system/
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable --now teamhub-queue
+
+[Unit]
+Description=TeamHUB Queue Worker
+After=network.target redis-server.service teamhub-octane.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/teamhub
+ExecStart=/usr/bin/php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

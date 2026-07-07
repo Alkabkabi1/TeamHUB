@@ -1,0 +1,25 @@
+# TeamHUB Octane — systemd unit (example)
+#
+# Install: sudo cp deploy/examples/teamhub-octane.service /etc/systemd/system/
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable --now teamhub-octane
+#
+# Replace /var/www/teamhub and www-data.
+
+[Unit]
+Description=TeamHUB Laravel Octane (RoadRunner)
+After=network.target redis-server.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/teamhub
+ExecStart=/usr/bin/php artisan octane:start --server=roadrunner --host=127.0.0.1 --port=8000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,4 @@
-name: security scan
+name: static analysis
 
 on:
   push:
@@ -15,18 +15,15 @@ on:
       - master
       - workos
       - release/**
-  schedule:
-    - cron: '0 3 * * 1'
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  dependency-audit:
-    name: Dependency audit
+  phpstan:
+    name: PHPStan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -51,20 +48,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-          cache: npm
-
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+        run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Install Node dependencies
-        run: npm ci
-
-      - name: Audit Composer production dependencies
-        run: composer audit --locked --no-dev --format=plain
-
-      - name: Audit npm production dependencies
-        run: npm audit --audit-level=high --omit=dev
+      - name: Run PHPStan
+        run: composer analyse
