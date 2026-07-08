@@ -4,7 +4,7 @@ Thank you for your interest in contributing to TeamHUB. This project is an Arabi
 
 ## Before you start
 
-1. Read [README.md](./README.md) and [docs/ENGINEERING_PRINCIPLES.md](./docs/ENGINEERING_PRINCIPLES.md).
+1. Read [README.md](./README.md), [docs/README.md](./docs/README.md), and [docs/ENGINEERING_PRINCIPLES.md](./docs/ENGINEERING_PRINCIPLES.md).
 2. Search [existing issues](https://github.com/Alkabkabi1/TeamHUB/issues) before opening a duplicate.
 3. For large changes, open an issue first to discuss scope.
 
