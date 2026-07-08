@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProjectRole;
 use App\Models\Project;
 use App\Models\ProjectMembership;
 use App\Models\Task;
@@ -57,7 +58,7 @@ test('demo personas receive dedicated dashboard panels', function () {
         );
 });
 
-test('hub dashboard returns real project and task props for a student', function () {
+test('members without management roles are redirected from dashboard to my tasks', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $student = User::factory()->student()->create();
@@ -75,41 +76,25 @@ test('hub dashboard returns real project and task props for a student', function
 
     $this->actingAs($student)
         ->get(route('dashboard'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('app/Dashboard')
-            ->where('demoPersona', null)
-            ->where('dashboard.type', 'legacy')
-            ->has('dashboard.projects', 1)
-            ->has('dashboard.kpis', 4)
-            ->where('dashboard.roleContext.panel', 'member')
-        );
+        ->assertRedirect(route('my-tasks'));
 });
 
-test('hub projects supports search query', function () {
+test('legacy projects overview redirects to dashboard', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $visible = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Alpha Project']);
-    $hidden = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Beta Hidden']);
     $student = User::factory()->student()->create();
 
-    foreach ([$visible, $hidden] as $project) {
-        ProjectMembership::factory()->create([
-            'user_id' => $student->id,
-            'project_id' => $project->id,
-        ]);
-    }
+    ProjectMembership::factory()->create([
+        'user_id' => $student->id,
+        'project_id' => $visible->id,
+    ]);
 
     $this->actingAs($student)
         ->get(route('projects', ['q' => 'Alpha']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('app/Projects')
-            ->has('projects.data', 1)
-            ->where('projects.data.0.title', 'Alpha Project')
-        );
+        ->assertRedirect(route('dashboard', ['q' => 'Alpha']));
 });
 
-test('hub tasks filters by status', function () {
+test('legacy tasks overview redirects members to my tasks', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $student = User::factory()->student()->create();
@@ -119,35 +104,55 @@ test('hub tasks filters by status', function () {
         'project_id' => $project->id,
     ]);
 
-    Task::factory()->create(['project_id' => $project->id, 'status' => 'todo']);
     Task::factory()->create(['project_id' => $project->id, 'status' => 'done']);
 
     $this->actingAs($student)
         ->get(route('tasks', ['status' => 'done']))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('app/Tasks')
-            ->has('tasks.data', 1)
-            ->where('tasks.data.0.status', 'done')
-        );
+        ->assertRedirect(route('my-tasks', ['status' => 'done']));
 });
 
-test('student home url points to dashboard', function () {
+test('member home url points to my tasks', function () {
     $student = User::factory()->student()->create();
 
-    expect($student->homeUrl())->toBe(route('dashboard', absolute: false));
+    expect($student->homeUrl())->toBe(route('my-tasks', absolute: false));
+});
+
+test('project lead home url points to dashboard', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    $lead = User::factory()->student()->create();
+
+    $membership = ProjectMembership::factory()->create([
+        'user_id' => $lead->id,
+        'project_id' => $project->id,
+    ]);
+    $membership->syncProjectRoles([ProjectRole::ProjectLead]);
+
+    expect($lead->homeUrl())->toBe(route('dashboard', absolute: false));
 });
 
 test('shared app nav does not contain placeholder hash links', function () {
     $student = User::factory()->student()->create();
 
     $this->actingAs($student)
-        ->get(route('dashboard'))
+        ->get(route('my-tasks'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('app.nav')
             ->where('app.nav', fn ($items) => collect($items)->every(
                 fn (array $item) => $item['href'] !== '#'
             ))
+        );
+});
+
+test('member nav focuses on my tasks instead of redundant overview links', function () {
+    $student = User::factory()->student()->create();
+
+    $this->actingAs($student)
+        ->get(route('my-tasks'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('app.nav.0.href', route('my-tasks', absolute: false))
+            ->where('app.nav.0.label', __('dashboard.nav.my_tasks'))
         );
 });

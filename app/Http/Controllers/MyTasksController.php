@@ -6,19 +6,20 @@ use App\Enums\TaskStatus;
 use App\Models\ProjectUpdate;
 use App\Models\Task;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class MyTasksController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         /** @var User $user */
         $user = $request->user();
 
-        if (! $user->isMember()) {
-            abort(403);
+        if (! $user->isMember() && ! $user->usesMyTasksHome()) {
+            return redirect()->route('dashboard');
         }
 
         $baseQuery = Task::query()

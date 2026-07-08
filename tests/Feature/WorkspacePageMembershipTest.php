@@ -5,31 +5,23 @@ use App\Models\Workspace;
 use App\Models\WorkspaceMembership;
 use App\Models\WorkspaceMembershipRequest;
 
-test('isMember is false for guest on club page', function () {
+test('guest is redirected from workspace show', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->where('isMember', false)
-        );
+        ->assertRedirect(route('login'));
 });
 
-test('isMember is false for user with no membership', function () {
+test('non-member is redirected from workspace show to dashboard', function () {
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $this->actingAs($user)
         ->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->where('isMember', false)
-        );
+        ->assertRedirect(route('dashboard'));
 });
 
-test('isMember is true for approved member', function () {
+test('approved member is redirected from workspace show to dashboard', function () {
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create(['status' => 'active']);
 
@@ -40,14 +32,10 @@ test('isMember is true for approved member', function () {
 
     $this->actingAs($user)
         ->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->where('isMember', true)
-        );
+        ->assertRedirect(route('dashboard'));
 });
 
-test('isMember is true for user with pending application', function () {
+test('pending applicant is redirected from workspace show to dashboard', function () {
     $user = User::factory()->create(['email' => 'pending@teamhub.test']);
     $workspace = Workspace::factory()->create(['status' => 'active']);
 
@@ -58,9 +46,5 @@ test('isMember is true for user with pending application', function () {
 
     $this->actingAs($user)
         ->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->where('isMember', true)
-        );
+        ->assertRedirect(route('dashboard'));
 });

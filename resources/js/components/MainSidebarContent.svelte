@@ -6,7 +6,6 @@
         Login03Icon,
         Logout03Icon,
         Setting07Icon,
-        UserCircleIcon,
     } from '@hugeicons/core-free-icons';
     import { page, router } from '@inertiajs/svelte';
     import ProjectManageNavItem from '@/components/ProjectManageNavItem.svelte';
@@ -15,14 +14,7 @@
     import WorkspaceManageNavItem from '@/components/WorkspaceManageNavItem.svelte';
     import { t } from '@/lib/i18n.svelte';
     import { toUrl } from '@/lib/utils';
-    import {
-        home,
-        dashboard,
-        login,
-        logout,
-        studentDashboard,
-        support,
-    } from '@/routes';
+    import { home, dashboard, login, logout, support } from '@/routes';
     import type { NavItem } from '@/types';
 
     let { onNavigate }: { onNavigate?: () => void } = $props();
@@ -51,15 +43,10 @@
                       title: t('nav.dashboard'),
                       href: dashboard(),
                       icon: DashboardBrowsingIcon,
+                      roles: ['admin'],
                   },
               ]
             : []),
-        {
-            title: t('nav.my_work'),
-            href: studentDashboard(),
-            icon: UserCircleIcon,
-            roles: ['member'],
-        },
         {
             title: t('nav.my_tasks'),
             href: '/my-tasks',

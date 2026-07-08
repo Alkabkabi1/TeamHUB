@@ -85,7 +85,7 @@ test('project leads can update projects but plain members cannot', function () {
     $member = projectPolicyMember($workspace, $project);
 
     expect($projectLead->can('update', $project))->toBeTrue()
-        ->and($lead->can('update', $project))->toBeTrue()
+        ->and($lead->can('update', $project))->toBeFalse()
         ->and($member->can('update', $project))->toBeFalse();
 });
 

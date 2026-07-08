@@ -254,6 +254,7 @@ class DashboardData
     public function workspaces(User $user): array
     {
         return $this->accessibleWorkspaces($user)
+            ->filter(fn (Workspace $workspace): bool => $user->isAdmin() || $user->canManageWorkspace($workspace))
             ->map(function (Workspace $workspace): array {
                 $letter = mb_substr($workspace->name, 0, 1);
 
@@ -262,7 +263,7 @@ class DashboardData
                     'name' => $workspace->name,
                     'letter' => $letter,
                     'color' => self::PROJECT_COLORS[$workspace->id % count(self::PROJECT_COLORS)],
-                    'url' => route('projects', ['workspace' => $workspace->id], absolute: false),
+                    'url' => route('workspaces.manage', $workspace, absolute: false),
                 ];
             })
             ->values()

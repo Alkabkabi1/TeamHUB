@@ -2,6 +2,7 @@
 
 use App\Enums\ProjectRole;
 use App\Enums\TaskStatus;
+use App\Enums\WorkspaceRole;
 use App\Models\Project;
 use App\Models\ProjectMembership;
 use App\Models\Task;
@@ -65,13 +66,12 @@ test('demo workflow completes from project creation through approval', function 
         );
 
     $this->actingAs($leader)
-        ->post(route('dashboard.tasks.store'), [
-            'project_id' => $project->id,
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'مهمة للموظف',
             'assigned_to' => $staff->id,
             'priority' => 'medium',
         ])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect();
 
     $task = Task::query()
         ->where('project_id', $project->id)
@@ -85,19 +85,14 @@ test('demo workflow completes from project creation through approval', function 
 
     $this->actingAs($staff)
         ->get(route('dashboard'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->where('demoPersona', 'staff')
-            ->where('dashboard.type', 'staff')
-            ->where('dashboard.tasks.0.title', 'مهمة للموظف')
-        );
+        ->assertRedirect(route('my-tasks'));
 
     $this->actingAs($staff)
-        ->post(route('tasks.deliverable', $task), [
+        ->post(route('projects.tasks.deliverable', [$workspace, $project, $task]), [
             'deliverable_url' => 'https://example.com/deliverable',
             'deliverable_notes' => 'جاهز للمراجعة',
         ])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     $task->refresh();
     expect($task->status)->toBe(TaskStatus::Review);
@@ -110,10 +105,10 @@ test('demo workflow completes from project creation through approval', function 
         );
 
     $this->actingAs($leader)
-        ->post(route('tasks.approve', $task), [
+        ->post(route('projects.tasks.approve', [$workspace, $project, $task]), [
             'review_notes' => 'عمل ممتاز',
         ])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 
     expect($task->fresh()->status)->toBe(TaskStatus::Done);
 });
@@ -129,6 +124,47 @@ test('message leader sends an in-app notification', function () {
         ->post(route('dashboard.message-leader'), [
             'leader_id' => $leader->id,
             'message' => 'Please review the new project plan.',
+        ])
+        ->assertRedirect(route('dashboard'));
+
+    Notification::assertSentTo($leader, AdminMessageNotification::class);
+});
+
+test('admin can assign a workspace lead from the dashboard', function () {
+    config()->set('demo.quick_login', true);
+
+    $admin = User::factory()->universityStaff()->create(['email' => 'admin@teamhub.test']);
+    $workspaceLead = User::factory()->student()->create(['email' => 'workspace-lead@teamhub.test']);
+    $workspace = Workspace::factory()->create(['status' => 'active', 'name' => 'مساحة الحاسبات']);
+
+    $this->actingAs($admin)
+        ->post(route('dashboard.assign-workspace-leader'), [
+            'workspace_id' => $workspace->id,
+            'leader_id' => $workspaceLead->id,
+        ])
+        ->assertRedirect(route('dashboard'));
+
+    $membership = WorkspaceMembership::query()
+        ->where('workspace_id', $workspace->id)
+        ->where('user_id', $workspaceLead->id)
+        ->first();
+
+    expect($membership)->not->toBeNull()
+        ->and($membership->status)->toBe('approved')
+        ->and($membership->hasWorkspaceRole(WorkspaceRole::WorkspaceLead))->toBeTrue();
+});
+
+test('message workspace leader sends an in-app notification', function () {
+    config()->set('demo.quick_login', true);
+    Notification::fake();
+
+    $admin = User::factory()->universityStaff()->create(['email' => 'admin@teamhub.test']);
+    $leader = User::factory()->student()->create(['email' => 'workspace-lead@teamhub.test']);
+
+    $this->actingAs($admin)
+        ->post(route('dashboard.message-workspace-leader'), [
+            'leader_id' => $leader->id,
+            'message' => 'Please review pending join requests.',
         ])
         ->assertRedirect(route('dashboard'));
 
@@ -156,21 +192,20 @@ test('hub mutations work for authorized production users when demo quick login i
     ]);
 
     $this->actingAs($lead)
-        ->post(route('dashboard.tasks.store'), [
-            'project_id' => $project->id,
+        ->post(route('projects.tasks.store', [$workspace, $project]), [
             'title' => 'Production task',
             'assigned_to' => $member->id,
         ])
-        ->assertRedirect(route('dashboard'));
+        ->assertRedirect();
 
     Notification::assertSentTo($member, TaskAssignedNotification::class);
 });
 
-test('hub projects and tasks support pagination metadata', function () {
+test('legacy hub overview routes redirect to role homes', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $student = User::factory()->student()->create();
 
-    foreach (range(1, 25) as $index) {
+    foreach (range(1, 3) as $index) {
         $project = Project::query()->create([
             'workspace_id' => $workspace->id,
             'name' => "Pagination Project {$index}",
@@ -188,23 +223,14 @@ test('hub projects and tasks support pagination metadata', function () {
 
     $this->actingAs($student)
         ->get(route('projects'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('projects.data', 20)
-            ->where('projects.total', 25)
-            ->where('projects.last_page', 2)
-        );
+        ->assertRedirect(route('dashboard'));
 
     $this->actingAs($student)
         ->get(route('tasks'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->has('tasks.data', 20)
-            ->where('tasks.total', 25)
-        );
+        ->assertRedirect(route('my-tasks'));
 });
 
-test('hub task show page renders for assigned staff', function () {
+test('legacy task show redirects to canonical task page', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $staff = User::factory()->student()->create();
@@ -222,10 +248,5 @@ test('hub task show page renders for assigned staff', function () {
 
     $this->actingAs($staff)
         ->get(route('tasks.show', $task))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('app/TaskShow')
-            ->where('task.title', 'Hub task detail')
-            ->where('canSubmitDeliverable', true)
-        );
+        ->assertRedirect(route('projects.tasks.show', [$workspace, $project, $task]));
 });

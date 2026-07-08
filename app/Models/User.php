@@ -88,7 +88,18 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
 
     public function homeUrl(): string
     {
+        if ($this->usesMyTasksHome()) {
+            return route('my-tasks', absolute: false);
+        }
+
         return route('dashboard', absolute: false);
+    }
+
+    public function usesMyTasksHome(): bool
+    {
+        return ! $this->isAdmin()
+            && $this->managedWorkspaces()->isEmpty()
+            && $this->managedProjects()->isEmpty();
     }
 
     public function workspaceMembershipFor(Workspace $workspace): ?WorkspaceMembership
@@ -192,10 +203,6 @@ class User extends Authenticatable implements FilamentUser, HasLocalePreference
      */
     public function projectCapabilitiesFor(Project $project): Collection
     {
-        if ($this->isAdmin() || $this->hasWorkspaceCapability(WorkspaceCapability::ManageWorkspace, $project->workspace)) {
-            return collect(ProjectCapability::all());
-        }
-
         $membership = $this->projectMembershipFor($project);
 
         if ($membership === null) {

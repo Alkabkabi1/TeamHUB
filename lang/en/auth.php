@@ -40,6 +40,7 @@ return [
     'demo_unavailable' => 'This demo account is not available.',
     'demo_roles' => [
         'admin' => 'Admin',
+        'workspace_lead' => 'Workspace lead',
         'staff' => 'Staff',
         'project_leader' => 'Project leader',
     ],

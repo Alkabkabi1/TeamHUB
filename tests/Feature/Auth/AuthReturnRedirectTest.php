@@ -96,5 +96,5 @@ test('visiting login directly without a referer keeps the default redirect', fun
         'password' => 'password',
     ]);
 
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('my-tasks', absolute: false));
 });

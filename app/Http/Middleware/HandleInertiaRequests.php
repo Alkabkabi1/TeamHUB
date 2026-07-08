@@ -86,17 +86,7 @@ class HandleInertiaRequests extends Middleware
                                 ])
                                 ->values();
 
-                            // Club leaders inherit management of every committee
-                            // in their club, so merge those in with any committees
-                            // the user leads directly via a committee role.
-                            $workspaceIds = $managedWorkspaces->pluck('id');
-                            $inheritedProjects = $workspaceIds->isNotEmpty()
-                                ? Project::whereIn('workspace_id', $workspaceIds)->get()
-                                : collect();
-
                             $managedProjects = $user->managedProjects()
-                                ->merge($inheritedProjects)
-                                ->unique('id')
                                 ->map(fn ($project) => [
                                     'id' => $project->id,
                                     'name' => $project->name,

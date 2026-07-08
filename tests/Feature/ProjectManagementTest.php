@@ -79,6 +79,7 @@ test('a plain student cannot create a committee', function () {
 test('the committee dashboard is forbidden to non-managers and visible to managers', function () {
     [$lead, $workspace] = workspaceLeadAndWorkspace();
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    grantProjectLead($lead, $project);
 
     $outsider = User::factory()->student()->create();
 
@@ -125,6 +126,7 @@ test('a non-club-member cannot request to join a committee', function () {
 test('a committee manager can approve a pending join request', function () {
     [$lead, $workspace] = workspaceLeadAndWorkspace();
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    grantProjectLead($lead, $project);
 
     $applicant = User::factory()->student()->create();
     $pending = ProjectMembership::factory()->pending()->create([
@@ -142,6 +144,7 @@ test('a committee manager can approve a pending join request', function () {
 test('a committee-scoped news post is created with the committee id', function () {
     [$lead, $workspace] = workspaceLeadAndWorkspace();
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    grantProjectLead($lead, $project);
 
     $this->actingAs($lead)
         ->post(route('projects.updates.store', [$workspace, $project]), [
@@ -191,6 +194,8 @@ test('a club lead can open committee settings with managed project switcher cont
     [$lead, $workspace] = workspaceLeadAndWorkspace();
     $projectA = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Project Alpha']);
     $projectB = Project::factory()->create(['workspace_id' => $workspace->id, 'name' => 'Project Beta']);
+    grantProjectLead($lead, $projectA);
+    grantProjectLead($lead, $projectB);
 
     $this->actingAs($lead)
         ->get(route('projects.edit', [$workspace, $projectA]))
@@ -210,6 +215,7 @@ test('a club lead can update committee settings', function () {
         'name' => 'Legacy Project Name',
         'description' => 'Old description',
     ]);
+    grantProjectLead($lead, $project);
 
     $this->actingAs($lead)
         ->put(route('projects.update', [$workspace, $project]), [

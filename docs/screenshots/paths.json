@@ -3,11 +3,11 @@
     "project_id": 1,
     "review_task_id": 11,
     "paths": {
-        "entry": "\/",
-        "my_tasks": "\/my-tasks",
-        "workspace": "\/workspaces\/1",
-        "project": "\/workspaces\/1\/projects\/1",
-        "task_list": "\/workspaces\/1\/projects\/1\/tasks",
-        "task_detail": "\/workspaces\/1\/projects\/1\/tasks\/11"
+        "entry": "/",
+        "my_tasks": "/my-tasks",
+        "workspace": "/workspaces/1/manage",
+        "project": "/workspaces/1/projects/1",
+        "task_list": "/workspaces/1/projects/1/tasks",
+        "task_detail": "/workspaces/1/projects/1/tasks/11"
     }
 }

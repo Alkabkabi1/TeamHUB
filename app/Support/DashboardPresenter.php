@@ -4,10 +4,14 @@ namespace App\Support;
 
 use App\Enums\ProjectRole;
 use App\Enums\TaskStatus;
+use App\Enums\WorkspaceRole;
 use App\Models\Project;
 use App\Models\ProjectMembership;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Workspace;
+use App\Models\WorkspaceMembership;
+use App\Models\WorkspaceMembershipRequest;
 
 class DashboardPresenter
 {
@@ -24,9 +28,9 @@ class DashboardPresenter
     {
         return match ($persona) {
             'admin' => ['panel' => $this->adminPanel($user)],
+            'workspace_lead' => ['panel' => $this->workspaceLeadPanel($user)],
             'project_leader' => ['panel' => $this->leaderPanel($user, $activeProjectId)],
-            'staff' => ['panel' => $this->staffPanel($user)],
-            default => ['panel' => $this->legacyPanel($user)],
+            default => ['panel' => $this->defaultPanel($user, $activeProjectId)],
         };
     }
 
@@ -44,6 +48,26 @@ class DashboardPresenter
     /**
      * @return array<string, mixed>
      */
+    private function defaultPanel(User $user, ?int $activeProjectId): array
+    {
+        if ($user->isAdmin()) {
+            return $this->adminPanel($user);
+        }
+
+        if ($user->managedProjects()->isNotEmpty()) {
+            return $this->leaderPanel($user, $activeProjectId);
+        }
+
+        if ($user->managedWorkspaces()->isNotEmpty()) {
+            return $this->workspaceLeadPanel($user);
+        }
+
+        return $this->legacyPanel($user);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     private function adminPanel(User $user): array
     {
         $projectIds = $this->dashboardData->accessibleProjectIds($user);
@@ -51,6 +75,40 @@ class DashboardPresenter
         $leaders = User::query()
             ->whereIn('email', collect(DemoRoles::accounts())->where('role', 'project_leader')->pluck('email'))
             ->get(['id', 'name', 'email']);
+
+        $workspaceLeaders = User::query()
+            ->whereIn('email', collect(DemoRoles::accounts())->where('role', 'workspace_lead')->pluck('email'))
+            ->get(['id', 'name', 'email']);
+
+        $workspaceOptions = DemoWorkspace::options();
+
+        $managedWorkspaces = Workspace::query()
+            ->whereIn('id', collect($workspaceOptions)->pluck('id'))
+            ->with([
+                'memberships' => fn ($query) => $query
+                    ->where('status', 'approved')
+                    ->whereHas('roles', fn ($roleQuery) => $roleQuery->where('role', WorkspaceRole::WorkspaceLead->value))
+                    ->with('user:id,name,email'),
+            ])
+            ->orderBy('name')
+            ->get()
+            ->map(function (Workspace $workspace): array {
+                /** @var WorkspaceMembership|null $leadMembership */
+                $leadMembership = $workspace->memberships->first();
+
+                return [
+                    'id' => $workspace->id,
+                    'name' => $workspace->name,
+                    'leader' => $leadMembership?->user ? [
+                        'id' => $leadMembership->user->id,
+                        'name' => $leadMembership->user->name,
+                        'email' => $leadMembership->user->email,
+                    ] : null,
+                    'url' => route('workspaces.manage', $workspace, absolute: false),
+                ];
+            })
+            ->values()
+            ->all();
 
         $projects = Project::query()
             ->whereIn('id', $projectIds)
@@ -80,14 +138,86 @@ class DashboardPresenter
                 'name' => $leader->name,
                 'email' => $leader->email,
             ])->values()->all(),
-            'workspaces' => DemoWorkspace::options(),
+            'workspace_leaders' => $workspaceLeaders->map(fn (User $leader) => [
+                'id' => $leader->id,
+                'name' => $leader->name,
+                'email' => $leader->email,
+            ])->values()->all(),
+            'managed_workspaces' => $managedWorkspaces,
+            'workspaces' => $workspaceOptions,
             'stats' => [
                 'projects' => count($projects),
                 'leaders' => $leaders->count(),
+                'workspace_leaders' => $workspaceLeaders->count(),
                 'open_tasks' => Task::query()
                     ->whereIn('project_id', $projectIds)
                     ->where('status', '!=', TaskStatus::Done)
                     ->count(),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function workspaceLeadPanel(User $user): array
+    {
+        $workspace = $user->managedWorkspace();
+
+        if ($workspace === null) {
+            return [
+                'type' => 'workspace_lead',
+                'workspace' => null,
+                'manage_url' => null,
+                'projects' => [],
+                'pending_requests' => 0,
+                'stats' => ['projects' => 0, 'members' => 0, 'pending_requests' => 0],
+            ];
+        }
+
+        $workspace->loadCount([
+            'memberships as members_count',
+            'projects as projects_count',
+        ]);
+
+        $pendingRequests = WorkspaceMembershipRequest::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('status', 'pending')
+            ->count();
+
+        $projects = Project::query()
+            ->where('workspace_id', $workspace->id)
+            ->with(['memberships.user:id,name,email', 'memberships.roles'])
+            ->withCount([
+                'tasks',
+                'tasks as done_tasks_count' => fn ($q) => $q->where('status', TaskStatus::Done),
+            ])
+            ->orderBy('name')
+            ->get()
+            ->map(function (Project $project): array {
+                return $this->projectPresenter->adminListItem(
+                    $project,
+                    $this->projectLeader($project),
+                    $this->progressPercent($project),
+                    (int) $project->tasks_count,
+                );
+            })
+            ->values()
+            ->all();
+
+        return [
+            'type' => 'workspace_lead',
+            'workspace' => [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+            ],
+            'manage_url' => route('workspaces.manage', $workspace, absolute: false),
+            'projects' => $projects,
+            'pending_requests' => $pendingRequests,
+            'stats' => [
+                'projects' => (int) $workspace->projects_count,
+                'members' => (int) $workspace->members_count,
+                'pending_requests' => $pendingRequests,
             ],
         ];
     }
@@ -126,6 +256,8 @@ class DashboardPresenter
                 'team' => [],
                 'review_queue' => [],
                 'members' => [],
+                'task_store_url' => null,
+                'tasks_index_url' => null,
             ];
         }
 
@@ -160,7 +292,7 @@ class DashboardPresenter
         $reviewQueue = $tasks
             ->where('status', TaskStatus::Review)
             ->take(10)
-            ->map(fn (Task $task): array => $this->taskPresenter->staffDashboardItem($task))
+            ->map(fn (Task $task): array => $this->taskPresenter->leaderReviewItem($task))
             ->values()
             ->all();
 
@@ -184,32 +316,8 @@ class DashboardPresenter
             'review_queue' => $reviewQueue,
             'members' => $members,
             'open_tasks' => $openTasks,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function staffPanel(User $user): array
-    {
-        $tasks = Task::query()
-            ->assignedTo($user)
-            ->withDashboardListRelations()
-            ->orderBy('due_at')
-            ->limit(20)
-            ->get()
-            ->map(fn (Task $task): array => $this->taskPresenter->staffDashboardItem($task))
-            ->values()
-            ->all();
-
-        return [
-            'type' => 'staff',
-            'tasks' => $tasks,
-            'stats' => [
-                'open' => collect($tasks)->where('status', '!=', 'done')->count(),
-                'due_today' => collect($tasks)->filter(fn (array $task) => $task['due_today'])->count(),
-                'in_review' => collect($tasks)->where('status', 'review')->count(),
-            ],
+            'task_store_url' => route('projects.tasks.store', [$project->workspace_id, $project], absolute: false),
+            'tasks_index_url' => route('projects.tasks.index', [$project->workspace_id, $project], absolute: false),
         ];
     }
 

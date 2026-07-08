@@ -3,7 +3,7 @@
 namespace App\Support;
 
 /**
- * The three walkthrough personas for passwordless TeamHUB entry.
+ * The four walkthrough personas for passwordless TeamHUB entry.
  */
 class DemoRoles
 {
@@ -14,8 +14,9 @@ class DemoRoles
     {
         return [
             ['email' => 'admin@teamhub.test', 'role' => 'admin'],
-            ['email' => 'staff@teamhub.test', 'role' => 'staff'],
+            ['email' => 'workspace-lead@teamhub.test', 'role' => 'workspace_lead'],
             ['email' => 'project-lead@teamhub.test', 'role' => 'project_leader'],
+            ['email' => 'staff@teamhub.test', 'role' => 'staff'],
         ];
     }
 

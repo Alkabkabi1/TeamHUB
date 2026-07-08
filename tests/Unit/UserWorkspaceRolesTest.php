@@ -68,7 +68,7 @@ test('a workspace lead has the full capability set, a member has none', function
         ->and($member->workspaceCapabilitiesFor($workspace))->toHaveCount(0);
 });
 
-test('homeUrl routes all users to the team hub dashboard', function () {
+test('homeUrl routes members to my tasks and managers to the dashboard', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
 
     $lead = User::factory()->student()->create();
@@ -76,7 +76,7 @@ test('homeUrl routes all users to the team hub dashboard', function () {
     expect($lead->homeUrl())->toBe(route('dashboard', absolute: false));
 
     $student = User::factory()->student()->create();
-    expect($student->homeUrl())->toBe(route('dashboard', absolute: false));
+    expect($student->homeUrl())->toBe(route('my-tasks', absolute: false));
 
     $staff = User::factory()->universityStaff()->create();
     expect($staff->homeUrl())->toBe(route('dashboard', absolute: false));

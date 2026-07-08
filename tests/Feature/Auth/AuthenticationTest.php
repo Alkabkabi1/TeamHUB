@@ -23,7 +23,7 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('my-tasks', absolute: false));
 });
 
 test('club supervisor is redirected to club supervisor dashboard after login', function () {

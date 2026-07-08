@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\ProjectRole;
+use App\Models\Project;
+use App\Models\ProjectMembership;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceMembership;
@@ -72,6 +75,36 @@ function supervisorForWorkspace(Workspace $workspace): User
     ]);
 
     return $supervisor;
+}
+
+/**
+ * Grant project-lead capabilities on a project for tests that exercise task/project management.
+ *
+ * @param  array<int, ProjectRole>  $extraRoles
+ */
+function grantProjectLead(User $user, Project $project, array $extraRoles = []): ProjectMembership
+{
+    $membership = ProjectMembership::query()
+        ->where('user_id', $user->id)
+        ->where('project_id', $project->id)
+        ->first();
+
+    if ($membership === null) {
+        $membership = ProjectMembership::factory()->create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'status' => 'approved',
+        ]);
+    }
+
+    $roles = array_values(array_unique([
+        ProjectRole::ProjectLead,
+        ProjectRole::Member,
+        ...$extraRoles,
+    ], SORT_REGULAR));
+    $membership->syncProjectRoles($roles);
+
+    return $membership;
 }
 
 /**

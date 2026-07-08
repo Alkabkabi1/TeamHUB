@@ -28,7 +28,7 @@ class TaskPresenter
                 'name' => $assigneeName,
                 'initials' => $this->initials($assigneeName),
             ],
-            'url' => route('tasks.show', $task, absolute: false),
+            'url' => route('projects.tasks.show', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
             'project_id' => $task->project_id,
             'workspace_id' => $task->project?->workspace_id,
         ];
@@ -61,8 +61,20 @@ class TaskPresenter
             'deliverable_url' => $task->deliverable_url,
             'deliverable_notes' => $task->deliverable_notes,
             'can_submit' => in_array($task->status, [TaskStatus::Todo, TaskStatus::InProgress], true),
-            'detail_url' => route('tasks.show', $task, absolute: false),
-            'submit_url' => route('tasks.deliverable', $task, absolute: false),
+            'detail_url' => route('projects.tasks.show', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
+            'submit_url' => route('projects.tasks.deliverable', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function leaderReviewItem(Task $task): array
+    {
+        return [
+            ...$this->staffDashboardItem($task),
+            'approve_url' => route('projects.tasks.approve', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
+            'request_changes_url' => route('projects.tasks.request-changes', [$task->project?->workspace_id, $task->project_id, $task], absolute: false),
         ];
     }
 

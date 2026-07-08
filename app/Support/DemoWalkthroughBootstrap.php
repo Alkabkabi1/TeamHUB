@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Enums\ProjectRole;
 use App\Enums\TaskStatus;
 use App\Enums\UserRole;
+use App\Enums\WorkspaceRole;
 use App\Models\Project;
 use App\Models\ProjectMembership;
 use App\Models\Task;
@@ -28,6 +29,7 @@ class DemoWalkthroughBootstrap
 
         match ($account['role']) {
             'admin' => self::ensureAdmin($user),
+            'workspace_lead' => self::ensureWorkspaceLead($user),
             'project_leader' => self::ensureProjectLeader($user),
             'staff' => self::ensureStaff($user),
             default => null,
@@ -41,6 +43,31 @@ class DemoWalkthroughBootstrap
         }
 
         DemoWorkspace::defaultWorkspace();
+    }
+
+    private static function ensureWorkspaceLead(User $user): void
+    {
+        $workspace = Workspace::query()->where('name', 'مساحة الحاسبات')->first()
+            ?? self::demoProject()->workspace;
+
+        $membership = WorkspaceMembership::query()->firstOrCreate(
+            ['user_id' => $user->id, 'workspace_id' => $workspace->id],
+            [
+                'status' => 'approved',
+                'requested_at' => now()->subMonths(6),
+                'reviewed_at' => now()->subMonths(6),
+                'joined_at' => now()->subMonths(6),
+            ],
+        );
+
+        if ($membership->status !== 'approved') {
+            $membership->forceFill([
+                'status' => 'approved',
+                'joined_at' => now()->subMonths(6),
+            ])->save();
+        }
+
+        $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead, WorkspaceRole::Member]);
     }
 
     private static function ensureProjectLeader(User $user): void

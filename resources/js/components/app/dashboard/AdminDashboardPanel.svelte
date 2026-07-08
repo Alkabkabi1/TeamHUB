@@ -6,6 +6,10 @@
 
     type Leader = { id: number; name: string; email: string };
     type Workspace = { id: number; name: string };
+    type ManagedWorkspace = Workspace & {
+        leader: Leader | null;
+        url: string;
+    };
     type Project = {
         id: number;
         workspace_id: number;
@@ -20,13 +24,22 @@
     let {
         projects = [],
         leaders = [],
+        workspaceLeaders = [],
+        managedWorkspaces = [],
         workspaces = [],
-        stats = { projects: 0, leaders: 0, open_tasks: 0 },
+        stats = { projects: 0, leaders: 0, workspace_leaders: 0, open_tasks: 0 },
     }: {
         projects?: Project[];
         leaders?: Leader[];
+        workspaceLeaders?: Leader[];
+        managedWorkspaces?: ManagedWorkspace[];
         workspaces?: Workspace[];
-        stats?: { projects: number; leaders: number; open_tasks: number };
+        stats?: {
+            projects: number;
+            leaders: number;
+            workspace_leaders: number;
+            open_tasks: number;
+        };
     } = $props();
 
     const assignForm = useForm({
@@ -34,8 +47,18 @@
         leader_id: leaders[0]?.id ?? '',
     });
 
+    const assignWorkspaceForm = useForm({
+        workspace_id: managedWorkspaces[0]?.id ?? workspaces[0]?.id ?? '',
+        leader_id: workspaceLeaders[0]?.id ?? '',
+    });
+
     const messageForm = useForm({
         leader_id: leaders[0]?.id ?? '',
+        message: '',
+    });
+
+    const workspaceMessageForm = useForm({
+        leader_id: workspaceLeaders[0]?.id ?? '',
         message: '',
     });
 
@@ -56,6 +79,7 @@
     });
 
     let showMessage = $state(false);
+    let showWorkspaceMessage = $state(false);
     let showNewProject = $state(false);
 </script>
 
@@ -224,6 +248,106 @@
         </div>
     </form>
 
+    <form
+        class="th-card grid gap-3 rounded-2xl p-4 sm:grid-cols-2 lg:grid-cols-4"
+        onsubmit={(e) => {
+            e.preventDefault();
+            assignWorkspaceForm.post('/dashboard/assign-workspace-leader', {
+                preserveScroll: true,
+            });
+        }}
+    >
+        <label class="space-y-1 text-sm">
+            <span style="color: var(--th-text-muted)"
+                >{t('dashboard.admin.all_workspaces')}</span
+            >
+            <select
+                bind:value={assignWorkspaceForm.workspace_id}
+                class="w-full rounded-xl border px-3 py-2"
+                style="border-color: var(--th-border); background: var(--th-surface); color: var(--th-text)"
+            >
+                {#each managedWorkspaces.length > 0 ? managedWorkspaces : workspaces as workspace (workspace.id)}
+                    <option value={workspace.id}>{workspace.name}</option>
+                {/each}
+            </select>
+        </label>
+        <label class="space-y-1 text-sm">
+            <span style="color: var(--th-text-muted)"
+                >{t('dashboard.admin.workspace_lead')}</span
+            >
+            <select
+                bind:value={assignWorkspaceForm.leader_id}
+                class="w-full rounded-xl border px-3 py-2"
+                style="border-color: var(--th-border); background: var(--th-surface); color: var(--th-text)"
+            >
+                {#each workspaceLeaders as leader (leader.id)}
+                    <option value={leader.id}>{leader.name}</option>
+                {/each}
+            </select>
+        </label>
+        <div class="flex items-end">
+            <button
+                type="submit"
+                class="th-btn-primary w-full rounded-xl px-4 py-2.5 text-sm font-medium"
+                disabled={assignWorkspaceForm.processing}
+            >
+                {t('dashboard.admin.assign_workspace_leader')}
+            </button>
+        </div>
+        <div class="flex items-end">
+            <button
+                type="button"
+                class="w-full rounded-xl border px-4 py-2.5 text-sm"
+                style="border-color: var(--th-border); color: var(--th-text)"
+                onclick={() => (showWorkspaceMessage = !showWorkspaceMessage)}
+            >
+                {t('dashboard.admin.message_workspace_leader')}
+            </button>
+        </div>
+    </form>
+
+    {#if showWorkspaceMessage}
+        <form
+            class="th-card space-y-3 rounded-2xl p-4"
+            onsubmit={(e) => {
+                e.preventDefault();
+                workspaceMessageForm.post('/dashboard/message-workspace-leader', {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        workspaceMessageForm.reset('message');
+                        showWorkspaceMessage = false;
+                    },
+                });
+            }}
+        >
+            <select
+                bind:value={workspaceMessageForm.leader_id}
+                class="w-full rounded-xl border px-3 py-2 text-sm"
+                style="border-color: var(--th-border); background: var(--th-surface); color: var(--th-text)"
+            >
+                {#each workspaceLeaders as leader (leader.id)}
+                    <option value={leader.id}>{leader.name}</option>
+                {/each}
+            </select>
+            <textarea
+                bind:value={workspaceMessageForm.message}
+                rows="3"
+                class="w-full rounded-xl border px-3 py-2 text-sm"
+                style="border-color: var(--th-border); background: var(--th-surface); color: var(--th-text)"
+                placeholder={t(
+                    'dashboard.admin.workspace_leader_message_placeholder',
+                )}
+            ></textarea>
+            <button
+                type="submit"
+                class="th-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
+                disabled={workspaceMessageForm.processing}
+            >
+                {t('dashboard.admin.send_message')}
+            </button>
+        </form>
+    {/if}
+
     {#if showMessage}
         <form
             class="th-card space-y-3 rounded-2xl p-4"
@@ -296,6 +420,42 @@
                     </div>
                     <Link
                         href={project.url}
+                        class="text-sm font-medium"
+                        style="color: var(--th-primary)"
+                    >
+                        {t('dashboard.view_all')}
+                    </Link>
+                </div>
+            {/each}
+        </div>
+    </div>
+
+    <div class="th-card overflow-hidden rounded-2xl">
+        <div
+            class="border-b px-4 py-3 text-sm font-semibold"
+            style="border-color: var(--th-border); color: var(--th-text)"
+        >
+            {t('dashboard.admin.all_workspaces')}
+        </div>
+        <div class="divide-y" style="border-color: var(--th-border)">
+            {#each managedWorkspaces as workspace (workspace.id)}
+                <div
+                    class="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <div>
+                        <p class="font-medium" style="color: var(--th-text)">
+                            {workspace.name}
+                        </p>
+                    </div>
+                    <div class="text-sm" style="color: var(--th-text-muted)">
+                        {t('dashboard.admin.workspace_lead')}:
+                        <span style="color: var(--th-text)">
+                            {workspace.leader?.name ??
+                                t('dashboard.admin.no_workspace_leader')}
+                        </span>
+                    </div>
+                    <Link
+                        href={workspace.url}
                         class="text-sm font-medium"
                         style="color: var(--th-primary)"
                     >

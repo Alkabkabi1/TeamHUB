@@ -218,10 +218,12 @@ Platform-level operator (Filament panel): users, workspaces, projects, tasks —
 
 | Resource | Typical rules |
 |----------|----------------|
-| Workspace | Members see their workspaces; leads manage settings and membership |
-| Project | Project members see project; leads manage tasks and members |
-| Task | Members + assignee can view; assignee can submit deliverable; lead can approve |
+| Workspace | Members see their workspaces; workspace leads manage settings, membership, and project creation |
+| Project | Project members see project content; **project leads** manage tasks and members |
+| Task | Project members can view; assignee can submit deliverable; **project lead** can approve |
 | Deliverable | Governed by task policies |
+
+Platform admins oversee projects and assign project leads but do **not** inherit task assignment or review powers. Workspace leads oversee their workspace and assign project leads but do **not** assign or approve tasks unless they also hold a project lead role on that project.
 
 Workspace **isolation:** users must not read or mutate workspaces they do not belong to (except platform admin).
 

@@ -15,11 +15,16 @@ function policyProjectLeadAndCommittee(): array
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
     $lead = User::factory()->student()->create();
 
-    $membership = WorkspaceMembership::factory()->approved()->create([
+    WorkspaceMembership::factory()->approved()->create([
         'user_id' => $lead->id,
         'workspace_id' => $workspace->id,
     ]);
-    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
+
+    $membership = ProjectMembership::factory()->create([
+        'user_id' => $lead->id,
+        'project_id' => $project->id,
+    ]);
+    $membership->syncProjectRoles([ProjectRole::ProjectLead]);
 
     return [$lead, $workspace, $project];
 }
@@ -57,6 +62,39 @@ test('project leads can create, update, delete, and review tasks', function () {
         ->and($lead->can('update', $task))->toBeTrue()
         ->and($lead->can('delete', $task))->toBeTrue()
         ->and($lead->can('approveDeliverable', $task))->toBeTrue();
+});
+
+test('workspace leads without project membership cannot assign or review tasks', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
+    $workspaceLead = User::factory()->student()->create();
+
+    $membership = WorkspaceMembership::factory()->approved()->create([
+        'user_id' => $workspaceLead->id,
+        'workspace_id' => $workspace->id,
+    ]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
+
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $workspaceLead->id,
+    ]);
+
+    expect($workspaceLead->can('create', [Task::class, $project]))->toBeFalse()
+        ->and($workspaceLead->can('approveDeliverable', $task))->toBeFalse();
+});
+
+test('platform admins cannot assign or review tasks without project membership', function () {
+    $project = Project::factory()->create();
+    $admin = User::factory()->universityStaff()->create();
+
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $admin->id,
+    ]);
+
+    expect($admin->can('create', [Task::class, $project]))->toBeFalse()
+        ->and($admin->can('approveDeliverable', $task))->toBeFalse();
 });
 
 test('approved project members can view tasks and update only their own assigned task', function () {

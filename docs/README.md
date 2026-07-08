@@ -46,7 +46,9 @@ Central index for product, engineering, operations, and release documentation.
 
 | Document | Description |
 | --- | --- |
-| [../PLATFORM_REUSE_AND_PIVOT_PLAN.md](../PLATFORM_REUSE_AND_PIVOT_PLAN.md) | Original pivot plan and v2 backlog |
+| [../README.md#future-improvements-post-v1](../README.md#future-improvements-post-v1) | Post-v1 ideas (not commitments) |
+| [PHASE_10_NAV_REDESIGN.md](./PHASE_10_NAV_REDESIGN.md) | Phase 10 navigation & role simplification |
+| [../PLATFORM_REUSE_AND_PIVOT_PLAN.md](../PLATFORM_REUSE_AND_PIVOT_PLAN.md) | Original pivot plan and legacy mapping |
 | [../PHASE_7_POLISH_NOTES.md](../PHASE_7_POLISH_NOTES.md) | Deferred polish notes |
 
 ---

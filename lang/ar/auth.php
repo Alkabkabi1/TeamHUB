@@ -40,6 +40,7 @@ return [
     'demo_unavailable' => 'هذا الحساب التجريبي غير متاح.',
     'demo_roles' => [
         'admin' => 'مدير',
+        'workspace_lead' => 'قيادة مساحة العمل',
         'staff' => 'موظف',
         'project_leader' => 'قائد المشروع',
     ],

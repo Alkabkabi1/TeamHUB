@@ -20,6 +20,7 @@ function notificationLeadAndCommittee(): array
         'workspace_id' => $workspace->id,
     ]);
     $workspaceMembership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
+    grantProjectLead($lead, $project);
 
     return [$lead, $workspace, $project];
 }

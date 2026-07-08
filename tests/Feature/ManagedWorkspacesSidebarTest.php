@@ -53,7 +53,7 @@ test('a plain member exposes no managed workspaces', function () {
     attachRoles($user, [WorkspaceRole::Member]);
 
     $this->actingAs($user)
-        ->get(route('student-dashboard'))
+        ->get(route('my-tasks'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('auth.user.managed_workspaces', 0)

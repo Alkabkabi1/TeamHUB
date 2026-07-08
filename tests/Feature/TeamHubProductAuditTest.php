@@ -87,8 +87,7 @@ test('key pages render without legacy branding strings', function () {
 
     $responses = [
         $this->get('/'),
-        $this->actingAs($user)->get(route('workspaces.show', $workspace)),
-        $this->actingAs($user)->get(route('dashboard')),
+        $this->actingAs($user)->get(route('my-tasks')),
     ];
 
     foreach ($responses as $response) {

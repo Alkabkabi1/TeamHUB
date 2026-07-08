@@ -20,6 +20,8 @@
         deliverable_url: string | null;
         deliverable_notes: string | null;
         detail_url: string;
+        approve_url: string;
+        request_changes_url: string;
     };
     type Project = {
         id: number;
@@ -40,6 +42,8 @@
         reviewQueue = [],
         members = [],
         openTasks = 0,
+        taskStoreUrl = '',
+        tasksIndexUrl = '',
     }: {
         project?: Project | null;
         projects?: ProjectOption[];
@@ -48,6 +52,8 @@
         reviewQueue?: ReviewTask[];
         members?: Member[];
         openTasks?: number;
+        taskStoreUrl?: string;
+        tasksIndexUrl?: string;
     } = $props();
 
     function switchProject(projectId: number): void {
@@ -126,16 +132,18 @@
                 </p>
             </div>
             <div class="flex gap-2">
-                <Link
-                    href={project.url}
-                    class="rounded-xl border px-4 py-2 text-sm"
-                    style="border-color: var(--th-border); color: var(--th-text)"
-                >
-                    {t('dashboard.nav.tasks')}
-                </Link>
+                {#if tasksIndexUrl}
+                    <Link
+                        href={tasksIndexUrl}
+                        class="th-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
+                    >
+                        {t('dashboard.leader.open_tasks_board')}
+                    </Link>
+                {/if}
                 <Link
                     href={project.manage_url}
-                    class="th-btn-primary rounded-xl px-4 py-2 text-sm font-medium"
+                    class="rounded-xl border px-4 py-2 text-sm"
+                    style="border-color: var(--th-border); color: var(--th-text)"
                 >
                     {t('dashboard.view_all')}
                 </Link>
@@ -239,7 +247,7 @@
                                             .transform(() => ({
                                                 review_notes: '',
                                             }))
-                                            .post(`/tasks/${task.id}/approve`, {
+                                            .post(task.approve_url, {
                                                 preserveScroll: true,
                                             })}
                                     disabled={reviewForm.processing}
@@ -255,10 +263,9 @@
                                             .transform(() => ({
                                                 review_notes: '',
                                             }))
-                                            .post(
-                                                `/tasks/${task.id}/request-changes`,
-                                                { preserveScroll: true },
-                                            )}
+                                            .post(task.request_changes_url, {
+                                                preserveScroll: true,
+                                            })}
                                     disabled={reviewForm.processing}
                                 >
                                     {t('tasks.request_changes')}
@@ -278,7 +285,7 @@
             class="th-card grid gap-3 rounded-2xl p-4 sm:grid-cols-2 lg:grid-cols-5"
             onsubmit={(e) => {
                 e.preventDefault();
-                taskForm.post('/dashboard/tasks', {
+                taskForm.post(taskStoreUrl, {
                     preserveScroll: true,
                     onSuccess: () => taskForm.reset('title', 'due_at'),
                 });

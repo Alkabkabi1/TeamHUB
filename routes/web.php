@@ -93,14 +93,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('dashboard.assign-leader');
     Route::post('dashboard/message-leader', [DashboardActionController::class, 'messageLeader'])
         ->name('dashboard.message-leader');
-    Route::post('dashboard/tasks', [DashboardActionController::class, 'storeTask'])
-        ->name('dashboard.tasks.store');
-    Route::post('tasks/{task}/approve', [DashboardActionController::class, 'approveDeliverable'])
-        ->name('tasks.approve');
-    Route::post('tasks/{task}/request-changes', [DashboardActionController::class, 'requestChanges'])
-        ->name('tasks.request-changes');
-    Route::post('tasks/{task}/deliverable', [DashboardActionController::class, 'submitDeliverable'])
-        ->name('tasks.deliverable');
+    Route::post('dashboard/assign-workspace-leader', [DashboardActionController::class, 'assignWorkspaceLeader'])
+        ->name('dashboard.assign-workspace-leader');
+    Route::post('dashboard/message-workspace-leader', [DashboardActionController::class, 'messageWorkspaceLeader'])
+        ->name('dashboard.message-workspace-leader');
 
     Route::get('student-dashboard', [StudentDashboardController::class, 'index'])
         ->name('student-dashboard');

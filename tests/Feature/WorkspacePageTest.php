@@ -1,77 +1,45 @@
 <?php
 
-use App\Models\Project;
-use App\Models\ProjectUpdate;
-use App\Models\Task;
+use App\Enums\WorkspaceRole;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceMembership;
 
-test('club show page returns club data from database', function () {
+test('guest is redirected to login from workspace show', function () {
+    $workspace = Workspace::factory()->create(['status' => 'active']);
+
+    $this->get(route('workspaces.show', $workspace))
+        ->assertRedirect(route('login'));
+});
+
+test('workspace show redirects managers to workspace manage', function () {
     $workspace = Workspace::factory()->create([
         'name' => 'مساحة الحاسبات',
         'status' => 'active',
     ]);
+    $lead = User::factory()->student()->create();
 
-    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
-    Task::factory()->count(2)->create(['project_id' => $project->id, 'status' => 'todo']);
+    $membership = WorkspaceMembership::factory()->approved()->create([
+        'user_id' => $lead->id,
+        'workspace_id' => $workspace->id,
+    ]);
+    $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    $this->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->where('workspace.name', 'مساحة الحاسبات')
-            ->where('stats.members_count', 0)
-            ->where('stats.projects_count', 1)
-            ->where('stats.open_tasks_count', 2)
-        );
+    $this->actingAs($lead)
+        ->get(route('workspaces.show', $workspace))
+        ->assertRedirect(route('workspaces.manage', $workspace));
 });
 
-test('club show page includes member count', function () {
+test('workspace show redirects members to dashboard', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
-    $member = User::factory()->create();
+    $member = User::factory()->student()->create();
 
     WorkspaceMembership::factory()->approved()->create([
         'user_id' => $member->id,
         'workspace_id' => $workspace->id,
     ]);
 
-    $this->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->where('stats.members_count', 1)
-        );
-});
-
-test('club show page lists committee project updates', function () {
-    $workspace = Workspace::factory()->create(['status' => 'active']);
-    $project = Project::factory()->create(['workspace_id' => $workspace->id]);
-
-    ProjectUpdate::factory()->create([
-        'workspace_id' => $workspace->id,
-        'project_id' => $project->id,
-        'title' => 'Project Update',
-        'published_at' => now(),
-    ]);
-
-    ProjectUpdate::factory()->create(['title' => 'Other Club Post']);
-
-    $this->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->has('recentUpdates', 1)
-            ->where('recentUpdates.0.title', 'Project Update')
-        );
-});
-
-test('club show page recent updates is empty when club has no project posts', function () {
-    $workspace = Workspace::factory()->create(['status' => 'active']);
-
-    $this->get(route('workspaces.show', $workspace))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
-            ->has('recentUpdates', 0)
-        );
+    $this->actingAs($member)
+        ->get(route('workspaces.show', $workspace))
+        ->assertRedirect(route('dashboard'));
 });

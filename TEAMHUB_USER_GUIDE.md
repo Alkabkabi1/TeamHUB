@@ -10,12 +10,21 @@
 
 ### 0. After login
 
-Most members land on the **student dashboard** or **workspace overview**, depending on role.
+Your home depends on role:
 
-- `/my-tasks` — cross-project task list for work assigned to you
+| Role | Home |
+|------|------|
+| Member | `/my-tasks` |
+| Project lead | `/dashboard` (+ project task board) |
+| Workspace lead | `/dashboard` (+ workspace manage) |
+| Platform admin | `/dashboard` (+ Filament `/admin`) |
+
+Common pages:
+
+- `/my-tasks` — tasks assigned to you
 - `/notifications` — unread alerts for assignments, comments, and reviews
-- `/workspaces/{workspace}` — workspace home (news, projects, members)
-- `/workspaces/{workspace}/projects/{project}` — project overview
+- `/workspaces/{workspace}/manage` — workspace settings and members (workspace leads)
+- `/workspaces/{workspace}/projects/{project}/tasks` — project task board (canonical)
 
 When `DEMO_QUICK_LOGIN=true` (local only), the home page offers quick demo logins to preview different roles.
 

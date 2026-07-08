@@ -40,7 +40,7 @@ test('a project lead has the full capability set, a member has none', function (
         ->and($member->projectCapabilitiesFor($project))->toHaveCount(0);
 });
 
-test('admins and parent-workspace leads inherit every project capability', function () {
+test('admins and workspace leads do not inherit project capabilities without membership', function () {
     $workspace = Workspace::factory()->create(['status' => 'active']);
     $project = Project::factory()->create(['workspace_id' => $workspace->id]);
 
@@ -53,9 +53,9 @@ test('admins and parent-workspace leads inherit every project capability', funct
     ]);
     $membership->syncWorkspaceRoles([WorkspaceRole::WorkspaceLead]);
 
-    expect($staff->canManageProject($project))->toBeTrue()
-        ->and($workspaceLead->canManageProject($project))->toBeTrue()
-        ->and($workspaceLead->projectCapabilitiesFor($project))->toHaveCount(count(ProjectCapability::cases()));
+    expect($staff->canManageProject($project))->toBeFalse()
+        ->and($workspaceLead->canManageProject($project))->toBeFalse()
+        ->and($workspaceLead->projectCapabilitiesFor($project))->toHaveCount(0);
 });
 
 test('a user with no membership cannot manage a project', function () {

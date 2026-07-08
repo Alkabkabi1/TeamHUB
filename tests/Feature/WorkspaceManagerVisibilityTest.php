@@ -62,7 +62,13 @@ test('committee managers are not notified of new project updates', function () {
     ]);
     $managerMembership->syncProjectRoles([ProjectRole::ContentManager]);
 
-    $this->actingAs($lead)
+    $poster = User::factory()->create();
+    ProjectMembership::factory()->create([
+        'user_id' => $poster->id,
+        'project_id' => $project->id,
+    ])->syncProjectRoles([ProjectRole::ProjectLead]);
+
+    $this->actingAs($poster)
         ->post(route('projects.updates.store', [$workspace, $project]), [
             'title' => 'مرحبا',
             'body' => 'نص التحديث هنا للمشروع',

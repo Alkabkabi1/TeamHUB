@@ -6,7 +6,7 @@ Images in this folder are used by the root [README.md](../README.md).
 | --- | --- |
 | `01-entry-ar.png` | Demo role entry |
 | `02-my-tasks-ar.png` | My Tasks (Arabic) |
-| `03-workspace-ar.png` | Workspace overview |
+| `03-workspace-ar.png` | Workspace manage (leads) |
 | `04-task-list-ar.png` | Project task list (Arabic, desktop) |
 | `05-task-detail-ar.png` | Task detail with deliverable review |
 | `06-task-list-mobile-ar.png` | Task list (mobile width) |

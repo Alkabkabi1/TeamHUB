@@ -11,28 +11,39 @@ class AppNav
      */
     public static function items(User $user): array
     {
-        $items = [
-            [
+        $items = [];
+
+        if ($user->usesMyTasksHome()) {
+            $items[] = [
+                'href' => route('my-tasks', absolute: false),
+                'label' => __('dashboard.nav.my_tasks'),
+                'icon' => 'tasks',
+            ];
+        } else {
+            $items[] = [
                 'href' => route('dashboard', absolute: false),
                 'label' => __('dashboard.nav.home'),
                 'icon' => 'home',
-            ],
-            [
-                'href' => route('home', absolute: false),
-                'label' => __('dashboard.nav.workspaces'),
-                'icon' => 'workspaces',
-            ],
-            [
-                'href' => route('projects', absolute: false),
-                'label' => __('dashboard.nav.projects'),
-                'icon' => 'projects',
-            ],
-            [
-                'href' => route('tasks', absolute: false),
-                'label' => __('dashboard.nav.tasks'),
-                'icon' => 'tasks',
-            ],
-        ];
+            ];
+
+            $managedProject = $user->managedProjects()->first();
+            if ($managedProject !== null) {
+                $items[] = [
+                    'href' => route('projects.tasks.index', [$managedProject->workspace_id, $managedProject], absolute: false),
+                    'label' => __('dashboard.nav.tasks'),
+                    'icon' => 'tasks',
+                ];
+            }
+
+            $managedWorkspace = $user->managedWorkspace();
+            if ($managedWorkspace !== null) {
+                $items[] = [
+                    'href' => route('workspaces.manage', $managedWorkspace, absolute: false),
+                    'label' => __('dashboard.nav.workspaces'),
+                    'icon' => 'workspaces',
+                ];
+            }
+        }
 
         $unread = $user->unreadNotifications()->count();
         $items[] = [

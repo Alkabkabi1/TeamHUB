@@ -1,29 +1,20 @@
 <script lang="ts">
-    import {
-        Notification01Icon,
-        Search01Icon,
-    } from '@hugeicons/core-free-icons';
+    import { Search01Icon } from '@hugeicons/core-free-icons';
     import { HugeiconsIcon } from '@hugeicons/svelte';
-    import { Link, page, router } from '@inertiajs/svelte';
+    import { page, router } from '@inertiajs/svelte';
     import ActivityFeed from '@/components/app/ActivityFeed.svelte';
     import CalendarWidget from '@/components/app/CalendarWidget.svelte';
     import AdminDashboardPanel from '@/components/app/dashboard/AdminDashboardPanel.svelte';
     import ProjectLeaderDashboardPanel from '@/components/app/dashboard/ProjectLeaderDashboardPanel.svelte';
-    import StaffDashboardPanel from '@/components/app/dashboard/StaffDashboardPanel.svelte';
-    import DashboardProjectCard from '@/components/app/DashboardProjectCard.svelte';
-    import KpiCard from '@/components/app/KpiCard.svelte';
+    import WorkspaceLeadDashboardPanel from '@/components/app/dashboard/WorkspaceLeadDashboardPanel.svelte';
     import LateTasksWidget from '@/components/app/LateTasksWidget.svelte';
-    import TasksTable from '@/components/app/TasksTable.svelte';
     import AppHead from '@/components/AppHead.svelte';
     import { t } from '@/lib/i18n.svelte';
     import type {
         CalendarMarker,
         CreatableWorkspace,
         DashboardActivity,
-        DashboardKpi,
-        DashboardProject,
         DashboardTask,
-        RoleContext,
     } from '@/types/app-dashboard';
 
     let {
@@ -48,19 +39,12 @@
 
     let search = $state('');
 
-    const unreadCount = $derived(
-        Number(page.props.auth?.user?.unread_notifications_count ?? 0),
-    );
-
-    const legacy = $derived(
-        dashboard.type === 'legacy'
-            ? (dashboard as {
-                  kpis?: DashboardKpi[];
-                  projects?: DashboardProject[];
-                  tasks?: DashboardTask[];
-                  roleContext?: RoleContext;
-              })
-            : null,
+    const auth = $derived(page.props.auth);
+    const usesMyTasksHome = $derived(
+        auth?.user &&
+            !auth.user.managed_projects?.length &&
+            !auth.user.managed_workspaces?.length &&
+            auth.user.role !== 'admin',
     );
 
     function submitSearch() {
@@ -68,7 +52,24 @@
             return;
         }
 
-        router.get('/tasks', { q: search.trim() });
+        if (usesMyTasksHome) {
+            router.get('/my-tasks', { q: search.trim() });
+
+            return;
+        }
+
+        const managedProject = auth?.user?.managed_projects?.[0];
+
+        if (managedProject) {
+            router.get(
+                `/workspaces/${managedProject.workspace_id}/projects/${managedProject.id}/tasks`,
+                { q: search.trim() },
+            );
+
+            return;
+        }
+
+        router.get('/dashboard', { q: search.trim() });
     }
 </script>
 
@@ -91,59 +92,39 @@
                     </p>
                 </div>
 
-                <div class="flex flex-1 items-center gap-3 lg:max-w-xl">
-                    <form
-                        class="flex flex-1 items-center gap-2 rounded-xl border px-4 py-2.5"
-                        style="background: var(--th-surface); border-color: var(--th-border)"
-                        onsubmit={(e) => {
-                            e.preventDefault();
-                            submitSearch();
-                        }}
-                    >
-                        <HugeiconsIcon
-                            icon={Search01Icon}
-                            size={18}
-                            style="color: var(--th-text-muted)"
-                        />
-                        <input
-                            type="search"
-                            bind:value={search}
-                            placeholder={t('dashboard.search_all')}
-                            class="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                            style="color: var(--th-text)"
-                        />
-                    </form>
-                    <Link
-                        href="/notifications"
-                        class="relative flex size-10 shrink-0 items-center justify-center rounded-xl border"
-                        style="border-color: var(--th-border); background: var(--th-surface)"
-                        aria-label={t('dashboard.nav.notifications')}
-                    >
-                        <HugeiconsIcon
-                            icon={Notification01Icon}
-                            size={20}
-                            style="color: var(--th-text-muted)"
-                        />
-                        {#if unreadCount > 0}
-                            <span
-                                class="absolute -top-1 -start-1 flex size-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[9px] font-bold text-white"
-                                style="background: var(--th-danger)"
-                            >
-                                {unreadCount}
-                            </span>
-                        {/if}
-                    </Link>
-                </div>
+                <form
+                    class="flex flex-1 items-center gap-2 rounded-xl border px-4 py-2.5 lg:max-w-xl"
+                    style="background: var(--th-surface); border-color: var(--th-border)"
+                    onsubmit={(e) => {
+                        e.preventDefault();
+                        submitSearch();
+                    }}
+                >
+                    <HugeiconsIcon
+                        icon={Search01Icon}
+                        size={18}
+                        style="color: var(--th-text-muted)"
+                    />
+                    <input
+                        type="search"
+                        bind:value={search}
+                        placeholder={t('dashboard.search_all')}
+                        class="min-w-0 flex-1 bg-transparent text-sm outline-none"
+                        style="color: var(--th-text)"
+                    />
+                </form>
             </header>
 
-            {#if demoPersona === 'admin'}
+            {#if demoPersona === 'admin' || dashboard.type === 'admin'}
                 <AdminDashboardPanel
                     projects={dashboard.projects as never}
                     leaders={dashboard.leaders as never}
+                    workspaceLeaders={dashboard.workspace_leaders as never}
+                    managedWorkspaces={dashboard.managed_workspaces as never}
                     workspaces={dashboard.workspaces as never}
                     stats={dashboard.stats as never}
                 />
-            {:else if demoPersona === 'project_leader'}
+            {:else if demoPersona === 'project_leader' || dashboard.type === 'project_leader'}
                 <ProjectLeaderDashboardPanel
                     project={dashboard.project as never}
                     projects={dashboard.projects as never}
@@ -154,68 +135,23 @@
                     reviewQueue={dashboard.review_queue as never}
                     members={dashboard.members as never}
                     openTasks={dashboard.open_tasks as number}
+                    taskStoreUrl={dashboard.task_store_url as string}
+                    tasksIndexUrl={dashboard.tasks_index_url as string}
                 />
-            {:else if demoPersona === 'staff'}
-                <StaffDashboardPanel
-                    tasks={dashboard.tasks as never}
+            {:else if demoPersona === 'workspace_lead' || dashboard.type === 'workspace_lead'}
+                <WorkspaceLeadDashboardPanel
+                    workspace={dashboard.workspace as never}
+                    manageUrl={dashboard.manage_url as string}
+                    projects={dashboard.projects as never}
+                    pendingRequests={dashboard.pending_requests as number}
                     stats={dashboard.stats as never}
                 />
-            {:else if legacy}
-                <section class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {#each legacy.kpis ?? [] as kpi (kpi.id)}
-                        <KpiCard {kpi} />
-                    {/each}
-                </section>
-
-                <section class="mb-8">
-                    <div class="mb-4 flex items-center justify-between">
-                        <h2
-                            class="text-base font-semibold"
-                            style="color: var(--th-text)"
-                        >
-                            {t('dashboard.your_projects')}
-                        </h2>
-                        <Link
-                            href="/projects"
-                            class="text-sm font-medium"
-                            style="color: var(--th-primary)"
-                        >
-                            {t('dashboard.view_all')}
-                        </Link>
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                        {#each legacy.projects ?? [] as project (project.id)}
-                            <DashboardProjectCard {project} />
-                        {/each}
-                    </div>
-                </section>
-
-                <section>
-                    <div class="mb-4 flex items-center justify-between">
-                        <h2
-                            class="text-base font-semibold"
-                            style="color: var(--th-text)"
-                        >
-                            {t('dashboard.today_tasks')}
-                        </h2>
-                        <Link
-                            href="/tasks"
-                            class="text-sm font-medium"
-                            style="color: var(--th-primary)"
-                        >
-                            {t('dashboard.view_all')}
-                        </Link>
-                    </div>
-                    <TasksTable tasks={legacy.tasks ?? []} />
-                </section>
             {/if}
         </div>
 
         <aside class="hidden space-y-4 xl:block">
             <CalendarWidget markers={calendarMarkers} />
-            {#if demoPersona !== 'staff'}
-                <LateTasksWidget tasks={lateTasks} />
-            {/if}
+            <LateTasksWidget tasks={lateTasks} />
             <ActivityFeed {activities} />
         </aside>
     </div>

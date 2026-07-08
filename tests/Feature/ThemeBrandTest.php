@@ -27,27 +27,31 @@ test('shared theme prop exposes the university default brand color', function ()
         );
 });
 
-test('club page overrides the brand color with the club theme', function () {
+test('workspace manage page overrides the brand color with the workspace theme', function () {
     $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => '#123456',
     ]);
+    $supervisor = supervisorForWorkspace($workspace);
 
-    $this->get(route('workspaces.show', $workspace))
+    $this->actingAs($supervisor)
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('WorkspacePage')
+            ->component('workspaces/Manage')
             ->where('theme.brand', '#123456')
         );
 });
 
-test('club page falls back to the default brand when the club has no theme', function () {
+test('workspace manage page falls back to the default brand when the workspace has no theme', function () {
     $workspace = Workspace::factory()->create([
         'status' => 'active',
         'theme' => null,
     ]);
+    $supervisor = supervisorForWorkspace($workspace);
 
-    $this->get(route('workspaces.show', $workspace))
+    $this->actingAs($supervisor)
+        ->get(route('workspaces.manage', $workspace))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->where('theme.brand', config('theme.brand'))
@@ -67,6 +71,7 @@ test('task pages inherit the project brand theme when present', function () {
         'project_id' => $project->id,
     ]);
     $supervisor = supervisorForWorkspace($workspace);
+    grantProjectLead($supervisor, $project);
 
     $this->actingAs($supervisor)
         ->get(route('projects.tasks.show', [$workspace, $project, $task]))
@@ -92,6 +97,7 @@ test('task pages fall back to the workspace brand when the project has no theme'
         'project_id' => $project->id,
     ]);
     $supervisor = supervisorForWorkspace($workspace);
+    grantProjectLead($supervisor, $project);
 
     $this->actingAs($supervisor)
         ->get(route('projects.tasks.index', [$workspace, $project]))
