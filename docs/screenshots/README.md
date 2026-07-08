@@ -14,6 +14,8 @@ Images in this folder are used by the root [README.md](../README.md).
 
 ## Regenerate
 
+**Important:** Either delete `public/hot` and use a production build, or run `npm run dev` alongside `php artisan serve`. The capture script removes `public/hot` automatically so `php artisan serve` loads compiled assets from `public/build/`.
+
 ```bash
 php artisan migrate:fresh --seed
 php scripts/seed-for-screenshots.php

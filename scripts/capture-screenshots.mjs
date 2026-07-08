@@ -7,6 +7,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const outputDir = path.join(root, 'docs', 'screenshots');
 const baseUrl = process.env.SCREENSHOT_BASE_URL ?? 'http://127.0.0.1:8000';
+const useViteDev = process.env.SCREENSHOT_USE_VITE_DEV === '1';
+
+if (!useViteDev) {
+    const hotFile = path.join(root, 'public', 'hot');
+
+    try {
+        await import('node:fs/promises').then(({ unlink }) => unlink(hotFile));
+        console.log('removed public/hot so artisan serve uses the Vite build manifest');
+    } catch {
+        // public/hot is absent — built assets will be used.
+    }
+}
 
 const paths = JSON.parse(
     await readFile(path.join(outputDir, 'paths.json'), 'utf8'),
@@ -23,7 +35,20 @@ const page = await context.newPage();
 
 async function waitForApp() {
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(800);
+    await page.waitForFunction(
+        () => {
+            const splash = document.getElementById('intro-splash');
+            const inertiaRoot = document.getElementById('app');
+
+            return (
+                (!splash || splash.classList.contains('intro-exit')) &&
+                inertiaRoot !== null &&
+                inertiaRoot.childElementCount > 0
+            );
+        },
+        { timeout: 20000 },
+    );
+    await page.waitForTimeout(400);
 }
 
 async function loginAsProjectLead() {
