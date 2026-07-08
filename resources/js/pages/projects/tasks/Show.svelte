@@ -367,17 +367,18 @@
                                 id="due_at"
                                 name="due_at"
                                 type="datetime-local"
+                                dir="ltr"
                                 bind:value={updateForm.due_at}
                                 class="h-11 rounded-[10px] border border-black/15 bg-white px-4 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
                             />
                             <InputError message={updateForm.errors.due_at} />
                         </div>
 
-                        <div class="flex items-end">
+                        <div class="flex w-full items-end sm:w-auto">
                             <button
                                 type="submit"
                                 disabled={updateForm.processing}
-                                class="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                                class="w-full rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60 sm:w-auto"
                             >
                                 {t('tasks.save')}
                             </button>

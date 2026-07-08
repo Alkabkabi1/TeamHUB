@@ -7,7 +7,7 @@
 
 **Repository:** [github.com/Alkabkabi1/TeamHUB](https://github.com/Alkabkabi1/TeamHUB)  
 **Release candidate:** `v1.0.0-rc1` — see [CHANGELOG.md](./CHANGELOG.md) and [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)  
-**Status:** Phases 1–6 complete — production deployment documented for `v1.0.0-rc1`. See [docs/PHASE_6_CLOSURE.md](./docs/PHASE_6_CLOSURE.md).  
+**Status:** Phases 1–7 complete — ready for Phase 8 (deploy & pilot). See [docs/PHASE_7_CLOSURE.md](./docs/PHASE_7_CLOSURE.md).  
 **License:** MIT — see [LICENSE](./LICENSE) and [NOTICE](./NOTICE)
 
 ---
@@ -112,6 +112,7 @@ When `DEMO_QUICK_LOGIN=true` (local default), visit `/` to pick a demo role. See
 - [Phase 4 closure report](./docs/PHASE_4_CLOSURE.md)
 - [Phase 5 closure report](./docs/PHASE_5_CLOSURE.md)
 - [Phase 6 closure report](./docs/PHASE_6_CLOSURE.md)
+- [Phase 7 closure report](./docs/PHASE_7_CLOSURE.md)
 - [Product vision](./docs/PRODUCT_VISION.md)
 - [Domain model](./docs/DOMAIN_MODEL.md)
 - [Engineering principles](./docs/ENGINEERING_PRINCIPLES.md)
@@ -178,7 +179,8 @@ tests/               Pest feature & unit tests
 | **4** | Production readiness audit | Done — [closure report](./docs/PHASE_4_CLOSURE.md) |
 | **5** | Release candidate & open-source readiness (`v1.0.0-rc1`) | Done — [closure report](./docs/PHASE_5_CLOSURE.md) |
 | **6** | Production deployment readiness & operational validation | Done — [closure report](./docs/PHASE_6_CLOSURE.md) |
-| **7** | Pilot & polish | Planned |
+| **7** | Polish, i18n & tests | Done — [closure report](./docs/PHASE_7_CLOSURE.md) |
+| **8** | Deploy & pilot | Planned |
 
 Legacy pivot checklist: [PLATFORM_REUSE_AND_PIVOT_PLAN.md](./PLATFORM_REUSE_AND_PIVOT_PLAN.md)
 

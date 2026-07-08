@@ -104,7 +104,7 @@
                     name="deliverable_file"
                     type="file"
                     onchange={onDeliverableFileChange}
-                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1] file:mr-4 file:rounded-full file:border-0 file:bg-brand/15 file:px-4 file:py-2 file:text-xs file:text-brand"
+                    class="text-sm text-[#5f5f5f] dark:text-[#cbd5e1] file:me-4 file:rounded-full file:border-0 file:bg-brand/15 file:px-4 file:py-2 file:text-xs file:text-brand"
                 />
                 {#if selectedFileName}
                     <p class="text-xs text-[#7e7e7e] dark:text-[#94a3b8]">

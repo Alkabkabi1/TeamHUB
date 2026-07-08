@@ -56,7 +56,7 @@
             <button
                 type="submit"
                 disabled={commentForm.processing}
-                class="rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                class="w-full rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60 sm:w-auto"
             >
                 {t('tasks.comment_submit')}
             </button>

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc1] - 2026-07-07
+## [1.0.0-rc1] - 2026-07-08
 
 First public release candidate.
 
@@ -17,12 +17,19 @@ First public release candidate.
 - PHPStan / Larastan static analysis (level 5 with baseline)
 - `RELEASE_CHECKLIST.md` for production deployments
 - GitHub Dependabot, issue template, and pull request template
+- Phase 6 ops docs: production verification, operations runbook, backup/recovery, deploy examples
+- Phase 7 policy tests (`WorkspacePolicyTest`, `ProjectPolicyTest`)
+- Phase 7 RTL layout tests (`TaskRtlLayoutTest`) and Octane smoke tests (`OctaneSmokeTest`)
+- Phase 7 closure and checklist documentation
 
 ### Changed
 
 - Updated Laravel Framework and transitive dependencies for security advisories
 - CI workflows: Composer caching, static analysis job, stricter security audits
-- Deployment and README documentation aligned with v1.0-rc1 release engineering
+- Deployment and README documentation aligned with v1.0.0-rc1 release engineering
+- Refreshed `TEAMHUB_USER_GUIDE.md` for Workspace → Project → Task vocabulary
+- Task UI RTL/mobile hardening (logical spacing, full-width mobile actions, `dir="ltr"` datetimes)
+- Appearance mode persists across visits (light/dark)
 
 ### Highlights
 
@@ -34,7 +41,7 @@ First public release candidate.
 - Filament v4 admin panel
 - AI assistant with confirm-before-write task tools
 - Laravel Octane + RoadRunner deployment path
-- 322 automated Pest tests
+- 339 automated Pest tests
 
 ### Supported environments
 
@@ -51,7 +58,6 @@ First public release candidate.
 - Historical database migration filenames retain legacy `clubs` / `committees` table names; runtime uses canonical vocabulary. See [docs/DOMAIN_MODEL.md](./docs/DOMAIN_MODEL.md).
 - `fakerphp/faker` remains in production Composer dependencies because seeders run after `composer install --no-dev` in staging/demo profiles.
 - Svelte SSR-related npm advisories (moderate) are deferred; production serves a client-rendered Inertia SPA.
-- Dark mode is intentionally forced to light mode in the main app shell (see `PHASE_7_POLISH_NOTES.md`).
 
 ### Upgrade notes
 

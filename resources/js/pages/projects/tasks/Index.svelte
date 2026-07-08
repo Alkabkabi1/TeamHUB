@@ -252,17 +252,18 @@
                         id="due_at"
                         name="due_at"
                         type="datetime-local"
+                        dir="ltr"
                         bind:value={form.due_at}
                         class="h-11 rounded-[10px] border border-black/15 bg-white px-4 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white"
                     />
                     <InputError message={form.errors.due_at} />
                 </div>
 
-                <div class="flex items-end">
+                <div class="flex w-full items-end sm:w-auto">
                     <button
                         type="submit"
                         disabled={form.processing}
-                        class="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                        class="w-full rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:opacity-60 sm:w-auto"
                     >
                         {t('tasks.create_title')}
                     </button>
@@ -283,7 +284,9 @@
                     class="h-11 w-full rounded-[10px] border border-black/15 bg-white px-4 text-sm outline-none focus:border-brand dark:border-white/10 dark:bg-[#0f172a] dark:text-white lg:max-w-sm"
                 />
 
-                <div class="flex flex-wrap gap-2">
+                <div
+                    class="flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible"
+                >
                     <button
                         type="button"
                         class={`rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-brand text-white' : 'bg-brand/10 text-brand'}`}
